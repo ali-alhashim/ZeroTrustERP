@@ -1,71 +1,131 @@
-Zero Trust ERP 🛡️
-A high-performance, Modular Monolithic ERP system built in Go. Inspired by the extensibility of Odoo and the structured routing of Django, this project is designed with a "Security-First" (Zero Trust) architecture.
+# 🛡️ Zero Trust ERP
 
-🏗️ Project Structure
-The system is divided into a protected Core and extensible Apps:
+A **high-performance Modular Monolithic ERP system** built in **Go**.
+Inspired by the extensibility of **Odoo** and the structured routing of **Django**, this project is designed with a **Security-First (Zero Trust)** architecture.
 
+---
 
+## 🏗️ Project Structure
+
+The system is divided into a protected **Core** and extensible **Apps**:
+
+```
+.
 ├── main.go            # Entry point
-├── .env               # Database & Environment secrets (ignored by git)
-├── core/              # The Engine (Internal logic, Middleware, Global Router)
-│   └── urls.go      # Register your app URLs here
-├── static/            # Global assets (CSS, JS, Images)
-└── apps/              # Business Modules (The "App" layer)
+├── .env               # Database & environment secrets (ignored by Git)
+├── core/              # Engine (internal logic, middleware, global router)
+│   └── urls.go        # Register app routes here
+├── static/            # Global assets (CSS, JS, images)
+└── apps/              # Business modules ("App layer")
     └── [app_name]/
-        ├── controllers/ # HTTP Handlers & Logic
-        ├── models/      # Data structures & Database schema
-        ├── views/       # HTML Templates
-        └── security/    # App-specific ACLs and Permissions
-        urls.go
+        ├── controllers/  # HTTP handlers & business logic
+        ├── models/       # Data structures & DB schema
+        ├── views/        # HTML templates
+        ├── security/     # App-specific ACLs & permissions
+        └── urls.go       # App route definitions
+```
 
-        
-🛠️ Key Components
-1. The Core (/core)
-The Core handles the lifecycle of the application. To maintain system stability, you should generally not modify the core logic.
+---
 
-Registration: Use core/routes.go to hook your app's router into the main system.
+## 🛠️ Key Components
 
-2. Apps (/apps)
-Each folder inside apps/ is a self-contained module.
+### 1. Core (`/core`)
 
-Controllers: Contains the Go logic for processing requests.
+The **Core** manages the application lifecycle.
 
-Models: Defines your PostgreSQL/Database structs.
+* ⚙️ **Routing**: Central router for all apps
+* 🔐 **Middleware**: Security, logging, request validation
+* ⚠️ **Important**: Avoid modifying core logic unless necessary
 
-Views: Pure HTML/Templates for the frontend.
+Register your app routes in:
 
-Security: Implements Zero Trust principles (Identity-aware access) specific to that module.
+```
+core/urls.go
+```
 
-3. Static Files (/static)
-Centralized storage for all public-facing assets. Served securely via the Core router to prevent path traversal.
+---
 
-🚀 Getting Started
-1. Environment Setup
-Create a .env file in the root directory:
+### 2. Apps (`/apps`)
 
+Each app is a **self-contained module**.
 
+* **Controllers** → Request handling logic
+* **Models** → Database schema (PostgreSQL, etc.)
+* **Views** → HTML / templates
+* **Security** → Zero Trust access control per module
+
+---
+
+### 3. Static Files (`/static`)
+
+* Centralized storage for public assets
+* Served securely via the Core router
+* Protects against **path traversal attacks**
+
+---
+
+## 🚀 Getting Started
+
+### 1. Environment Setup
+
+Create a `.env` file in the root directory:
+
+```
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=your_user
 DB_PASSWORD=your_password
 DB_NAME=zerotrust_erp
-2. Creating a New App
-Create a new folder in apps/.
+```
 
-Define your handlers in controllers/.
+---
 
-Register the path in core/routes.go.
+### 2. Create a New App
 
-3. Running the Server
+1. Create a folder inside `apps/`
+2. Add your handlers in `controllers/`
+3. Define routes in `urls.go`
+4. Register routes in `core/urls.go`
 
+---
+
+### 3. Run the Server
+
+```
 go run main.go
-The server will start at http://localhost:8080.
+```
 
-🔒 Zero Trust Philosophy
-Unlike traditional ERPs that trust any user on the internal network, Zero Trust ERP assumes every request is a potential threat.
+Server will start at:
 
-Identity-Defined: Every action requires explicit authentication.
+```
+http://localhost:8080
+```
 
-Modular Isolation: Security policies are defined at the app level.
+---
 
-Secure Auth: Defaults to server-side secure cookies rather than vulnerable client tokens.
+## 🔒 Zero Trust Philosophy
+
+Unlike traditional ERPs that trust internal network users,
+**Zero Trust ERP treats every request as a potential threat.**
+
+### Core Principles
+
+* 🔑 **Identity-Driven Access**
+  Every action requires explicit authentication
+
+* 🧩 **Modular Isolation**
+  Security policies are enforced per app
+
+* 🍪 **Secure Authentication**
+  Uses server-side secure cookies instead of vulnerable client-side tokens
+
+---
+
+## 💡 Vision
+
+To build a **secure, scalable, and developer-friendly ERP framework** that combines:
+
+* ⚡ Performance of Go
+* 🧱 Modularity of Odoo
+* 🧭 Structure of Django
+* 🔐 Zero Trust Security
