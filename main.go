@@ -40,6 +40,20 @@ func StartServerWithConfig(cfg *core.ServerConfig) {
 	cfg.LogConfig()
 	log.Printf("Starting server on %s in %s mode", cfg.String(), cfg.Environment)
 
+
+	//ok server working so test the database connection
+	db, err := core.InitDB()
+
+	if err != nil {
+		log.Fatalf("Database connection failed: %v", err)
+	} else {
+		log.Printf("Database connection successful")
+		db.Close()
+	}
+
+
+
+
 	if err := server.ListenAndServe(); err != nil {
 		if err == http.ErrServerClosed {
 			log.Printf("Server closed")
@@ -47,9 +61,11 @@ func StartServerWithConfig(cfg *core.ServerConfig) {
 			log.Fatalf("Server failed: %v", err)
 		}
 	}
+	// Implement graceful shutdown logic here if needed
 
-	//ok server working so load the routes and handlers here
+	
 }
+
 
 func main() {
 	StartServer("8000")
