@@ -103,10 +103,14 @@ http://localhost:8080
 
 ---
 
-## 🔒 Zero Trust Philosophy
+## 🔒 Zero Trust & Minimal Dependency Philosophy
+this project follows a **Minimal Dependency Architecture**:
 
-Unlike traditional ERPs that trust internal network users,
-**Zero Trust ERP treats every request as a potential threat.**
+- 🚫 **No third-party frameworks or heavy libraries**
+- 🧩 Uses only Go standard library + SQL driver
+- ⚙️ Full control over routing, middleware, and security
+- 🔍 Easier auditing and bug bounty analysis
+- ⚡ Better performance and lower overhead
 
 ### Core Principles
 
