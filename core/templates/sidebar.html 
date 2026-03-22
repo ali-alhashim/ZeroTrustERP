@@ -1,0 +1,10 @@
+{{define "sidebar"}}
+<div class="sidebar">
+    <h2>ERP</h2>
+
+    <ul>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/devices">Devices</a></li>
+    </ul>
+</div>
+{{end}}
