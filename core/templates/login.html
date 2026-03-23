@@ -1,0 +1,24 @@
+{{define "content"}}
+<div class="login-container">
+    <div class="login-box">
+        <h2>Zero Trust ERP</h2>
+        <form method="POST" action="/login-otp">
+            <div class="form-group">
+                <label for="username">Email / Mobile#</label>
+                <input type="text" id="username" name="username" placeholder="Enter Email or Mobile#" required>
+            </div>
+
+             <button type="submit" class="btn-secondary">Send OTP</button>
+            </form>
+
+        <form method="POST" action="/login">
+            <div class="form-group">
+                <label for="password">OTP</label>
+                <input type="number" id="otp" name="otp" placeholder="Enter OTP" required>
+            </div>
+
+            <button type="submit" class="btn-primary">Login</button>
+        </form>
+    </div>
+</div>
+{{end}}
