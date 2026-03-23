@@ -115,3 +115,77 @@ body {
     cursor: pointer;
     color: #374151;
 }
+
+
+/* Default Table Style (Cloudflare-like) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background-color: #ffffff;
+    color: #111827; /* Dark text */
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+th, td {
+    padding: 12px 16px;
+    text-align: left;
+}
+
+th {
+    background-color: #f3f4f6; /* Light gray header */
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+tr {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+tr:hover {
+    background-color: #f9fafb; /* Hover effect */
+}
+
+td button {
+    margin: 0;
+}
+
+/* Optional: striped rows */
+tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+/* Table actions buttons */
+.table-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+}
+
+.table-btn.edit {
+    background-color: #3b82f6; /* Blue edit button */
+    color: #ffffff;
+}
+
+.table-btn.edit:hover {
+    background-color: #2563eb;
+}
+
+.table-btn.delete {
+    background-color: #ef4444; /* Red delete button */
+    color: #ffffff;
+}
+
+.table-btn.delete:hover {
+    background-color: #b91c1c;
+}
+
