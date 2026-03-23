@@ -243,3 +243,27 @@ tbody tr:nth-child(even) {
 }
 
 
+/* Form Controls (match buttons) */
+input[type="text"],
+input[type="search"],
+select {
+    padding: 10px 16px;              /* same as buttons */
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    height: 40px;                   /* force same height */
+    box-sizing: border-box;
+    outline: none;
+    background-color: #ffffff;
+    color: #111827;
+}
+
+/* Focus state (Saudi green theme) */
+input:focus,
+select:focus {
+    border-color: #6df320;
+    box-shadow: 0 0 0 2px rgba(109, 243, 32, 0.2);
+}
+
+
+

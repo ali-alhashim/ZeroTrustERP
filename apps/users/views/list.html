@@ -1,40 +1,43 @@
+{{define "content"}}
 
- {{define "content"}}
-       
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>John Doe</td>
-                    <td>john@example.com</td>
-                    <td>Admin</td>
-                    <td>Active</td>
-                    <td class="actions">
-                         <button class="table-btn edit">Edit</button>
-                         <button class="table-btn delete">Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Jane Smith</td>
-                    <td>jane@example.com</td>
-                    <td>User</td>
-                    <td>Active</td>
-                    <td class="actions">
-                          <button class="table-btn edit">Edit</button>
-                         <button class="table-btn delete">Delete</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+<h1>Users</h1>
+
+<!-- 🔍 Search Bar -->
+<form method="GET" style="margin-bottom: 15px;">
+    <input type="text" name="q" value="{{.Query}}" placeholder="Search..." />
+    <button type="submit" class="btn-secondary">Search</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>
+                <a href="?sort=id&order={{if eq .Order "asc"}}desc{{else}}asc{{end}}">
+                    ID
+                </a>
+            </th>
+            <th>
+                <a href="?sort=username&order={{if eq .Order "asc"}}desc{{else}}asc{{end}}">
+                    Name
+                </a>
+            </th>
+            <th>Email</th>
+            <th>Roles</th>
+            <th>Active</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {{range .Users}}
+        <tr>
+            <td>{{.ID}}</td>
+            <td>{{.Username}}</td>
+            <td>{{.Email}}</td>
+            <td>{{.Role}}</td>
+            <td>{{.Active}}</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+
 {{end}}

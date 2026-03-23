@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-
+	"os"
 	"zerotrusterp/core"
 
 
@@ -73,5 +73,20 @@ func StartServerWithConfig(cfg *core.ServerConfig) {
 
 
 func main() {
+
+
+	db, err := core.InitDB()
+	if err != nil {
+		log.Fatalf("Database connection failed: %v", err)
+	}
+
+	// 🔥 CLI migration support
+	if len(os.Args) > 2 && os.Args[1] == "migrate" {
+		app := os.Args[2]
+		core.Migrate(db, app)
+		return
+	}
+
+
 	StartServer("8000")
 }
