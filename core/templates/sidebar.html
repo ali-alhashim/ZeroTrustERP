@@ -6,7 +6,8 @@
         {{range .Menus}}
             <li>
                 <a href="{{.Path}}">
-                    {{.Name}}
+                    <img src="/static/icons/{{.Icon}}.svg" class="icon">
+                    <span>{{.Name}}</span>
                 </a>
             </li>
         {{end}}
