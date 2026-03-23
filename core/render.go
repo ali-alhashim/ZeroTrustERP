@@ -4,18 +4,32 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+	"os"
 )
 
 // Render normal page (with layout)
 func RenderPage(w http.ResponseWriter, tmpl string, data interface{}) {
-	basePath := "core/templates"
+
+
+
+	dataMap, ok := data.(map[string]interface{})
+		if ok {
+			dataMap["Menus"] = Menus
+		}
+
+	wd, _ := os.Getwd()
+
+
+    
+
+	
 
 	t, err := template.ParseFiles(
-		filepath.Join(basePath, "base.html"),
-		filepath.Join(basePath, "sidebar.html"),
-		filepath.Join(basePath, "header.html"),
-		tmpl, // already full path from app
-	)
+	filepath.Join(wd, "core/templates/base.html"),
+	filepath.Join(wd, "core/templates/sidebar.html"),
+	filepath.Join(wd, "core/templates/header.html"),
+	tmpl,
+)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -30,10 +44,10 @@ func RenderPage(w http.ResponseWriter, tmpl string, data interface{}) {
 
 // Render report (no layout, A4 style)
 func RenderReport(w http.ResponseWriter, tmpl string, data interface{}) {
-	basePath := "core/templates"
+	wd, _ := os.Getwd()
 
 	t, err := template.ParseFiles(
-		filepath.Join(basePath, "report.html"),
+		filepath.Join(wd, "core/templates/report.html"),
 		tmpl,
 	)
 

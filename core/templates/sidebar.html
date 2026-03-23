@@ -1,0 +1,15 @@
+{{define "sidebar"}}
+<div class="sidebar">
+    <h2>ERP</h2>
+
+    <ul>
+        {{range .Menus}}
+            <li>
+                <a href="{{.Path}}">
+                    {{.Name}}
+                </a>
+            </li>
+        {{end}}
+    </ul>
+</div>
+{{end}}

@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Users list",
+    "path": "/users/list",
+    "icon": "users"
+  },
+  {
+    "name": "Reports",
+    "path": "/users/report",
+    "icon": "file"
+  }
+]
