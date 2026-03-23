@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Employees",
+    "path": "/employees/list",
+    "icon": "users"
+  },
+  {
+    "name": "Departments",
+    "path": "/employees/departments",
+    "icon": "identification"
+  }
+]

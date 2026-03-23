@@ -10,6 +10,7 @@ import (
 
     // Import app packages to register their routes
 	_ "zerotrusterp/apps/users"
+	_ "zerotrusterp/apps/employees"
 )
 
 func StartServer(port string) {

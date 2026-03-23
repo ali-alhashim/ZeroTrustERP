@@ -1,0 +1,34 @@
+
+ {{define "content"}}
+       
+        <table>
+            <thead>
+                <tr>
+                    <th>Department Name</th>
+                    <th>Manager</th>
+                    <th>Employee Count</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>IT Department</td>
+                    <td>Ali Musa Alhashim</td>
+                    <td>5</td>
+                    <td class="actions">
+                         <button class="table-btn edit">Edit</button>
+                         <button class="table-btn delete">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Sales Department</td>
+                    <td>Jane Smith</td>
+                    <td>10</td>
+                    <td class="actions">
+                          <button class="table-btn edit">Edit</button>
+                         <button class="table-btn delete">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+{{end}}
