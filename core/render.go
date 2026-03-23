@@ -3,15 +3,18 @@ package core
 import (
 	"html/template"
 	"net/http"
+	"path/filepath"
 )
 
 // Render normal page (with layout)
 func RenderPage(w http.ResponseWriter, tmpl string, data interface{}) {
+	basePath := "core/templates"
+
 	t, err := template.ParseFiles(
-		"core/templates/base.html",
-		"core/templates/sidebar.html",
-		"core/templates/header.html",
-		tmpl,
+		filepath.Join(basePath, "base.html"),
+		filepath.Join(basePath, "sidebar.html"),
+		filepath.Join(basePath, "header.html"),
+		tmpl, // already full path from app
 	)
 
 	if err != nil {
@@ -27,8 +30,10 @@ func RenderPage(w http.ResponseWriter, tmpl string, data interface{}) {
 
 // Render report (no layout, A4 style)
 func RenderReport(w http.ResponseWriter, tmpl string, data interface{}) {
+	basePath := "core/templates"
+
 	t, err := template.ParseFiles(
-		"core/templates/report.html",
+		filepath.Join(basePath, "report.html"),
 		tmpl,
 	)
 

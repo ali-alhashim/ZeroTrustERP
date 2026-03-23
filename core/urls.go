@@ -3,8 +3,18 @@ package core
 import (
 	"fmt"
 	"net/http"
-	"zerotrusterp/apps/users"
+	
 )
+
+type AppRoute func(*http.ServeMux)
+
+var registeredApps []AppRoute
+
+func Register(app AppRoute) {
+	registeredApps = append(registeredApps, app)
+}
+
+
 
 // RegisterRoutes sets up all HTTP request handlers
 func RegisterRoutes() *http.ServeMux {
@@ -24,8 +34,9 @@ func RegisterRoutes() *http.ServeMux {
 		fmt.Fprintf(w, "Zero Trust ERP Server Running...")
 	})
 
-    // Register app-specific routes [don't forget to import the app packages at the top example: "zerotrusterp/apps/users"]
-	users.RegisterRoutes(mux)
+   for _, app := range registeredApps {
+	app(mux)
+   }
 
 	return mux
 }
