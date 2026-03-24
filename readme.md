@@ -14,14 +14,14 @@ The system is divided into a protected **Core** and extensible **Apps**:
 ├── main.go            # Entry point
 ├── .env               # Database & environment secrets (ignored by Git)
 ├── core/              # Engine (internal logic, middleware, global router)
-│   └── urls.go        # Register app routes here
+│   └── urls.go        # app routes here
 ├── static/            # Global assets (CSS, JS, images)
 └── apps/              # Business modules ("App layer")
     └── [app_name]/
         ├── controllers/  # HTTP handlers & business logic
         ├── models/       # Data structures & DB schema
         ├── views/        # HTML templates
-        ├── security/     # App-specific ACLs & permissions
+        ├── security/     # App-specific ACLs & permissions 
         └── urls.go       # App route definitions
 ```
 
@@ -133,3 +133,7 @@ To build a **secure, scalable, and developer-friendly ERP framework** that combi
 * 🧱 Modularity of Odoo
 * 🧭 Structure of Django
 * 🔐 Zero Trust Security
+
+### CLI ###
+
+* go run main.go migrate -> to migrate your model struct to postgresql database  
