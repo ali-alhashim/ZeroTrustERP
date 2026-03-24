@@ -88,11 +88,14 @@ func main() {
 	
 
 	// 🔥 CLI migration support
-	if len(os.Args) > 2 && os.Args[1] == "migrate" {
-		app := os.Args[2]
-		core.Migrate(db, app)
-		return
-	}
+	if len(os.Args) > 1 && os.Args[1] == "migrate" {
+        app := ""
+        if len(os.Args) > 2 {
+            app = os.Args[2]
+        }
+        core.RunMigrations(app)
+        return
+    }
 
 
 	StartServer("8000")

@@ -1,7 +1,7 @@
 package models
 import "time"
 
-type User struct {
+type Users struct {
     ID        int     `f:"number, primary, auto"`
     Email     string  `f:"text, unique"`
     Username  string  `f:"text, unique, notnull"`
@@ -9,21 +9,21 @@ type User struct {
     OTPHash   string  `f:"text"`
     OTPExpiry int64   `f:"number"`
     Online    bool    `f:"bool, default:false"` //user becomes online after verification
-    Roles     []Role  `f:"many2many:user_roles"` // many to many relationship with roles One user → many roles , One role → many users
+    Roles     []Roles  `f:"many2many:user_roles"` // many to many relationship with roles One user → many roles , One role → many users
 }
 
-type Role struct {
+type Roles struct {
 	ID          int     `f:"number, primary, auto"`
 	Name        string  `f:"text, unique, notnull"`
 	Description string  `f:"text"`
-	Permissions []Permission `f:"many2many:role_permissions"`
+	Permissions []Permissions `f:"many2many:role_permissions"`
 	CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
 	UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
 }
 
 
 //Permissions read R, write W, delete D, update U,  all A
-type Permission struct {
+type Permissions struct {
 	ID     int     `f:"number, primary, auto"`
 	resource   string  `f:"text, unique, notnull"` // resource can be the name of the model or the name of the API endpoint or the name of the action
 	Action string  `f:"text, unique, notnull"` // action can be R, W, D, U, A
