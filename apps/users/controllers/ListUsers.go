@@ -27,7 +27,7 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 	core.RenderPage(w, "apps/users/views/list.html", data)
 }
 
-func GetUsersFromDB(search, sort, order string) []models.Users {
+func GetUsersFromDB(search, sort, order string) []models.User {
 	query := "SELECT id, username,  email, active, online FROM users WHERE 1=1"
 
 	// 🔍 Search (Postgres uses ILIKE for case-insensitive)
@@ -59,10 +59,10 @@ func GetUsersFromDB(search, sort, order string) []models.Users {
 	}
 	defer rows.Close()
 
-	var users []models.Users
+	var users []models.User
 
 	for rows.Next() {
-		var u models.Users
+		var u models.User
 		err := rows.Scan(&u.ID,  &u.Username, &u.Email, &u.Active,  &u.Online)
 		if err != nil {
 			panic(err)

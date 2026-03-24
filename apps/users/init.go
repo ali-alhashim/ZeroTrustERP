@@ -12,7 +12,7 @@ func init() {
     core.Register(UserListRoutes)
 
     // Register models for migrations
-    core.RegisterModel(models.Users{})
-    core.RegisterModel(models.Roles{})
-    core.RegisterModel(models.Permissions{})
+    core.RegisterModel(models.User{})
+    core.RegisterModel(models.Role{})
+    core.RegisterModel(models.Permission{})
 }

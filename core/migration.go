@@ -8,9 +8,19 @@ import (
 	"strings"
 )
 
-func GenerateSQLFromStruct(model interface{}) string {
+// pluralize converts struct names to table names
+func pluralize(name string) string {
+	name = strings.ToLower(name)
+	if strings.HasSuffix(name, "s") {
+		return name + "es"
+	}
+	return name + "s"
+}
+
+// GenerateSQLFromStruct generates SQL for normal fields and join tables
+func GenerateSQLFromStruct(model interface{}) (tableSQL []string, joinSQL []string) {
 	t := reflect.TypeOf(model)
-	tableName := strings.ToLower(t.Name()) // use struct name as table name
+	tableName := pluralize(t.Name())
 
 	var cols []string
 
@@ -27,6 +37,30 @@ func GenerateSQLFromStruct(model interface{}) string {
 			continue
 		}
 
+		// Handle relationships
+		if strings.HasPrefix(tag, "many2many:") || strings.HasPrefix(tag, "one2many:") {
+			relTable := strings.Split(tag, ":")[1]
+			leftTable := tableName
+			rightTable := pluralize(field.Type.Elem().Name())
+
+			joinTableName := relTable
+			if joinTableName == "" {
+				joinTableName = fmt.Sprintf("%s_%s", leftTable, rightTable)
+			}
+
+			join := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
+    %s_id INT REFERENCES %s(id) ON DELETE CASCADE,
+    %s_id INT REFERENCES %s(id) ON DELETE CASCADE,
+    PRIMARY KEY (%s_id, %s_id)
+);`, joinTableName,
+				strings.ToLower(t.Name()), leftTable,
+				strings.ToLower(field.Type.Elem().Name()), rightTable,
+				strings.ToLower(t.Name()), strings.ToLower(field.Type.Elem().Name()))
+			joinSQL = append(joinSQL, join)
+			continue
+		}
+
+		// Normal column
 		colName := strings.ToLower(field.Name)
 		colType := ""
 		colConstraints := []string{}
@@ -34,7 +68,6 @@ func GenerateSQLFromStruct(model interface{}) string {
 		parts := strings.Split(tag, ",")
 		for _, p := range parts {
 			p = strings.TrimSpace(p)
-
 			switch p {
 			case "number":
 				colType = "INTEGER"
@@ -54,8 +87,12 @@ func GenerateSQLFromStruct(model interface{}) string {
 				colConstraints = append(colConstraints, "UNIQUE")
 			case "notnull":
 				colConstraints = append(colConstraints, "NOT NULL")
-			default:
-				// ignore unknown for now
+			case "default:true":
+				colConstraints = append(colConstraints, "DEFAULT TRUE")
+			case "default:false":
+				colConstraints = append(colConstraints, "DEFAULT FALSE")
+			case "default:current_timestamp":
+				colConstraints = append(colConstraints, "DEFAULT CURRENT_TIMESTAMP")
 			}
 		}
 
@@ -66,8 +103,11 @@ func GenerateSQLFromStruct(model interface{}) string {
 		cols = append(cols, fmt.Sprintf("%s %s %s", colName, colType, strings.Join(colConstraints, " ")))
 	}
 
-	sql := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (\n\t%s\n);", tableName, strings.Join(cols, ",\n\t"))
-	return sql
+	// Build main table SQL
+	mainSQL := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (\n\t%s\n);", tableName, strings.Join(cols, ",\n\t"))
+	tableSQL = append(tableSQL, mainSQL)
+
+	return tableSQL, joinSQL
 }
 
 // RunMigrations migrates all registered models, or only a specific app
@@ -94,19 +134,59 @@ func RunMigrations(appName string) {
 		return
 	}
 
-	// write all tables in one file
-	writeMigrationFile(appModels, appName)
-
-	// execute SQL for all models
+	// Separate normal tables and join tables
+	var normalSQL, joinSQL []string
 	for _, model := range appModels {
-		sql := GenerateSQLFromStruct(model)
+		tables, joins := GenerateSQLFromStruct(model)
+		normalSQL = append(normalSQL, tables...)
+		joinSQL = append(joinSQL, joins...)
+	}
+
+	// Combine SQL: normal tables first, then join tables
+	allSQL := append(normalSQL, joinSQL...)
+
+	// Write migration file
+	writeMigrationFile(allSQL, appName)
+
+	// Execute SQL
+	for _, sql := range allSQL {
 		executeSQL(sql)
-		log.Printf("✅ Migrated %s", reflect.TypeOf(model).Name())
 	}
 
 	log.Println("✅ All migrations complete!")
 }
 
+// writeMigrationFile writes SQL to file in app migrations folder
+func writeMigrationFile(allSQL []string, app string) {
+	dir := fmt.Sprintf("apps/%s/migrations", app)
+	os.MkdirAll(dir, os.ModePerm)
+
+	filename := fmt.Sprintf("%s/0001_init.sql", dir)
+	f, err := os.Create(filename)
+	if err != nil {
+		log.Fatalf("❌ Failed to create migration file: %v", err)
+	}
+	defer f.Close()
+
+	_, err = f.WriteString(strings.Join(allSQL, "\n\n"))
+	if err != nil {
+		log.Fatalf("❌ Failed to write migration file: %v", err)
+	}
+}
+
+// executeSQL runs SQL against PostgreSQL
+func executeSQL(sql string) {
+	db, err := InitDB()
+	if err != nil {
+		log.Fatalf("❌ Failed to connect to DB: %v", err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec(sql)
+	if err != nil {
+		log.Fatalf("❌ Failed to execute SQL: %v\nSQL: %s", err, sql)
+	}
+}
 
 // getAppNameFromModel extracts app name from struct package path
 func getAppNameFromModel(m interface{}) string {
@@ -120,43 +200,4 @@ func getAppNameFromModel(m interface{}) string {
 		}
 	}
 	return "core"
-}
-
-// writeMigrationFile writes SQL to file in app migrations folder
-func writeMigrationFile(models []interface{}, app string) {
-	dir := fmt.Sprintf("apps/%s/migrations", app)
-	os.MkdirAll(dir, os.ModePerm)
-
-	filename := fmt.Sprintf("%s/0001_init.sql", dir)
-	f, err := os.Create(filename)
-	if err != nil {
-		log.Fatalf("❌ Failed to create migration file: %v", err)
-	}
-	defer f.Close()
-
-	var allSQL []string
-	for _, model := range models {
-		sql := GenerateSQLFromStruct(model)
-		allSQL = append(allSQL, sql)
-	}
-
-	_, err = f.WriteString(strings.Join(allSQL, "\n\n"))
-	if err != nil {
-		log.Fatalf("❌ Failed to write migration file: %v", err)
-	}
-}
-
-
-
-func executeSQL(sql string) {
-	db, err := InitDB()
-	if err != nil {
-		log.Fatalf("❌ Failed to connect to DB: %v", err)
-	}
-	defer db.Close()
-
-	_, err = db.Exec(sql)
-	if err != nil {
-		log.Fatalf("❌ Failed to execute SQL: %v\nSQL: %s", err, sql)
-	}
 }

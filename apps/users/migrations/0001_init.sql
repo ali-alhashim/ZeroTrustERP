@@ -2,20 +2,18 @@ CREATE TABLE IF NOT EXISTS users (
 	id SERIAL PRIMARY KEY,
 	email TEXT UNIQUE,
 	username TEXT UNIQUE NOT NULL,
-	active BOOLEAN ,
+	active BOOLEAN DEFAULT TRUE,
 	otphash TEXT ,
 	otpexpiry INTEGER ,
-	online BOOLEAN ,
-	roles TEXT 
+	online BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS roles (
 	id SERIAL PRIMARY KEY,
 	name TEXT UNIQUE NOT NULL,
 	description TEXT ,
-	permissions TEXT ,
-	createdat TIMESTAMP ,
-	updatedat TIMESTAMP 
+	createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS permissions (
@@ -23,6 +21,18 @@ CREATE TABLE IF NOT EXISTS permissions (
 	resource TEXT UNIQUE NOT NULL,
 	action TEXT UNIQUE NOT NULL,
 	description TEXT ,
-	createdat TIMESTAMP ,
-	updatedat TIMESTAMP 
+	createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_roles (
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    role_id INT REFERENCES roles(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, role_id)
+);
+
+CREATE TABLE IF NOT EXISTS role_permissions (
+    role_id INT REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id INT REFERENCES permissions(id) ON DELETE CASCADE,
+    PRIMARY KEY (role_id, permission_id)
 );
