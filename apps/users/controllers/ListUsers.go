@@ -28,13 +28,22 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUsersFromDB(search, sort, order string) []models.User {
-	query := "SELECT id, username, email, role FROM users WHERE 1=1"
+	query := "SELECT id, username,  email, active, online FROM users WHERE 1=1"
 
+	// 🔍 Search (Postgres uses ILIKE for case-insensitive)
 	if search != "" {
-		query += " AND (username LIKE '%" + search + "%' OR email LIKE '%" + search + "%')"
+		query += " AND (username ILIKE '%" + search + "%' OR email ILIKE '%" + search + "%')"
 	}
 
-	if sort != "" {
+	// 🔒 Safe sorting (IMPORTANT)
+	allowedSort := map[string]bool{
+		"ID":       true,
+		"Email":    true,
+		"Active":   true,
+		"Online":   true,
+	}
+
+	if allowedSort[sort] {
 		query += " ORDER BY " + sort
 		if order == "desc" {
 			query += " DESC"
@@ -43,8 +52,24 @@ func GetUsersFromDB(search, sort, order string) []models.User {
 		}
 	}
 
-	// Execute query...
+	// ✅ Execute query
+	rows, err := core.DB.Query(query)
+	if err != nil {
+		panic(err) // later handle better
+	}
+	defer rows.Close()
+
 	var users []models.User
-	// TODO: Execute the query and populate users slice
+
+	for rows.Next() {
+		var u models.User
+		err := rows.Scan(&u.ID,  &u.Username, &u.Email, &u.Active,  &u.Online)
+		if err != nil {
+			panic(err)
+		}
+		users = append(users, u)
+	}
+
 	return users
 }
+

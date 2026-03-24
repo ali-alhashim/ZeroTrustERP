@@ -79,6 +79,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Database connection failed: %v", err)
 	}
+	
+    core.DB = db
+
+	if core.DB == nil {
+	panic("DB is nil")
+     }
+	
 
 	// 🔥 CLI migration support
 	if len(os.Args) > 2 && os.Args[1] == "migrate" {

@@ -11,7 +11,9 @@ func init() {
 			id SERIAL PRIMARY KEY,
 			username VARCHAR(100) NOT NULL,
 			email VARCHAR(255) UNIQUE,
-			password TEXT,
+			active BOOLEAN DEFAULT TRUE,
+			online BOOLEAN DEFAULT FALSE,
+			otp_hash TEXT,
 			role VARCHAR(50),
 			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 		);`,

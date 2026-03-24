@@ -10,6 +10,8 @@ import (
 	_ "github.com/lib/pq"   //go get github.com/lib/pq the download location will be $HOME/go/pkg/mod
 )
 
+var DB *sql.DB
+
 // LoadEnv reads .env file and injects into system environment
 func LoadEnv(path string) error {
     file, err := os.Open(path)
