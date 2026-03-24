@@ -8,7 +8,7 @@ import (
 	"zerotrusterp/core"
 
 
-    // Import app packages to register their routes
+    // Import app packages to register their routes & Models
 	_ "zerotrusterp/apps/users"
 	_ "zerotrusterp/apps/employees"
 )

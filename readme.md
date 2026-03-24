@@ -1,7 +1,7 @@
 # 🛡️ Zero Trust ERP
 
 A **high-performance Modular Monolithic ERP system** built in **Go**.
-Inspired by the extensibility of **Odoo** and the structured routing of **Django**, this project is designed with a **Security-First (Zero Trust)** architecture.
+Inspired by the extensibility of **Odoo** and the structured of **Django**, this project is designed with a **Security-First (Zero Trust)** architecture.
 
 ---
 
@@ -33,14 +33,15 @@ The system is divided into a protected **Core** and extensible **Apps**:
 
 The **Core** manages the application lifecycle.
 
-* ⚙️ **Routing**: Central router for all apps
-* 🔐 **Middleware**: Security, logging, request validation
+* ⚙️ **urls**: Central router for all apps
+* 🔐 **auth.go**: Security, logging, request validation
 * ⚠️ **Important**: Avoid modifying core logic unless necessary
 
-Register your app routes in:
+Register your app in:
 
 ```
-core/urls.go
+main.go
+under -> // Import app packages to register their routes & Models
 ```
 
 ---
@@ -50,16 +51,18 @@ core/urls.go
 Each app is a **self-contained module**.
 
 * **Controllers** → Request handling logic
-* **Models** → Database schema (PostgreSQL, etc.)
+* **Models** → Database schema (PostgreSQL)
+* **urls** → apps routes
 * **Views** → HTML / templates
 * **Security** → Zero Trust access control per module
+* **init** → register routes & models
 
 ---
 
 ### 3. Static Files (`/static`)
 
 * Centralized storage for public assets
-* Served securely via the Core router
+* Served securely via the Core router (urls.go)
 * Protects against **path traversal attacks**
 
 ---
@@ -85,7 +88,7 @@ DB_NAME=zerotrust_erp
 1. Create a folder inside `apps/`
 2. Add your handlers in `controllers/`
 3. Define routes in `urls.go`
-4. Register routes in `core/urls.go`
+4. Register routes & Models in `init.go`
 
 ---
 
@@ -98,7 +101,7 @@ go run main.go
 Server will start at:
 
 ```
-http://localhost:8080
+http://localhost:8000
 ```
 
 ---
@@ -137,3 +140,5 @@ To build a **secure, scalable, and developer-friendly ERP framework** that combi
 ### CLI ###
 
 * go run main.go migrate -> to migrate your model struct to postgresql database  
+* go run main.go migrate <appname>
+
