@@ -1,10 +1,14 @@
 package core
 
 import (
-	"crypto/rand"
+	
 	"encoding/hex"
 	"net/http"
 	"time"
+	"crypto/sha256"
+	
+	"fmt"
+	"math/rand"
 )
 
 // generateSecureToken creates a random secure token
@@ -27,6 +31,16 @@ func CreateSession(w http.ResponseWriter, email string) {
 		SameSite: http.SameSiteStrictMode,
 	}
 	http.SetCookie(w, cookie)
+}
+
+
+func GenerateOTP() string {
+	return fmt.Sprintf("%06d", rand.Intn(1000000))
+}
+
+func HashOTP(otp string) string {
+	hash := sha256.Sum256([]byte(otp))
+	return hex.EncodeToString(hash[:])
 }
 
 
