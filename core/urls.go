@@ -7,13 +7,6 @@ import (
 	
 )
 
-type AppRoute func(*http.ServeMux)
-
-var registeredApps []AppRoute
-
-func Register(app AppRoute) {
-	registeredApps = append(registeredApps, app)
-}
 
 
 

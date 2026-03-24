@@ -1,6 +1,0 @@
-{
-  "name": "Users",
-  "version": "1.0",
-  "models": ["user", "role"],
-  "installable": true
-}
