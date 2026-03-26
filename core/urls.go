@@ -3,12 +3,8 @@ package core
 import (
 	"fmt"
 	"net/http"
-    
 	
 )
-
-
-
 
 // RegisterRoutes sets up all HTTP request handlers
 func RegisterRoutes() *http.ServeMux {
@@ -26,6 +22,8 @@ func RegisterRoutes() *http.ServeMux {
     // Root endpoint
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Zero Trust ERP Server Running...")
+        // root -> go to dashboard if logged in, otherwise show login page
+        
 	})
 
 
