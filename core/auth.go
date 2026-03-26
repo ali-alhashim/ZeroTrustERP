@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 	"crypto/sha256"
-	
+	"regexp"
 	"fmt"
 	"math/rand"
 )
@@ -41,6 +41,21 @@ func GenerateOTP() string {
 func HashOTP(otp string) string {
 	hash := sha256.Sum256([]byte(otp))
 	return hex.EncodeToString(hash[:])
+}
+
+
+
+
+func isValidEmail(email string) bool {
+    // Simple regex for email validation
+    re := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
+    return re.MatchString(email)
+}
+
+func isValidMobile(mobile string) bool {
+    // Simple regex for mobile number validation (Saudi Arabia)
+    re := regexp.MustCompile(`^966[5-9]\d{8}$`)
+    return re.MatchString(mobile)
 }
 
 

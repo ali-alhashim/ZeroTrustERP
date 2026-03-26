@@ -61,3 +61,22 @@ func RenderReport(w http.ResponseWriter, tmpl string, data interface{}) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
+
+// Render page without layout (for login, etc.)
+func RenderPageNoLayout(w http.ResponseWriter, tmpl string, data interface{}) {
+	wd, _ := os.Getwd()
+
+	t, err := template.ParseFiles(
+		filepath.Join(wd, tmpl),
+	)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}

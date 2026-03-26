@@ -1,269 +1,312 @@
-/* Reset */
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #f7f8fa;
+/* =========================
+   RESET
+========================= */
+html, body {
+    height: 100%;
 }
 
-/* Layout */
+body {
+    margin: 0;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f5f7fa;
+    color: #1f2937;
+}
+
+/* =========================
+   LAYOUT
+========================= */
 .app-container {
     display: flex;
     height: 100vh;
 }
 
-/* Sidebar */
-.sidebar {
-    width: 220px;
-    background-color: #1b1d23; /* Cloudflare dark sidebar */
-    color: #cbd5e1;
-    display: flex;
-    flex-direction: column;
-    padding-top: 20px;
-}
-
-.sidebar h2 {
-    font-size: 20px;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 20px;
-    color: #ffffff;
-}
-
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex: 1;
-}
-
-.sidebar li {
-    margin: 0;
-}
-
-.sidebar a {
-    display: flex;
-    align-items: center;
-    color: #cbd5e1;
-    text-decoration: none;
-    padding: 12px 20px;
-    font-size: 14px;
-    transition: background 0.2s, color 0.2s;
-}
-
-.sidebar a:hover {
-    background-color: #272a36; /* Slightly lighter hover */
-    color: #ffffff;
-    border-radius: 6px;
-}
-
-.sidebar a.active {
-    background-color: #6df320; /* Saudi green active menu */
-    color: #000000;
-    font-weight: 600;
-}
-
-.sidebar .icon {
-    width: 18px;
-    height: 18px;
-    margin-right: 12px;
-    filter: brightness(0) invert(1); /* makes white icons for dark sidebar */
-}
-
-/* Main content */
 .main {
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-/* Header */
-.header {
-    background: white;
-    padding: 15px 20px;
-    border-bottom: 1px solid #e5e7eb;
+/* =========================
+   SIDEBAR (Cloudflare Style)
+========================= */
+.sidebar {
+    width: 240px;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar h2 {
+    font-size: 14px;
     font-weight: 600;
-    font-size: 16px;
+    padding: 16px;
+    margin: 0;
+    color: #111827;
 }
 
-/* Workspace */
-.workspace {
-    padding: 20px;
-    overflow-y: auto;
-    background: #f7f8fa;
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-/* Buttons (Cloudflare style but green as Saudi flag) */
-.btn-primary {
-    background: #47a014;
-    border: none;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
+.sidebar a {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: #4b5563;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.15s ease;
+}
+
+.sidebar a:hover {
+    background: #f9fafb;
+    color: #111827;
+}
+
+.sidebar a.active {
+    background: #fff7ed;
+    color: #f48120;
+    border-left: 3px solid #f48120;
     font-weight: 500;
 }
 
-.btn-primary:hover {
-    background: #1bd944;
+/* Icons (no invert hacks) */
+.sidebar .icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+    opacity: 0.7;
 }
 
-.btn-secondary {
-    background: #eef2f7;
-    border: 1px solid #d1d5db;
-    padding: 10px 16px;
+.sidebar a.active .icon {
+    opacity: 1;
+}
+
+/* =========================
+   HEADER
+========================= */
+.header {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* =========================
+   WORKSPACE
+========================= */
+.workspace {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* =========================
+   BUTTON SYSTEM
+========================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 32px;                 /* SAME as inputs */
+    padding: 0 12px;
+
+    font-size: 13px;
+    font-weight: 500;
+
     border-radius: 6px;
+    border: 1px solid transparent;
+
     cursor: pointer;
+    white-space: nowrap;
+
+    transition: all 0.15s ease;
+}
+
+/* Primary (ONLY highlight action) */
+.btn-primary {
+    background-color: #f48120;
+    border-color: #f48120;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: #d96a10;
+    border-color: #d96a10;
+}
+
+/* Secondary (default) */
+.btn-secondary {
+    background: #ffffff;
+    border-color: #d1d5db;
     color: #374151;
 }
 
+.btn-secondary:hover {
+    background: #f9fafb;
+}
 
-/* Default Table Style (Cloudflare-like) */
+/* Danger (subtle, not loud) */
+.btn-danger {
+    background: #ffffff;
+    border-color: #fca5a5;
+    color: #b91c1c;
+}
+
+.btn-danger:hover {
+    background: #fef2f2;
+}
+
+/* =========================
+   INPUTS (ALL TYPES)
+========================= */
+input[type="text"],
+input[type="search"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+select {
+    height: 32px;
+    padding: 4px 10px;
+    font-size: 13px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #111827;
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* Remove number arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Focus */
+input:focus,
+select:focus {
+    border-color: #f48120;
+    box-shadow: 0 0 0 1px rgba(244, 129, 32, 0.3);
+}
+
+/* =========================
+   FORMS
+========================= */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    font-size: 12px;
+    margin-bottom: 4px;
+    display: block;
+    color: #374151;
+}
+
+/* =========================
+   TABLES
+========================= */
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
-    background-color: #ffffff;
-    color: #111827; /* Dark text */
+    font-size: 13px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
     border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
 th, td {
-    padding: 12px 16px;
+    padding: 10px 12px;
     text-align: left;
 }
 
 th {
-    background-color: #f3f4f6; /* Light gray header */
+    background: #f9fafb;
     font-weight: 600;
+    color: #374151;
     border-bottom: 1px solid #e5e7eb;
 }
 
 tr {
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 tr:hover {
-    background-color: #f9fafb; /* Hover effect */
+    background: #f9fafb;
 }
 
-td button {
-    margin: 0;
-}
-
-/* Optional: striped rows */
-tbody tr:nth-child(odd) {
-    background-color: #ffffff;
-}
-
-tbody tr:nth-child(even) {
-    background-color: #f9fafb;
-}
-
-/* Table actions buttons */
+/* Table buttons (NO blue) */
 .table-btn {
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 12px;
     cursor: pointer;
-    border: none;
-    transition: background 0.2s;
+    border: 1px solid transparent;
 }
 
+/* Edit → neutral */
 .table-btn.edit {
-    background-color: #3b82f6; /* Blue edit button */
-    color: #ffffff;
+    background: #ffffff;
+    border-color: #d1d5db;
+    color: #374151;
 }
 
 .table-btn.edit:hover {
-    background-color: #2563eb;
+    background: #f9fafb;
 }
 
+/* Delete → subtle danger */
 .table-btn.delete {
-    background-color: #ef4444; /* Red delete button */
-    color: #ffffff;
+    background: #ffffff;
+    border-color: #fca5a5;
+    color: #b91c1c;
 }
 
 .table-btn.delete:hover {
-    background-color: #b91c1c;
+    background: #fef2f2;
 }
 
-
-/* Login Page */
+/* =========================
+   LOGIN PAGE
+========================= */
 .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: #f7f8fa;
+    min-height: 100vh;   /* FIX */
+    background: #f5f7fa;
 }
 
 .login-box {
-    width: 360px;
+    width: 340px;
     background: #ffffff;
-    padding: 40px 30px;
+    padding: 28px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    text-align: center;
+    border: 1px solid #e5e7eb;
 }
 
 .login-box h2 {
-    margin-bottom: 30px;
-    font-weight: 600;
-    font-size: 22px;
-    color: #111827;
-}
-
-.form-group {
     margin-bottom: 20px;
-    text-align: left;
+    font-size: 16px;
+    font-weight: 600;
 }
 
-.form-group label {
-    display: block;
-    font-size: 14px;
-    margin-bottom: 6px;
-    color: #374151;
+.center-container {
+    display: flex;
+    justify-content: center;   /* horizontal */
+    align-items: center;       /* vertical */
+    min-height: 100vh;         /* full screen height */
+    background: #f5f7fa;       /* optional (Cloudflare style) */
 }
-
-.form-group input {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 6px;
-    border: 1px solid #d1d5db;
-    font-size: 14px;
-    outline: none;
-    transition: border 0.2s;
-}
-
-.form-group input:focus {
-    border-color: #6df320; /* Saudi green */
-    box-shadow: 0 0 0 2px rgba(109,243,32,0.2);
-}
-
-
-/* Form Controls (match buttons) */
-input[type="text"],
-input[type="search"],
-select {
-    padding: 10px 16px;              /* same as buttons */
-    border-radius: 6px;
-    border: 1px solid #d1d5db;
-    font-size: 14px;
-    height: 40px;                   /* force same height */
-    box-sizing: border-box;
-    outline: none;
-    background-color: #ffffff;
-    color: #111827;
-}
-
-/* Focus state (Saudi green theme) */
-input:focus,
-select:focus {
-    border-color: #6df320;
-    box-shadow: 0 0 0 2px rgba(109, 243, 32, 0.2);
-}
-
-
-
