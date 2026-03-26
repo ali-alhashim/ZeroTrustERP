@@ -34,20 +34,23 @@ func RegisterRoutes() *http.ServeMux {
 mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 
     if r.Method == http.MethodPost {
-        username := r.FormValue("username")
+        email := r.FormValue("email")
 
-        if !isValidEmail(username) && !isValidMobile(username) {
+        if !isValidEmail(email)  {
             RenderPageNoLayout(w, "core/templates/login.html", map[string]interface{}{
-                "Error": "Invalid email or mobile number",
-                "Username": username,
+                "Error": "Invalid email",
+                "Email": email,
             })
             return
         }
 
-        // TODO: check user exists + send OTP
+        // TODO: check email exists + send OTP
+
+        otp := GenerateOTP()
+        fmt.Printf("Generated OTP for %s: %s\n", email, otp)
 
         RenderPageNoLayout(w, "core/templates/login-otp.html", map[string]interface{}{
-            "Username": username,
+            "Email": email,
         })
         return
     }
@@ -60,24 +63,24 @@ mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 mux.HandleFunc("/login-otp", func(w http.ResponseWriter, r *http.Request) {
 
     if r.Method == http.MethodPost {
-        username := r.FormValue("username")
+        email := r.FormValue("email")
         otp := r.FormValue("otp")
 
-        if !isValidEmail(username) && !isValidMobile(username) {
+        if !isValidEmail(email)  {
             RenderPageNoLayout(w, "core/templates/login-otp.html", map[string]interface{}{
-                "Error": "Invalid email or mobile number",
-                "Username": username,
+                "Error": "Invalid email",
+                "Email": email,
             })
             return
         }
 
-        fmt.Printf("Username: %s | OTP: %s\n", username, otp)
+        fmt.Printf("Email: %s | OTP: %s\n", email, otp)
 
         // TODO: validate OTP
 
         RenderPageNoLayout(w, "core/templates/login-otp.html", map[string]interface{}{
             "Error": "Invalid or expired OTP",
-            "Username": username,
+            "Email": email,
         })
         return
     }

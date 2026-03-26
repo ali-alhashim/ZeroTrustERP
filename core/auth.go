@@ -52,11 +52,7 @@ func isValidEmail(email string) bool {
     return re.MatchString(email)
 }
 
-func isValidMobile(mobile string) bool {
-    // Simple regex for mobile number validation (Saudi Arabia)
-    re := regexp.MustCompile(`^966[5-9]\d{8}$`)
-    return re.MatchString(mobile)
-}
+
 
 
 
