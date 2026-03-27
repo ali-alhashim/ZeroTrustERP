@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"zerotrusterp/apps/dashboard/controllers"
-	
+	"zerotrusterp/core"
 )
 func dashboardRoute(mux *http.ServeMux)  {
 
-	mux.HandleFunc("GET /dashboard", controllers.DashboardController)
+	mux.Handle("GET /dashboard", core.AuthMiddleware(http.HandlerFunc(controllers.DashboardController)))
 	
 }

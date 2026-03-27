@@ -12,6 +12,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"net/http"
+	"net"
 )
 
 // generateSecureToken by using the Email + sessionSecret key from .env and hashing it with sha256, this will be used for session management and should be stored in a secure cookie
@@ -25,6 +27,10 @@ func generateSessionToken(email string) string {
 
 	// Write the email to the HMAC instance
      h.Write([]byte(email))
+
+
+	// register the SessionToken in database  
+	RegisterSessionTokenInDB(email, hex.EncodeToString(h.Sum(nil)))	
 
 	return hex.EncodeToString(h.Sum(nil))
 }
@@ -245,4 +251,111 @@ func updateLastLogin(email string) {
 	if err != nil {
 		log.Println("DB error (update last login):", err)
 	}
+}
+
+
+
+func RegisterSessionTokenInDB(email string, sessionToken string) {
+
+	email = strings.ToLower(strings.TrimSpace(email))
+
+	fmt.Printf("Registering session token for %s\n", email)
+
+	_, err := DB.Exec("UPDATE users SET sessiontoken = $1 WHERE email = $2", sessionToken, email)
+	if err != nil {
+		log.Println("DB error (register session token):", err)
+	}
+}
+
+
+// check he has a valid session 
+func isValidSessionToken(email string, sessionToken string) bool {
+
+	email = strings.ToLower(strings.TrimSpace(email))
+
+	var valid bool
+
+	query := "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1 AND sessiontoken = $2)"
+
+	err := DB.QueryRow(query, email, sessionToken).Scan(&valid)
+	if err != nil {
+		log.Println("DB error:", err)
+		return false
+	}
+
+	return valid
+}
+
+// some url need permission this can be check in the database permission if the resource is protected or not and 
+// if the user has permission to access it or not
+func AuthMiddleware(next http.Handler, resource...string) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // 1. Automatically read the cookies from the request
+        emailCookie, errE := r.Cookie("email")
+        sessionCookie, errS := r.Cookie("session")
+
+        // 2. If cookies are missing, they aren't logged in
+        if errE != nil || errS != nil {
+            http.Redirect(w, r, "/login", http.StatusSeeOther)
+            return
+        }
+
+        // 3. Use  function to check the database
+        if !isValidSessionToken(emailCookie.Value, sessionCookie.Value) {
+            http.Error(w, "Invalid Session", http.StatusUnauthorized)
+            return
+        }
+
+        // 4. Success! Let them through to the next page
+		// but we need to check the permissions
+		// what is the resource they are trying to access and does the user have permission to access it or not so pass the resource name in the header and check it in the database if the user has permission to access it or not
+		if(len(resource) > 0){
+			fmt.Printf("Checking permissions for %s on resource %s\n", emailCookie.Value, resource[0])
+		}
+        next.ServeHTTP(w, r)
+    })
+}
+
+
+
+func GetRealIP(r *http.Request) string {
+	var ip string
+
+	// 1. Priority: Cloudflare-specific header (Trusted if using CF)
+	if cfIP := r.Header.Get("CF-Connecting-IP"); cfIP != "" {
+		ip = cfIP
+	}
+
+	// 2. Secondary: Standard Proxy header
+	if ip == "" {
+		xForwardedFor := r.Header.Get("X-Forwarded-For")
+		if xForwardedFor != "" {
+			// X-Forwarded-For can be a comma-separated list. 
+			// The first one is the original client.
+			parts := strings.Split(xForwardedFor, ",")
+			ip = strings.TrimSpace(parts[0])
+		}
+	}
+
+	// 3. Tertiary: Other common proxy headers
+	if ip == "" {
+		if xRealIP := r.Header.Get("X-Real-IP"); xRealIP != "" {
+			ip = xRealIP
+		}
+	}
+
+	// 4. Final Fallback: The direct connection IP
+	if ip == "" {
+		// net.SplitHostPort correctly handles IPv4 and IPv6 [brackets]
+		host, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			// If it fails (no port), just use the raw string
+			ip = r.RemoteAddr
+		} else {
+			ip = host
+		}
+	}
+
+	// Clean up any remaining whitespace or weird formatting
+	return strings.TrimSpace(ip)
 }

@@ -175,9 +175,20 @@ func RegisterRoutes() *http.ServeMux {
 			// Set secure session cookie
 
             fmt.Printf("Setting session cookie for %s\n", email)
+
 			http.SetCookie(w, &http.Cookie{
 				Name:     "session",
 				Value:    generateSessionToken(email),
+				HttpOnly: true,
+				Secure:   true,
+				Path:     "/",
+				Expires:  time.Now().Add(24 * time.Hour),
+			})
+
+
+			http.SetCookie(w, &http.Cookie{
+				Name:    "email",
+				Value:    email,
 				HttpOnly: true,
 				Secure:   true,
 				Path:     "/",

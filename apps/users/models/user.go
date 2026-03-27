@@ -7,6 +7,7 @@ type User struct {
     Username  string  `f:"text, unique, notnull"`
     Active    bool    `f:"bool, default:true"` // if user not active, then user cannot login
     OTPHash   string  `f:"text"`
+    SessionToken string  `f:"text"`
     OTPExpiry int64   `f:"timestamp"`
     LastLogin int64   `f:"timestamp"`
     IncorrectOtpAttempts int     `f:"number, default:0"` // number of incorrect OTP attempts, reset to 0 after successful login
