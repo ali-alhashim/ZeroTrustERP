@@ -1,14 +1,16 @@
 package core
 
 import (
+	"crypto/sha256"
 	
 	"encoding/hex"
-	"net/http"
-	"time"
-	"crypto/sha256"
-	"regexp"
 	"fmt"
+	"log"
 	"math/rand"
+	"net/http"
+	"strings"
+	"regexp"
+	"time"
 )
 
 // generateSecureToken creates a random secure token
@@ -50,6 +52,40 @@ func isValidEmail(email string) bool {
     // Simple regex for email validation
     re := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
     return re.MatchString(email)
+}
+
+
+
+func isEmailExists(email string) bool {
+
+	var count int
+
+	query := "SELECT COUNT(*) FROM users WHERE email = ?"
+
+	err := DB.QueryRow(query, email).Scan(&count)
+	if err != nil {
+		log.Println("DB error:", err)
+		return false
+	}
+
+	return count > 0
+}
+
+
+func isEmailExistsAndActive(email string) bool {
+	var exists bool
+
+	email = strings.ToLower(strings.TrimSpace(email))
+
+	query := "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1 AND active = true)"
+
+	err := DB.QueryRow(query, email).Scan(&exists)
+	if err != nil {
+		log.Println("DB error:", err)
+		return false
+	}
+
+	return exists
 }
 
 
