@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
 	username TEXT UNIQUE NOT NULL,
 	active BOOLEAN DEFAULT TRUE,
 	otphash TEXT ,
-	otpexpiry INTEGER ,
+	otpexpiry TIMESTAMP ,
 	online BOOLEAN DEFAULT FALSE
 );
 

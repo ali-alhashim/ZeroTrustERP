@@ -25,7 +25,14 @@
             
             </form>
 
-        
+
+            {{if .Error}}
+            <div class="alert alert-danger">
+            <i class="fa fa-exclamation-circle"></i>
+            <div>{{.Error}}</div>
+            </div>
+            {{end}}
+
     </div>
 </div>
 

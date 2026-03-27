@@ -7,7 +7,9 @@ type User struct {
     Username  string  `f:"text, unique, notnull"`
     Active    bool    `f:"bool, default:true"` // if user not active, then user cannot login
     OTPHash   string  `f:"text"`
-    OTPExpiry int64   `f:"number"`
+    OTPExpiry int64   `f:"timestamp"`
+    LastLogin int64   `f:"timestamp"`
+    IncorrectOtpAttempts int     `f:"number, default:0"` // number of incorrect OTP attempts, reset to 0 after successful login
     Online    bool    `f:"bool, default:false"` //user becomes online after verification
     Roles     []Role  `f:"many2many:user_roles"` // many to many relationship with roles One user → many roles , One role → many users
 }

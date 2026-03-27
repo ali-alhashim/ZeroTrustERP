@@ -14,7 +14,7 @@
 
 <div class="login-container">
     <div class="login-box">
-        <h2>Zero Trust ERP</h2>
+         <img src="/static/logo/logo-l.svg" alt="Logo" class="logo">
        
         <form method="POST" action="/login-otp">
             <div class="form-group">
@@ -24,6 +24,17 @@
             </div>
             
         </form>
+
+
+            {{if .Error}}
+            <div class="alert alert-danger">
+            <i class="fa fa-exclamation-circle"></i>
+            <div>{{.Error}}</div>
+            </div>
+            {{end}}
+
+
+
     </div>
 </div>
 
