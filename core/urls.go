@@ -108,9 +108,14 @@ func RegisterRoutes() *http.ServeMux {
 	// =========================
 	mux.HandleFunc("/login-otp", func(w http.ResponseWriter, r *http.Request) {
 
+        email := strings.ToLower(strings.TrimSpace(r.FormValue("email")))
+
 		if r.Method == http.MethodPost {
-			email := strings.ToLower(strings.TrimSpace(r.FormValue("email")))
+			
 			otp := r.FormValue("otp")
+
+            fmt.Printf("Received OTP login attempt for %s\n", email)
+
 
 			if !isEmailExistsAndActive(email) {
 				RenderPageNoLayout(w, "core/templates/login-otp.html", map[string]interface{}{
@@ -120,18 +125,24 @@ func RegisterRoutes() *http.ServeMux {
 				return
 			}
 
+            fmt.Printf("Processing OTP login for %s\n", email)
+
 			hashedOTP := HashOTP(otp)
 
 			// Check OTP (must include expiry check in DB)
 			isValidOTP := isEmailExistsAndActiveWithOTP(email, hashedOTP)
 
+            fmt.Printf("OTP validation result for %s: %v\n", email, isValidOTP)
+
 			// First-time login handling
 			if isFirstUserAndFirstTimeLogin(email) {
 				if !isValidOTP {
+                     fmt.Printf("First-time login failed OTP validation for %s\n", email)
 
 					attempts := incrementIncorrectOTPAttempts(email)
 					if attempts >= 5 {
 						deleteUserByEmail(email)
+                        fmt.Printf("Deleted user %s after %d failed OTP attempts\n", email, attempts)
 						RenderPageNoLayout(w, "core/templates/login.html", map[string]interface{}{
 							"Error": "Too many failed attempts. Please register again.",
 							"Email": email,
@@ -145,10 +156,13 @@ func RegisterRoutes() *http.ServeMux {
 					})
 					return
 				}
+
+                fmt.Printf("First-time login successful for %s\n", email)
 			}
 
 			// Normal OTP validation
 			if !isValidOTP {
+                    fmt.Printf("Normal OTP validation failed for %s\n", email)
 				RenderPageNoLayout(w, "core/templates/login-otp.html", map[string]interface{}{
 					"Error": "Invalid or expired OTP",
 					"Email": email,
@@ -157,8 +171,10 @@ func RegisterRoutes() *http.ServeMux {
 			}
 
 			// ✅ SUCCESS LOGIN
-
+            fmt.Printf("OTP login successful for %s\n", email)
 			// Set secure session cookie
+
+            fmt.Printf("Setting session cookie for %s\n", email)
 			http.SetCookie(w, &http.Cookie{
 				Name:     "session",
 				Value:    generateSessionToken(email),
@@ -176,6 +192,7 @@ func RegisterRoutes() *http.ServeMux {
 			return
 		}
 
+        fmt.Printf("Rendering OTP login page for %s\n", email)
 		RenderPageNoLayout(w, "core/templates/login-otp.html", nil)
 	})
 

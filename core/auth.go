@@ -205,6 +205,8 @@ func incrementIncorrectOTPAttempts(email string) int {
 
 	attempts++
 
+	fmt.Printf("Incorrect OTP attempt %d for %s\n", attempts, email)
+
 	// Update attempts in DB
 	_, err = DB.Exec("UPDATE users SET incorrectotpattempts = $1 WHERE email = $2", attempts, email)
 	if err != nil {
@@ -227,7 +229,10 @@ func deleteUserByEmail(email string) {
 
 
 func updateLastLogin(email string) {
+
 	email = strings.ToLower(strings.TrimSpace(email))
+
+	fmt.Printf("Updating last login for %s\n", email)
 
 	_, err := DB.Exec("UPDATE users SET lastLogin = NOW() WHERE email = $1", email)
 	if err != nil {
