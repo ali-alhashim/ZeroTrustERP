@@ -4,7 +4,10 @@ CREATE TABLE IF NOT EXISTS users (
 	username TEXT UNIQUE NOT NULL,
 	active BOOLEAN DEFAULT TRUE,
 	otphash TEXT ,
+	sessiontoken TEXT ,
 	otpexpiry TIMESTAMP ,
+	lastlogin TIMESTAMP ,
+	incorrectotpattempts INTEGER ,
 	online BOOLEAN DEFAULT FALSE
 );
 
