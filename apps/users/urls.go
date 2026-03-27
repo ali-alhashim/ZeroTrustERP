@@ -11,8 +11,8 @@ import (
 
 func UserListRoutes(mux *http.ServeMux) {
 	
-                   //HTTP method + path, handler 
-	mux.Handle("GET /users/list", core.AuthMiddleware(http.HandlerFunc(controllers.ListUsers)))
+               //HTTP method + path, handler + auth middleware with resource name for permission checking
+	mux.Handle("GET /users/list", core.AuthMiddleware(http.HandlerFunc(controllers.ListUsers), "users:list"))
 	
 }
 
