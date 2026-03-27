@@ -1,0 +1,23 @@
+# Environment variables
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Build / temp
+tmp/
+dist/
+build/
+
+# Go specific
+/bin/
+/vendor/
+
+# IDE
+.vscode/
+.idea/
