@@ -56,7 +56,7 @@ mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 
         otp := GenerateOTP()
 
-        mailErr := SendEmail(email, "Your OTP Code", fmt.Sprintf("Your OTP code is: %s", otp))
+        mailErr := SendEmail(email, "One-time password for Zero Trust ERP login", fmt.Sprintf("Your Zero Trust ERP verification code is: %s This code expires in 3 minutes. . If you did not request this, please ignore this email", otp))
         if mailErr != nil {
             fmt.Printf("Failed to send OTP email: %v\n", mailErr)
             RenderPageNoLayout(w, "core/templates/login.html", map[string]interface{}{
