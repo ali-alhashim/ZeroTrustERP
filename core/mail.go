@@ -15,7 +15,7 @@ import (
 
 // SendEmail sends a high-deliverability transactional email
 func SendEmail(to, subject, body string) error {
-    LoadEnv(".env")
+    
     
     smtpHost := os.Getenv("SMTP_HOST")
     smtpPort := os.Getenv("SMTP_PORT")

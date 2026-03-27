@@ -2,24 +2,31 @@ package core
 
 import (
 	"crypto/sha256"
+	"crypto/hmac"
 	"database/sql"
 	"encoding/hex"
 	"fmt"
 	"log"
 	"math/rand"
-	
+	"os"
 	"regexp"
 	"strings"
 	"time"
 )
 
-// generateSecureToken creates a random secure token
+// generateSecureToken by using the Email + sessionSecret key from .env and hashing it with sha256, this will be used for session management and should be stored in a secure cookie
 func generateSessionToken(email string) string {
-	token := make([]byte, 32)
-	if _, err := rand.Read(token); err != nil {
-		return ""
-	}
-	return hex.EncodeToString(token)
+   
+
+    sessionSecret := os.Getenv("sessionSecret")
+
+	// Create a new HMAC instance using SHA256 and your secret key
+	h := hmac.New(sha256.New, []byte(sessionSecret))
+
+	// Write the email to the HMAC instance
+     h.Write([]byte(email))
+
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 

@@ -14,7 +14,9 @@ import (
 
 
 func main() {
-
+    
+	// Load environment variables
+	core.LoadEnv(".env")
 
 	db, err := core.InitDB()
 	if err != nil {

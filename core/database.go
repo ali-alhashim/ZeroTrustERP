@@ -41,7 +41,7 @@ func LoadEnv(path string) error {
 
 func InitDB() (*sql.DB, error) {
     log.Printf("Initializing database connection...")
-    LoadEnv(".env")
+   
 
     host := os.Getenv("DB_HOST")
     port := os.Getenv("DB_PORT")
