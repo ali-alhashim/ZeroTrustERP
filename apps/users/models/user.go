@@ -1,5 +1,9 @@
 package models
-import "time"
+
+import (
+	"time"
+	"zerotrusterp/apps/employees/models"
+)
 
 type User struct {
     ID        int     `f:"number, primary, auto"`
@@ -13,6 +17,9 @@ type User struct {
     IncorrectOtpAttempts int     `f:"number, default:0"` // number of incorrect OTP attempts, reset to 0 after successful login
     Online    bool    `f:"bool, default:false"` //user becomes online after verification
     Roles     []Role  `f:"many2many:user_roles"` // many to many relationship with roles One user → many roles , One role → many users
+    RelatedEmployee models.Employee `f:"one2one:employees"` //  one user can be related to one employee, one employee one user
+    CreatedAt time.Time `f:"timestamp, default:current_timestamp"`
+    UpdatedAt time.Time `f:"timestamp, default:current_timestamp"`
 }
 
 type Role struct {

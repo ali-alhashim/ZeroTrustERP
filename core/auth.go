@@ -302,7 +302,7 @@ func AuthMiddleware(next http.Handler, resource...string) http.Handler {
 
         // 3. Use  function to check the database
         if !isValidSessionToken(emailCookie.Value, sessionCookie.Value) {
-            http.Error(w, "Invalid Session", http.StatusUnauthorized)
+            http.Redirect(w, r, "/login", http.StatusSeeOther)
             return
         }
 

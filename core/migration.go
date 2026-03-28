@@ -60,6 +60,23 @@ func GenerateSQLFromStruct(model interface{}) (tableSQL []string, joinSQL []stri
 			continue
 		}
 
+		// Handle one2one relationship
+		if strings.HasPrefix(tag, "one2one:") {
+			refTable := strings.Split(tag, ":")[1]
+			if refTable == "" {
+				refTable = pluralize(field.Type.Name())
+			}
+
+			colName := strings.ToLower(field.Name) + "_id"
+
+			col := fmt.Sprintf("%s INT UNIQUE REFERENCES %s(id) ON DELETE CASCADE",
+				colName, refTable)
+
+			cols = append(cols, col)
+			continue
+		}
+
+
 		// Normal column
 		colName := strings.ToLower(field.Name)
 		colType := ""
