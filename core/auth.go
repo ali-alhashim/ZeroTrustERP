@@ -92,7 +92,7 @@ func isEmailExistsAndActiveWithOTP(email string, otpHash string) bool {
 
 	email = strings.ToLower(strings.TrimSpace(email))
 
-	query := "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1 AND active = true AND otphash = $2 AND otpexpiry > NOW())"
+	query := "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1 AND active = true AND otp_hash = $2 AND otp_expiry > NOW())"
 
 	err := DB.QueryRow(query, email, otpHash).Scan(&valid)
 	if err != nil {
@@ -106,7 +106,7 @@ func isEmailExistsAndActiveWithOTP(email string, otpHash string) bool {
 func insertOtphashForEmail(email string, otpHash string, expiry time.Time) error {
 	email = strings.ToLower(strings.TrimSpace(email))
 
-	query := "UPDATE users SET otphash = $1, otpexpiry = $2 WHERE email = $3"
+	query := "UPDATE users SET otp_hash = $1, otp_expiry = $2 WHERE email = $3"
 
 	_, err := DB.Exec(query, otpHash, expiry, email)
 	return err
@@ -143,7 +143,7 @@ func isFirstUserAndFirstTimeLogin(email string) bool {
 	}
 
 	var count int
-	query := "SELECT COUNT(*) FROM users WHERE email = $1 AND lastLogin IS NULL"
+	query := "SELECT COUNT(*) FROM users WHERE email = $1 AND last_Login IS NULL"
 
 	err = DB.QueryRow(query, email).Scan(&count)
 	if err != nil {
@@ -179,7 +179,7 @@ func registerFirstUserAsAdmin(email string) error {
 		return err2
 	}
 
-	queryUserRole := "INSERT INTO user_roles (user_id, role_id) VALUES ((SELECT id FROM users WHERE email = $1), $2)"
+	queryUserRole := "INSERT INTO users_roles (user_id, role_id) VALUES ((SELECT id FROM users WHERE email = $1), $2)"
 
 	_, err = DB.Exec(queryUserRole, email, roleID)
 	if err != nil {
@@ -195,7 +195,7 @@ func isFirstTimeLogin(email string) bool {
 
 	var lastLogin sql.NullTime
 
-	query := "SELECT lastLogin FROM users WHERE email = $1"
+	query := "SELECT last_Login FROM users WHERE email = $1"
 
 	err := DB.QueryRow(query, email).Scan(&lastLogin)
 	if err != nil {
@@ -251,7 +251,7 @@ func updateLastLogin(email string) {
 
 	fmt.Printf("Updating last login for %s\n", email)
 
-	_, err := DB.Exec("UPDATE users SET lastLogin = NOW() WHERE email = $1", email)
+	_, err := DB.Exec("UPDATE users SET last_Login = NOW() WHERE email = $1", email)
 	if err != nil {
 		log.Println("DB error (update last login):", err)
 	}
@@ -265,7 +265,7 @@ func RegisterSessionTokenInDB(email string, sessionToken string) {
 
 	fmt.Printf("Registering session token for %s\n", email)
 
-	_, err := DB.Exec("UPDATE users SET sessiontoken = $1 WHERE email = $2", sessionToken, email)
+	_, err := DB.Exec("UPDATE users SET session_token = $1 WHERE email = $2", sessionToken, email)
 	if err != nil {
 		log.Println("DB error (register session token):", err)
 	}
@@ -279,7 +279,7 @@ func isValidSessionToken(email string, sessionToken string) bool {
 
 	var valid bool
 
-	query := "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1 AND sessiontoken = $2)"
+	query := "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1 AND session_token = $2)"
 
 	err := DB.QueryRow(query, email, sessionToken).Scan(&valid)
 	if err != nil {

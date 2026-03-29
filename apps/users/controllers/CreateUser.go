@@ -37,14 +37,14 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		} else {
 			id, err := strconv.Atoi(relatedEmployeeStr)
 			if err != nil {
-				http.Error(w, "Invalid RelatedEmployee ID", http.StatusBadRequest)
+				http.Error(w, "Invalid Related Employee ID", http.StatusBadRequest)
 				return
 			}
 			relatedEmployee = id
 		}
 
 		_, err := core.DB.Exec(
-			"INSERT INTO users (username, email, active, relatedEmployee) VALUES ($1, $2, $3, $4)",
+			"INSERT INTO users (username, email, active, related_employee_id) VALUES ($1, $2, $3, $4)",
 			username, email, active, relatedEmployee,
 		)
 
