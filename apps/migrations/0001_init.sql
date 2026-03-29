@@ -55,6 +55,6 @@ CREATE TABLE IF NOT EXISTS user_roles (
 
 CREATE TABLE IF NOT EXISTS role_permissions (
     role_id INT REFERENCES roles(id) ON DELETE CASCADE,
-    permission_id INT REFERENCES permissions(id) ON DELETE CASCADE,
-    PRIMARY KEY (role_id, permission_id)
+    _id INT REFERENCES s(id) ON DELETE CASCADE,
+    PRIMARY KEY (role_id, _id)
 );

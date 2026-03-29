@@ -16,8 +16,12 @@ type User struct {
     LastLogin int64   `f:"timestamp"`
     IncorrectOtpAttempts int     `f:"number, default:0"` // number of incorrect OTP attempts, reset to 0 after successful login
     Online    bool    `f:"bool, default:false"` //user becomes online after verification
+
     Roles     *[]Role  `f:"many2many:user_roles"` // many to many relationship with roles One user → many roles , One role → many users
-    RelatedEmployee *models.Employee `f:"one2one:employees"` //  one user can be related to one employee, one employee one user
+
+    
+    RelatedEmployee *models.Employee `f:"one2one:employees"` //this skip by migration only object reference for query, not create foreign key in database
+
     CreatedAt time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt time.Time `f:"timestamp, default:current_timestamp"`
 }
@@ -26,7 +30,7 @@ type Role struct {
 	ID          int     `f:"number, primary, auto"`
 	Name        string  `f:"text, unique, notnull"`
 	Description string  `f:"text"`
-	Permissions []Permission `f:"many2many:role_permissions"`
+	Permissions *[]Permission `f:"many2many:role_permissions"`
 	CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
 	UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
 }
