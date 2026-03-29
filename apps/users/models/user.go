@@ -16,8 +16,8 @@ type User struct {
     LastLogin int64   `f:"timestamp"`
     IncorrectOtpAttempts int     `f:"number, default:0"` // number of incorrect OTP attempts, reset to 0 after successful login
     Online    bool    `f:"bool, default:false"` //user becomes online after verification
-    Roles     []Role  `f:"many2many:user_roles"` // many to many relationship with roles One user → many roles , One role → many users
-    RelatedEmployee models.Employee `f:"one2one:employees"` //  one user can be related to one employee, one employee one user
+    Roles     *[]Role  `f:"many2many:user_roles"` // many to many relationship with roles One user → many roles , One role → many users
+    RelatedEmployee *models.Employee `f:"one2one:employees"` //  one user can be related to one employee, one employee one user
     CreatedAt time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt time.Time `f:"timestamp, default:current_timestamp"`
 }
@@ -34,9 +34,9 @@ type Role struct {
 
 //Permissions read R, write W, delete D, update U,  all A
 type Permission struct {
-	ID     int     `f:"number, primary, auto"`
-	resource   string  `f:"text, unique, notnull"` // resource can be the name of the model or the name of the API endpoint or the name of the action
-	Action string  `f:"text, unique, notnull"` // action can be R, W, D, U, A
+	ID          int     `f:"number, primary, auto"`
+	resource    string  `f:"text, unique, notnull"` // resource can be the name of the model or the name of the API endpoint or the name of the action
+	Action      string  `f:"text, unique, notnull"` // action can be R, W, D, U, A
     Description string  `f:"text"`
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
