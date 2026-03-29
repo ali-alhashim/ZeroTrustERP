@@ -6,16 +6,17 @@ import (
 )
 
 type User struct {
-    ID        int     `f:"number, primary, auto"`
-    Email     string  `f:"text, unique"`
-    Username  string  `f:"text, unique, notnull"`
-    Active    bool    `f:"bool, default:true"` // if user not active, then user cannot login
-    OTPHash   string  `f:"text"`
+    ID        int        `f:"number, primary, auto"`
+    Email     string     `f:"text, unique"`
+    Username  string     `f:"text, unique, notnull"`
+    Active    bool       `f:"bool, default:true"` // if user not active, then user cannot login
+    OTPHash   string     `f:"text"`
     SessionToken string  `f:"text"`
-    OTPExpiry int64   `f:"timestamp"`
-    LastLogin int64   `f:"timestamp"`
+    SessionExpiry int64   `f:"timestamp"`
+    OTPExpiry int64       `f:"timestamp"`
+    LastLogin int64       `f:"timestamp"`
     IncorrectOtpAttempts int     `f:"number, default:0"` // number of incorrect OTP attempts, reset to 0 after successful login
-    Online    bool    `f:"bool, default:false"` //user becomes online after verification
+    Online    bool     `f:"bool, default:false"` //user becomes online after verification
 
     Roles     *[]Role  `f:"many2many:"` // many to many relationship with roles One user → many roles , One role → many users
 
