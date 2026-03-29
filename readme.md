@@ -69,6 +69,12 @@ Each app is a **self-contained module**.
 
 ## 🚀 Getting Started
 
+
+### Requirements
+* Go https://go.dev/
+* Postgres https://www.postgresql.org/
+* Linux , Mac or Windows
+
 ### 1. Environment Setup
 
 Create a `.env` file in the root directory:
