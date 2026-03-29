@@ -106,7 +106,14 @@ sessionSecret=your-session-secret-key
 
 ---
 
-### 3. Run the Server
+### 3. Database Migration
+
+```
+go run main.go migrate
+```
+
+### 4. Run the Server
+
 
 ```
 go run main.go
