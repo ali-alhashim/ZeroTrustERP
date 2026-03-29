@@ -74,11 +74,25 @@ Each app is a **self-contained module**.
 Create a `.env` file in the root directory:
 
 ```
+# PostgreSQL Connection Configuration
 DB_HOST=localhost
 DB_PORT=5432
-DB_USER=your_user
-DB_PASSWORD=your_password
-DB_NAME=zerotrust_erp
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=zerotrustertb
+DB_SSLMODE=disable
+DB_TIMEZONE=UTC
+
+
+# SMTP Configuration
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=Your Email Address
+SMTP_PASSWORD=Your Email App Password
+SMTP_FROM=Your Email Address
+
+# Application Configuration
+sessionSecret=your-session-secret-key
 ```
 
 ---
