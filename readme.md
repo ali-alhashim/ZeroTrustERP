@@ -55,7 +55,7 @@ Each app is a **self-contained module**.
 * **urls** → apps routes
 * **Views** → HTML / templates
 * **Security** → Zero Trust access control per module
-* **init** → register routes & models
+* **init** → register routes & models **this important if you not register the app will ignore the migration of your model and the routes **
 
 ---
 

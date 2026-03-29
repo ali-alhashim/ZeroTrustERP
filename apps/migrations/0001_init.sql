@@ -1,17 +1,24 @@
-CREATE TABLE IF NOT EXISTS employees (
-	id SERIAL PRIMARY KEY,
-	badgeid TEXT UNIQUE NOT NULL,
-	name TEXT NOT NULL,
-	department TEXT ,
-	localname TEXT ,
-	jobtitle TEXT 
-);
-
 CREATE TABLE IF NOT EXISTS departments (
 	id SERIAL PRIMARY KEY,
 	name TEXT UNIQUE NOT NULL,
 	code TEXT UNIQUE NOT NULL,
-	manager_id INT UNIQUE REFERENCES employees(id) ON DELETE CASCADE
+	manager_id INT UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS job_titles (
+	id SERIAL PRIMARY KEY,
+	name TEXT UNIQUE NOT NULL,
+	code TEXT UNIQUE NOT NULL,
+	description TEXT 
+);
+
+CREATE TABLE IF NOT EXISTS employees (
+	id SERIAL PRIMARY KEY,
+	badge_id TEXT UNIQUE NOT NULL,
+	name TEXT NOT NULL,
+	department_id INT,
+	local_name TEXT ,
+	job_title_id INT
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -19,23 +26,23 @@ CREATE TABLE IF NOT EXISTS users (
 	email TEXT UNIQUE,
 	username TEXT UNIQUE NOT NULL,
 	active BOOLEAN DEFAULT TRUE,
-	otphash TEXT ,
-	sessiontoken TEXT ,
-	otpexpiry TIMESTAMP ,
-	lastlogin TIMESTAMP ,
-	incorrectotpattempts INTEGER ,
+	otp_hash TEXT ,
+	session_token TEXT ,
+	otp_expiry TIMESTAMP ,
+	last_login TIMESTAMP ,
+	incorrect_otp_attempts INTEGER ,
 	online BOOLEAN DEFAULT FALSE,
-	relatedemployee_id INT UNIQUE REFERENCES employees(id) ON DELETE CASCADE,
-	createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	related_employee_id INT UNIQUE,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS roles (
 	id SERIAL PRIMARY KEY,
 	name TEXT UNIQUE NOT NULL,
 	description TEXT ,
-	createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS permissions (
@@ -43,18 +50,34 @@ CREATE TABLE IF NOT EXISTS permissions (
 	resource TEXT UNIQUE NOT NULL,
 	action TEXT UNIQUE NOT NULL,
 	description TEXT ,
-	createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS user_roles (
-    user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    _id INT REFERENCES s(id) ON DELETE CASCADE,
-    PRIMARY KEY (user_id, _id)
+CREATE TABLE IF NOT EXISTS users_roles (
+    user_id INT,
+    role_id INT,
+    PRIMARY KEY (user_id, role_id)
 );
 
-CREATE TABLE IF NOT EXISTS role_permissions (
-    role_id INT REFERENCES roles(id) ON DELETE CASCADE,
-    _id INT REFERENCES s(id) ON DELETE CASCADE,
-    PRIMARY KEY (role_id, _id)
+CREATE TABLE IF NOT EXISTS roles_permissions (
+    role_id INT,
+    permission_id INT,
+    PRIMARY KEY (role_id, permission_id)
 );
+
+ALTER TABLE departments ADD CONSTRAINT fk_departments_manager_id FOREIGN KEY (manager_id) REFERENCES employees(id) ON DELETE CASCADE;
+
+ALTER TABLE employees ADD CONSTRAINT fk_employees_department_id FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE CASCADE;
+
+ALTER TABLE employees ADD CONSTRAINT fk_employees_job_title_id FOREIGN KEY (job_title_id) REFERENCES job_titles(id) ON DELETE CASCADE;
+
+ALTER TABLE users_roles ADD CONSTRAINT fk_users_roles_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE users_roles ADD CONSTRAINT fk_users_roles_role_id FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE;
+
+ALTER TABLE users ADD CONSTRAINT fk_users_related_employee_id FOREIGN KEY (related_employee_id) REFERENCES employees(id) ON DELETE CASCADE;
+
+ALTER TABLE roles_permissions ADD CONSTRAINT fk_roles_permissions_role_id FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE;
+
+ALTER TABLE roles_permissions ADD CONSTRAINT fk_roles_permissions_permission_id FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE;
