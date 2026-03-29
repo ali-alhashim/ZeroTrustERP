@@ -145,13 +145,13 @@ this project follows a **Minimal Dependency Architecture**:
 ### Core Principles
 
 * 🔑 **Identity-Driven Access**
-  Every action requires explicit authentication
+  Every action requires explicit authentication * permissions
 
 * 🧩 **Modular Isolation**
   Security policies are enforced per app
 
 * 🍪 **Secure Authentication**
-  Uses server-side secure cookies instead of vulnerable client-side tokens
+  Uses  secure cookies [ HMAC instance using SHA256 and your secret key + email] so the validation required 2 factore token and the email for that token 
 
 ---
 
