@@ -97,7 +97,7 @@ sessionSecret=your-session-secret-key
 
 ---
 
-### 2. Create a New App
+### 2. Create a New App / if you want to add more you can check dev documentation 
 
 1. Create a folder inside `apps/`
 2. Add your handlers in `controllers/`
