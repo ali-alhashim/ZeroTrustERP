@@ -1,0 +1,90 @@
+{{define "content"}}
+
+<h4>Create User</h4>
+
+<form method="post" action="/users/create">
+<table>
+
+     <tr>
+        <td>
+          Email
+        </td>
+        <td>
+          <input type="email" name="Email" id="Email" value="" placeholder="Enter Email" class="w-100"/>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+          Username
+        </td>
+        <td>
+          <input type="text" name="Username" id="Username" value="" placeholder="Enter Username" class="w-100"/>
+        </td>
+    </tr>
+
+
+
+    <tr>
+        <td>
+          Active
+        </td>
+        <td>
+          <input type="checkbox" name="Active" id="Active" checked class="w-100"/>
+        </td>
+    </tr>
+    
+
+
+
+    <tr>
+        <td>
+          Related Employee
+        </td>
+        <td>
+
+
+          <select name="RelatedEmployee" id="RelatedEmployee" checked class="w-100" class="select-search">
+            <option value="">Select Employee</option>
+            {{range .Employees}}
+              <option value="{{.ID}}">{{.FirstName}} {{.LastName}}</option>
+            {{end}}
+          </select>
+
+
+        </td>
+    </tr>
+
+
+
+    
+</table>
+
+
+<table class="xy-5">
+    <thead>
+        <tr>
+            <th colspan="2">Assign Roles</th>
+        </tr>
+    </thead>
+    <tr>
+        <td>
+            1
+        </td>
+     <td>
+               <select name="Role" id="Role" class="w-100 select-search">
+                <option value="">Select Role</option>
+                {{range .Roles}}
+                    <option value="{{.ID}}">{{.Name}}</option>
+                {{end}}
+                </select>
+     </td>
+    </tr>
+</table>
+
+
+<button type="submit" class="btn btn-primary m-5">Create User</button>
+
+</form>
+
+{{end}}

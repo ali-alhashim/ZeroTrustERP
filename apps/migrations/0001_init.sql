@@ -1,9 +1,17 @@
 CREATE TABLE IF NOT EXISTS employees (
-	
+	id SERIAL PRIMARY KEY,
+	badgeid TEXT UNIQUE NOT NULL,
+	name TEXT NOT NULL,
+	department TEXT ,
+	localname TEXT ,
+	jobtitle TEXT 
 );
 
 CREATE TABLE IF NOT EXISTS departments (
-	
+	id SERIAL PRIMARY KEY,
+	name TEXT UNIQUE NOT NULL,
+	code TEXT UNIQUE NOT NULL,
+	manager_id INT UNIQUE REFERENCES employees(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -12,10 +20,14 @@ CREATE TABLE IF NOT EXISTS users (
 	username TEXT UNIQUE NOT NULL,
 	active BOOLEAN DEFAULT TRUE,
 	otphash TEXT ,
+	sessiontoken TEXT ,
 	otpexpiry TIMESTAMP ,
 	lastlogin TIMESTAMP ,
 	incorrectotpattempts INTEGER ,
-	online BOOLEAN DEFAULT FALSE
+	online BOOLEAN DEFAULT FALSE,
+	relatedemployee_id INT UNIQUE REFERENCES employees(id) ON DELETE CASCADE,
+	createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS roles (

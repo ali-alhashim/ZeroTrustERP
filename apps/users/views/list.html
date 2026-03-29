@@ -2,11 +2,32 @@
 
 <h1>Users</h1>
 
+<div class="toolbar">
 <!-- 🔍 Search Bar -->
 <form method="GET" style="margin-bottom: 15px;">
     <input type="text" name="q" value="{{.Query}}" placeholder="Search..." />
     <button type="submit" class="btn btn-secondary">Search</button>
 </form>
+
+<form method="GET" style="margin-bottom: 15px;">
+    <label for="status">Status:</label>
+    <select name="status" id="status" onchange="this.form.submit()">
+        <option value="">All</option>
+        <option value="active" {{if eq .Status "active"}}selected{{end}}>Active</option>
+        <option value="inactive" {{if eq .Status "inactive"}}selected{{end}}>Inactive</option>
+    </select>
+</form>
+
+
+<form method="GET" style="margin-bottom: 15px;" action="/users/create">
+   <button type="submit" class="btn btn-primery">
+     <img src="/static/icons/userPlus.svg" alt="Add New User +"  class="icon" width="20"/>
+   </button>
+</form>
+
+
+</div><!--toolbar-->
+
 
 <table>
     <thead>

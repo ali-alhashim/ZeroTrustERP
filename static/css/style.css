@@ -398,3 +398,26 @@ tr:hover {
     background-color: #16a34a;
     border-radius: 8px 0 0 8px;
 }
+
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+
+.w-100 {
+    width: 100%;
+}
+
+.m-5{
+    margin: 5px;
+}
+
+.xy-5{
+    margin: 5px 0;
+
+}

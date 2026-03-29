@@ -4,17 +4,20 @@ import (
 	"net/http"
 	"zerotrusterp/core"
 	"zerotrusterp/apps/users/models"
+	"strconv"
 )
 
 func ListUsers(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 
-	search := query.Get("q")
-	sortBy := query.Get("sort")
-	order := query.Get("order")
+	search    := query.Get("q")
+	sortBy    := query.Get("sort")
+	order     := query.Get("order")
+	page := query.Get("page")
+	pageSize   := query.Get("pageSize")
 
-	users := GetUsersFromDB(search, sortBy, order)
+	users := GetUsersFromDB(search, sortBy, order, page, pageSize)
 
 	data := map[string]interface{}{
 		"Title": "Users",
@@ -22,29 +25,39 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 		"Query": search,
 		"Sort":  sortBy,
 		"Order": order,
+		"Page":  page,
+		"PageSize": pageSize,
+
 	}
 
 	core.RenderPage(w, "apps/users/views/list.html", data)
 }
 
-func GetUsersFromDB(search, sort, order string) []models.User {
-	query := "SELECT id, username,  email, active, online FROM users WHERE 1=1"
+func GetUsersFromDB(search, sort, order, page, pageSize string) []models.User {
 
-	// 🔍 Search (Postgres uses ILIKE for case-insensitive)
+	query := "SELECT id, username, email, active, online FROM users WHERE 1=1"
+	args := []interface{}{}
+	argIndex := 1
+
+	// 🔍 SAFE search
 	if search != "" {
-		query += " AND (username ILIKE '%" + search + "%' OR email ILIKE '%" + search + "%')"
+		query += " AND (username ILIKE $" + strconv.Itoa(argIndex) +
+			" OR email ILIKE $" + strconv.Itoa(argIndex+1) + ")"
+
+		args = append(args, "%"+search+"%", "%"+search+"%")
+		argIndex += 2
 	}
 
-	// 🔒 Safe sorting (IMPORTANT)
-	allowedSort := map[string]bool{
-		"ID":       true,
-		"Email":    true,
-		"Active":   true,
-		"Online":   true,
+	// 🔒 Safe sorting
+	allowedSort := map[string]string{
+		"ID":     "id",
+		"Email":  "email",
+		"Active": "active",
+		"Online": "online",
 	}
 
-	if allowedSort[sort] {
-		query += " ORDER BY " + sort
+	if col, ok := allowedSort[sort]; ok {
+		query += " ORDER BY " + col
 		if order == "desc" {
 			query += " DESC"
 		} else {
@@ -52,10 +65,29 @@ func GetUsersFromDB(search, sort, order string) []models.User {
 		}
 	}
 
-	// ✅ Execute query
-	rows, err := core.DB.Query(query)
+	// 📄 Pagination (page + pageSize)
+	p, _ := strconv.Atoi(page)
+	ps, _ := strconv.Atoi(pageSize)
+
+	// defaults
+	if p <= 0 {
+		p = 1
+	}
+	if ps <= 0 || ps > 100 {
+		ps = 10
+	}
+
+	offset := (p - 1) * ps
+
+	query += " LIMIT $" + strconv.Itoa(argIndex) +
+		" OFFSET $" + strconv.Itoa(argIndex+1)
+
+	args = append(args, ps, offset)
+
+	// ✅ Execute
+	rows, err := core.DB.Query(query, args...)
 	if err != nil {
-		panic(err) // later handle better
+		panic(err)
 	}
 	defer rows.Close()
 
@@ -63,7 +95,7 @@ func GetUsersFromDB(search, sort, order string) []models.User {
 
 	for rows.Next() {
 		var u models.User
-		err := rows.Scan(&u.ID,  &u.Username, &u.Email, &u.Active,  &u.Online)
+		err := rows.Scan(&u.ID, &u.Username, &u.Email, &u.Active, &u.Online)
 		if err != nil {
 			panic(err)
 		}
@@ -72,4 +104,6 @@ func GetUsersFromDB(search, sort, order string) []models.User {
 
 	return users
 }
+
+
 
