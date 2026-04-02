@@ -15,6 +15,6 @@ func DashboardController(w http.ResponseWriter, r *http.Request) {
 		
 	}
 
-	core.RenderPage(w, "apps/dashboard/views/dashboard.html", data)
+	core.RenderPage(w,r, "apps/dashboard/views/dashboard.html", data)
 
 }

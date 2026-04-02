@@ -9,7 +9,7 @@ import (
 	"log"
 	"math/big"
 
-
+    "context"
 	"crypto/rand"
     "encoding/base64"
 
@@ -306,6 +306,11 @@ func isValidSessionToken(email string, sessionToken string) bool {
 
 // some url need permission this can be check in the database permission if the resource is protected or not and 
 // if the user has permission to access it or not
+
+// Define a custom type for context keys to avoid collisions
+type contextKey string
+const UserEmailKey contextKey = "userEmail"
+
 func AuthMiddleware(next http.Handler, resource...string) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         // 1. Automatically read the cookies from the request
@@ -330,7 +335,10 @@ func AuthMiddleware(next http.Handler, resource...string) http.Handler {
 		if(len(resource) > 0){
 			fmt.Printf("Checking permissions for %s on resource %s\n", emailCookie.Value, resource[0])
 		}
-        next.ServeHTTP(w, r)
+
+        ctx := context.WithValue(r.Context(), UserEmailKey, emailCookie.Value)
+
+        next.ServeHTTP(w, r.WithContext(ctx))
     })
 }
 

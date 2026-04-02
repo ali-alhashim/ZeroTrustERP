@@ -11,5 +11,5 @@ func ListEmployees(w http.ResponseWriter, r *http.Request) {
 		
 	}
 
-	core.RenderPage(w, "apps/employees/views/list.html", data)
+	core.RenderPage(w,r, "apps/employees/views/list.html", data)
 }

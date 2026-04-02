@@ -8,7 +8,7 @@ import (
 )
 
 // Render normal page (with layout)
-func RenderPage(w http.ResponseWriter, tmpl string, data interface{}) {
+func RenderPage(w http.ResponseWriter,r *http.Request, tmpl string, data interface{}) {
 
 
 
@@ -18,6 +18,12 @@ func RenderPage(w http.ResponseWriter, tmpl string, data interface{}) {
 		}
 
 	wd, _ := os.Getwd()
+
+
+	//Automatically inject UserEmail from the Request Context
+	if email, ok := r.Context().Value(UserEmailKey).(string); ok {
+        dataMap["UserEmail"] = email
+    }
 
 
     
