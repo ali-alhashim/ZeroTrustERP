@@ -2,13 +2,18 @@ package core
 
 import (
 	"crypto/sha256"
-	"crypto/hmac"
+	
 	"database/sql"
 	"encoding/hex"
 	"fmt"
 	"log"
-	"math/rand"
-	"os"
+	"math/big"
+
+
+	"crypto/rand"
+    "encoding/base64"
+
+
 	"regexp"
 	"strings"
 	"time"
@@ -18,21 +23,24 @@ import (
 
 // generateSecureToken by using the Email + sessionSecret key from .env and hashing it with sha256, this will be used for session management and should be stored in a secure cookie
 func generateSessionToken(email string) string {
-   
+    // 1. Create a byte slice of 64 bytes (512 bits of entropy)
+    b := make([]byte, 64)
 
-    sessionSecret := os.Getenv("sessionSecret")
+    // 2. Fill the slice with random bytes from the OS's secure source
+    _, err := rand.Read(b)
+    if err != nil {
+        // In a real app, handle this error properly (e.g., return an error)
+        panic("Could not generate random bytes: " + err.Error())
+    }
 
-	// Create a new HMAC instance using SHA256 and your secret key
-	h := hmac.New(sha256.New, []byte(sessionSecret))
+    // 3. Encode the bytes to a URL-safe string
+    // This turns the raw bytes into a readable string like "u6B_...X8Q"
+    sessionToken := base64.URLEncoding.EncodeToString(b)
 
-	// Write the email to the HMAC instance
-     h.Write([]byte(email))
+    // 4. Register the SessionToken in the database
+    RegisterSessionTokenInDB(email, sessionToken)
 
-
-	// register the SessionToken in database  
-	RegisterSessionTokenInDB(email, hex.EncodeToString(h.Sum(nil)))	
-
-	return hex.EncodeToString(h.Sum(nil))
+    return sessionToken
 }
 
 
@@ -42,8 +50,14 @@ func generateSessionToken(email string) string {
 
 
 func GenerateOTP() string {
-	return fmt.Sprintf("%06d", rand.Intn(1000000))
+    // Generate a random number between 0 and 999,999
+    n, err := rand.Int(rand.Reader, big.NewInt(1000000))
+    if err != nil {
+        return "000000" // Fallback or handle error
+    }
+    return fmt.Sprintf("%06d", n.Int64())
 }
+
 
 func HashOTP(otp string) string {
 	hash := sha256.Sum256([]byte(otp))

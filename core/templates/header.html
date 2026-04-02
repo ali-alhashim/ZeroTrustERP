@@ -5,8 +5,19 @@
 
     <div class="user-profile">
     <img src="/static/icons/userCircle.svg" alt="User Icon" width="50">
-    ali-alhasham@outlook.com
+    
+
+    {{if .UserEmail}}
+    <span id="user-email">{{.UserEmail}}</span>
+    {{else}}
+    <span id="user-email">Guest</span>
+    {{end}}
+
+
+
     </div>
 
 </div>
+
+
 {{end}}
