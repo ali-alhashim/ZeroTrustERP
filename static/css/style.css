@@ -86,6 +86,21 @@ body {
     opacity: 1;
 }
 
+.user-profile{
+    display: flex;
+    align-items: center;
+    gap: 0px;
+    
+    font-size: 10px;
+    color: #4b5563;
+    flex-direction: column;
+}
+
+.user-profile:hover {
+    color: #111827;
+    cursor: pointer;
+}
+
 /* =========================
    HEADER
 ========================= */
@@ -95,6 +110,9 @@ body {
     padding: 12px 20px;
     font-size: 14px;
     font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
 }
 
 /* =========================

@@ -4,9 +4,14 @@
     "path": "/users/list",
     "icon": "users"
   },
+    {
+    "name": "Roles",
+    "path": "/users/roles",
+    "icon": "shieldCheck"
+  },
   {
-    "name": "Reports",
-    "path": "/users/report",
+    "name": "Audit trail",
+    "path": "/users/audit-trail",
     "icon": "documentText"
   }
 ]

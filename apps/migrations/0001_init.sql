@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS users (
 	active BOOLEAN DEFAULT TRUE,
 	otp_hash TEXT ,
 	session_token TEXT ,
+	session_expiry TIMESTAMP ,
 	otp_expiry TIMESTAMP ,
 	last_login TIMESTAMP ,
 	incorrect_otp_attempts INTEGER ,
@@ -52,6 +53,15 @@ CREATE TABLE IF NOT EXISTS permissions (
 	description TEXT ,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS logs (
+	id SERIAL PRIMARY KEY,
+	user_id INTEGER NOT NULL,
+	username TEXT NOT NULL,
+	resource TEXT UNIQUE NOT NULL,
+	action TEXT NOT NULL,
+	timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS users_roles (

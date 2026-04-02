@@ -27,6 +27,7 @@ type User struct {
     UpdatedAt time.Time `f:"timestamp, default:current_timestamp"`
 }
 
+// Role header can be admin, manager, employee, etc. Each role has many permissions, and each permission can be assigned to many roles. For example, admin role can have all permissions, manager role can have read and update permissions, employee role can have read permission only.
 type Role struct {
 	ID          int     `f:"number, primary, auto"`
 	Name        string  `f:"text, unique, notnull"`
@@ -40,9 +41,21 @@ type Role struct {
 //Permissions read R, write W, delete D, update U,  all A
 type Permission struct {
 	ID          int     `f:"number, primary, auto"`
-	resource    string  `f:"text, unique, notnull"` // resource can be the name of the model or the name of the API endpoint or the name of the action
+	Resource    string  `f:"text, unique, notnull"` // resource can be the name of the model or the name of the API endpoint or the name of the action
 	Action      string  `f:"text, unique, notnull"` // action can be R, W, D, U, A
     Description string  `f:"text"`
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
+}
+
+
+// for audit-trail
+
+type Log struct {
+    ID        int       `f:"number, primary, auto"`
+    UserID    int       `f:"number, notnull"` // foreign key to user
+    Username  string    `f:"text, notnull"` // store username for easy query, 
+    Resource  string    `f:"text, unique, notnull"`
+    Action    string    `f:"text, notnull"` // action can be login, logout, create, update, delete, etc.
+    Timestamp time.Time `f:"timestamp, default:current_timestamp"`
 }

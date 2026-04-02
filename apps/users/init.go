@@ -15,4 +15,5 @@ func init() {
     core.RegisterModel(models.User{})
     core.RegisterModel(models.Role{})
     core.RegisterModel(models.Permission{})
+    core.RegisterModel(models.Log{})
 }
