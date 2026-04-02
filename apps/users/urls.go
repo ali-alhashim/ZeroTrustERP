@@ -16,6 +16,7 @@ func UserListRoutes(mux *http.ServeMux) {
 
 	mux.Handle("GET /users/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateUser), "users:create"))
 	mux.Handle("POST /users/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateUser), "users:create"))
+	mux.Handle("GET /api/online-users", core.AuthMiddleware(http.HandlerFunc(controllers.OnlineUsersAPI), "users:online"))
 
 }
 

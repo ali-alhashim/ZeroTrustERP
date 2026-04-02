@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	
 )
 
 // RegisterRoutes sets up all HTTP request handlers
@@ -18,10 +20,27 @@ func RegisterRoutes() *http.ServeMux {
 	fs := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 
+
+     // WebSocket endpoint
+     hub := NewHub()
+	 go hub.Run()
+     mux.HandleFunc("/ws", WebSocketHandler(hub))
+
+
+
+
 	// Root endpoint
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Zero Trust ERP Server Running...")
+		fmt.Print("Zero Trust ERP Server Running... you reached the root endpoint.\n")
+		//redirect to dashboard.
+		
+			http.Redirect(w, r, "/dashboard", http.StatusFound)
+			
 	})
+
+
+
+
 
 	// =========================
 	// LOGIN
@@ -102,6 +121,9 @@ func RegisterRoutes() *http.ServeMux {
 
 		RenderPageNoLayout(w, "core/templates/login.html", nil)
 	})
+
+
+
 
 	// =========================
 	// OTP LOGIN
@@ -223,3 +245,6 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"healthy"}`))
 }
+
+
+

@@ -96,6 +96,25 @@ body {
     flex-direction: column;
 }
 
+
+
+.status-indicator{
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #8c9290; /* we don't now  */
+}
+
+.status-indicator.online {
+    background-color: #34d399; /* Green for online */
+}
+
+.status-indicator.offline {
+    background-color: #f87171; /* Red for offline */
+}
+
+
+
 .user-profile:hover {
     color: #111827;
     cursor: pointer;
