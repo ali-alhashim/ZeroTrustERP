@@ -55,6 +55,7 @@ type Log struct {
     ID        int       `f:"number, primary, auto"`
     UserID    int       `f:"number, notnull"` // foreign key to user
     Username  string    `f:"text, notnull"` // store username for easy query, 
+    Email     string    `f:"text, notnull"` // store email for easy query,
     Resource  string    `f:"text, unique, notnull"`
     Action    string    `f:"text, notnull"` // action can be login, logout, create, update, delete, etc.
     Timestamp time.Time `f:"timestamp, default:current_timestamp"`
