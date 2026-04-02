@@ -16,7 +16,7 @@ type User struct {
     OTPExpiry int64       `f:"timestamp"`
     LastLogin int64       `f:"timestamp"`
     IncorrectOtpAttempts int     `f:"number, default:0"` // number of incorrect OTP attempts, reset to 0 after successful login
-    Online    bool     `f:"bool, default:false"` //user becomes online after verification
+    Online    bool     `f:"bool, default:false"` //user becomes online after verification -> WebSocket Approach (Real-time)
 
     Roles     *[]Role  `f:"many2many:"` // many to many relationship with roles One user → many roles , One role → many users
 
