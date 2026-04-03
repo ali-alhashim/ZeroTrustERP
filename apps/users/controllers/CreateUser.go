@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"zerotrusterp/core"
+	"zerotrusterp/apps/users/models"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -53,6 +54,25 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error creating user", http.StatusInternalServerError)
 			return
 		}
+
+
+
+		// log the user creation action
+
+		var CurrentUser *models.User
+
+		if user, ok := r.Context().Value(core.UserKey).(*models.User); ok {
+			CurrentUser = user
+		} else {
+			fmt.Println("No user in context")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+
+		InsertLog(CurrentUser, "User", fmt.Sprintf("Created user %s with email: %s",username, email))
+
+
 
 		http.Redirect(w, r, "/users/list", http.StatusSeeOther)
 		return

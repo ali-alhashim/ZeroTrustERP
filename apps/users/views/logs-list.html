@@ -28,7 +28,13 @@
             </th>
             <th>Email</th>
             <th>User ID</th>
-            <th>Active</th>
+            <th>Resource</th>
+            <th>Action</th>
+            <th>
+                  <a href="?sort=timestamp&order={{if eq .Order "asc"}}desc{{else}}asc{{end}}">
+                    Timestamp
+                    </a>
+            </th>
         </tr>
     </thead>
 
@@ -38,7 +44,14 @@
             <td>{{.ID}}</td>
             <td>{{.Username}}</td>
             <td>{{.Email}}</td>
-            <td>{{.user_id}}</td>
+            <td>{{.UserID}}</td>
+            <td>{{.Resource}}</td>
+            <td>{{.Action}}</td>
+            <td>
+              
+                {{.Timestamp.Format "2006-01-02 15:04:05"}}
+               
+            </td>
         </tr>
         {{end}}
     </tbody>

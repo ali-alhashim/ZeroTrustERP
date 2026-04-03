@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"os"
+	"zerotrusterp/apps/users/models"
 )
 
 // Render normal page (with layout)
@@ -21,8 +22,8 @@ func RenderPage(w http.ResponseWriter,r *http.Request, tmpl string, data interfa
 
 
 	//Automatically inject UserEmail from the Request Context
-	if email, ok := r.Context().Value(UserEmailKey).(string); ok {
-        dataMap["UserEmail"] = email
+	if user, ok := r.Context().Value(UserKey).(*models.User); ok {
+        dataMap["UserEmail"] = user.Email
     }
 
 

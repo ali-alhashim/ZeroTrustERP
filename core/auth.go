@@ -19,6 +19,8 @@ import (
 	"time"
 	"net/http"
 	"net"
+
+	"zerotrusterp/apps/users/models"
 )
 
 // generateSecureToken by using the Email + sessionSecret key from .env and hashing it with sha256, this will be used for session management and should be stored in a secure cookie
@@ -341,7 +343,7 @@ func IsValidSessionToken(email string, sessionToken string) bool {
 
 // Define a custom type for context keys to avoid collisions
 type contextKey string
-const UserEmailKey contextKey = "userEmail"
+const UserKey contextKey = "currentUser"
 
 func AuthMiddleware(next http.Handler, resource...string) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -368,12 +370,34 @@ func AuthMiddleware(next http.Handler, resource...string) http.Handler {
 			fmt.Printf("Checking permissions for %s on resource %s\n", emailCookie.Value, resource[0])
 		}
 
-        ctx := context.WithValue(r.Context(), UserEmailKey, emailCookie.Value)
+        
+    
+        ctx := context.WithValue(r.Context(), UserKey, GetUserByEmail(emailCookie.Value))
+
 
         next.ServeHTTP(w, r.WithContext(ctx))
     })
 }
 
+
+func GetUserByEmail(email string) *models.User {
+    
+	fmt.Printf("Getting user by email: %s\n", email)
+
+	email = strings.ToLower(strings.TrimSpace(email))
+
+	var user models.User
+
+	query := "SELECT id, username, email, active FROM users WHERE email = $1"
+
+	err := DB.QueryRow(query, email).Scan(&user.ID, &user.Username, &user.Email, &user.Active)
+	if err != nil {
+		log.Println("DB error:", err)
+		return nil
+	}
+
+	return &user
+}
 
 
 func GetRealIP(r *http.Request) string {
