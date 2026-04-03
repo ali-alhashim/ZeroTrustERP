@@ -155,6 +155,23 @@ func isFirstUser() bool {
 	return count == 0
 }
 
+
+func GetUserIDByEmail(email string) (string, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
+
+	var id string
+
+	query := "SELECT id FROM users WHERE email = $1"
+
+	err := DB.QueryRow(query, email).Scan(&id)
+	if err != nil {
+		log.Println("DB error:", err)
+		return "", err
+	}
+
+	return id, nil
+}
+
 func isFirstUserAndFirstTimeLogin(email string) bool {
 	email = strings.ToLower(strings.TrimSpace(email))
 

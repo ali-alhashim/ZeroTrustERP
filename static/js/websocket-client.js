@@ -1,13 +1,10 @@
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("Initializing WebSocket connection...");
-
-
+console.log("Initializing WebSocket connection...");
 
 class ZTERPWebSocket {
     constructor() {
         this.socket = null;
-        this.heartbeatInterval = null;
-        this.reconnectDelay = 3000; // 3 seconds
+        this.reconnectDelay = 3000;
+        this.onPresenceUpdate = null; // ✅ allow pages to hook into presence updates
         this.connect();
     }
 
@@ -18,24 +15,24 @@ class ZTERPWebSocket {
         this.socket = new WebSocket(wsUrl);
 
         this.socket.onopen = () => {
-            console.log("WebSocket connected");
-            this.startHeartbeat();
-
-               
+            console.log("✅ WebSocket connected");
         };
 
-      this.socket.onmessage = (event) => {
+        this.socket.onmessage = (event) => {
             console.log("WS Message:", event.data);
 
             let msg;
             try {
                 msg = JSON.parse(event.data);
             } catch (e) {
-                console.warn("Received non‑JSON WS message:", event.data);
+                console.warn("Non-JSON WS message:", event.data);
                 return;
             }
 
+            // ✅ Handle presence update
             if (msg.type === "ONLINE_USERS_UPDATE") {
+                console.log("✅ Presence update received:", msg.users);
+
                 if (this.onPresenceUpdate) {
                     this.onPresenceUpdate(msg.users);
                 }
@@ -43,39 +40,16 @@ class ZTERPWebSocket {
         };
 
         this.socket.onclose = () => {
-            console.warn("WebSocket closed, reconnecting...");
-            this.stopHeartbeat();
+            console.warn("❌ WS closed, reconnecting...");
             setTimeout(() => this.connect(), this.reconnectDelay);
         };
 
         this.socket.onerror = (err) => {
-            console.error("WebSocket error:", err);
-            this.stopHeartbeat();
+            console.error("WS error:", err);
             this.socket.close();
         };
     }
+}
 
-    startHeartbeat() {
-        this.heartbeatInterval = setInterval(() => {
-            if (this.socket.readyState === WebSocket.OPEN) {
-                this.socket.send(JSON.stringify({ type: "heartbeat" }));
-            }
-        }, 5000); // every 5 seconds
-    }
-
-    stopHeartbeat() {
-        if (this.heartbeatInterval) {
-            clearInterval(this.heartbeatInterval);
-            this.heartbeatInterval = null;
-        }
-    }
-
-  
-
-
-
-} //close class
-
+// ✅ Create global instance ONCE
 window.ZTERPWebSocket = new ZTERPWebSocket();
-
-});

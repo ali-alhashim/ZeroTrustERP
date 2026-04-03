@@ -81,15 +81,42 @@ func (c *Client) WritePump() {
 
 func WebSocketHandler(hub *Hub) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
+
+        // ✅ Read cookies
+        sessionCookie, err := r.Cookie("session")
+        if err != nil {
+            http.Error(w, "No session cookie", http.StatusUnauthorized)
+            return
+        }
+
+        emailCookie, err := r.Cookie("email")
+        if err != nil {
+            http.Error(w, "No email cookie", http.StatusUnauthorized)
+            return
+        }
+
+        // ✅ Validate the session token
+        if !IsValidSessionToken(emailCookie.Value, sessionCookie.Value) {
+            http.Error(w, "Invalid session", http.StatusUnauthorized)
+            return
+        }
+
+        // ✅ Lookup user ID by email
+        userID, err := GetUserIDByEmail(emailCookie.Value)
+        if err != nil {
+            http.Error(w, "User not found", http.StatusUnauthorized)
+            return
+        }
+
+        // ✅ Upgrade to WebSocket
         conn, err := upgrader.Upgrade(w, r, nil)
         if err != nil {
             log.Println("upgrade error:", err)
             return
         }
 
-        userID := r.URL.Query().Get("user") // e.g. /ws?user=123
         client := &Client{
-            ID:   userID,
+            ID:   userID,       // ✅ NOW YOUR CLIENT HAS THE REAL USER ID
             Conn: conn,
             Send: make(chan []byte),
             Hub:  hub,
