@@ -1,0 +1,51 @@
+{{define "content"}}
+
+<h1>Audit Trail</h1>
+
+<div class="toolbar">
+<!-- 🔍 Search Bar -->
+<form method="GET" style="margin-bottom: 15px;">
+    <input type="text" name="q" value="{{.Query}}" placeholder="Search..." />
+    <button type="submit" class="btn btn-secondary">Search</button>
+</form>
+
+
+</div><!--toolbar-->
+
+
+<table>
+    <thead>
+        <tr>
+            <th>
+                <a href="?sort=id&order={{if eq .Order "asc"}}desc{{else}}asc{{end}}">
+                    ID
+                </a>
+            </th>
+            <th>
+                <a href="?sort=username&order={{if eq .Order "asc"}}desc{{else}}asc{{end}}">
+                    Name
+                </a>
+            </th>
+            <th>Email</th>
+            <th>User ID</th>
+            <th>Active</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {{range .Logs}}
+        <tr>
+            <td>{{.ID}}</td>
+            <td>{{.Username}}</td>
+            <td>{{.Email}}</td>
+            <td>{{.user_id}}</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+
+
+
+
+
+{{end}}
