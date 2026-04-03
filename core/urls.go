@@ -9,6 +9,13 @@ import (
 	
 )
 
+var MainHub *Hub
+
+func GetMainHub() *Hub {
+
+	return MainHub
+}
+
 // RegisterRoutes sets up all HTTP request handlers
 func RegisterRoutes() *http.ServeMux {
 	mux := http.NewServeMux()
@@ -22,9 +29,12 @@ func RegisterRoutes() *http.ServeMux {
 
 
      // WebSocket endpoint
-     hub := NewHub()
-	 go hub.Run()
-     mux.HandleFunc("/ws", WebSocketHandler(hub))
+     MainHub := NewHub()
+	 go MainHub.Run()
+
+	
+
+     mux.HandleFunc("/ws", WebSocketHandler(MainHub))
 
 
 

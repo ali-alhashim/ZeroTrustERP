@@ -49,13 +49,6 @@ class ZTERPWebSocket {
     startHeartbeat() {
         this.heartbeatInterval = setInterval(() => {
             if (this.socket.readyState === WebSocket.OPEN) {
-
-                
-               fetch("/api/heartbeat", {
-                    method: "POST",
-                    credentials: "include" // sends cookies
-                }).catch(err => console.error("Heartbeat error:", err));  
-
                 this.socket.send(JSON.stringify({ type: "heartbeat" }));
             }
         }, 5000); // every 5 seconds
@@ -63,14 +56,6 @@ class ZTERPWebSocket {
 
     stopHeartbeat() {
         if (this.heartbeatInterval) {
-
-
-             fetch("/api/stopHeartbeat", {
-                    method: "POST",
-                    credentials: "include" // sends cookies
-                }).catch(err => console.error("Heartbeat error:", err));  
-
-
             clearInterval(this.heartbeatInterval);
             this.heartbeatInterval = null;
         }

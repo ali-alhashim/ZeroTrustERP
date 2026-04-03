@@ -70,46 +70,34 @@
 
 
 <script>
-
-function fetchOnlineUsers() {
-    fetch("/api/online-users", {
-        method: "GET",
-        credentials: "include" // sends cookies
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log("Online users:", data);
-
-        // Set ALL users to offline first
-        document.querySelectorAll(".status-indicator").forEach(indicator => {
-            indicator.classList.add("offline");
-            indicator.classList.remove("online");
-        });
-
-        // Set only online users to green
-        data.forEach(userId => {
-            const indicator = document.getElementById("user-" + userId);
-            if (indicator) {
-                indicator.classList.add("online");
-                indicator.classList.remove("offline");
-            }
-        });
-    })
-    .catch(err => {
-        console.error("Error fetching online users:", err);
-    });
-}
-
 document.addEventListener("DOMContentLoaded", () => {
 
-setInterval(() => {
-    fetchOnlineUsers();
-}, 5000); // every 5 seconds
 
+        // ✅ Update presence UI (no fetch / no API)
+        function updateOnlineStatus(onlineUsers) {
 
+            console.log("✅ Updating online:", onlineUsers);
 
+            // Mark all as offline first
+            document.querySelectorAll(".status-indicator").forEach(indicator => {
+                indicator.classList.add("offline");
+                indicator.classList.remove("online");
+            });
+
+            // Mark online users
+            onlineUsers.forEach(userId => {
+                const indicator = document.getElementById("user-" + userId);
+                if (indicator) {
+                    indicator.classList.add("online");
+                    indicator.classList.remove("offline");
+                }
+            });
+        }
 });
 
-</script>
 
+updateOnlineStatus();
+
+  
+</script>
 {{end}}
