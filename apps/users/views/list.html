@@ -70,122 +70,43 @@
 
 
 <script>
-    // websocket-client.js
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("Initializing WebSocket connection...");
 
+function fetchOnlineUsers() {
+    fetch("/api/online-users", {
+        method: "GET",
+        credentials: "include" // sends cookies
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Online users:", data);
 
-
-class ZTERPWebSocket {
-    constructor() {
-        this.socket = null;
-        this.heartbeatInterval = null;
-        this.reconnectDelay = 3000; // 3 seconds
-        this.connect();
-    }
-
-    connect() {
-        const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-        const wsUrl = `${protocol}://${window.location.host}/ws`;
-
-        this.socket = new WebSocket(wsUrl);
-
-        this.socket.onopen = () => {
-            console.log("WebSocket connected");
-            this.startHeartbeat();
-
-                // Fetch initial online users status
-                this.fetchOnlineUsers();
-        };
-
-        this.socket.onmessage = (event) => {
-            console.log("WS Message:", event.data);
-
-            // Example: handle online users update
-            if (event.data === "ONLINE_USERS_UPDATE") {
-                this.fetchOnlineUsers();
-            }
-        };
-
-        this.socket.onclose = () => {
-            console.warn("WebSocket closed, reconnecting...");
-            this.stopHeartbeat();
-            setTimeout(() => this.connect(), this.reconnectDelay);
-        };
-
-        this.socket.onerror = (err) => {
-            console.error("WebSocket error:", err);
-            this.stopHeartbeat();
-            this.socket.close();
-        };
-    }
-
-    startHeartbeat() {
-        this.heartbeatInterval = setInterval(() => {
-            if (this.socket.readyState === WebSocket.OPEN) {
-
-                 this.fetchOnlineUsers();
-
-               fetch("/api/heartbeat", {
-                    method: "POST",
-                    credentials: "include" // sends cookies
-                }).catch(err => console.error("Heartbeat error:", err));  
-
-                this.socket.send(JSON.stringify({ type: "heartbeat" }));
-            }
-        }, 5000); // every 5 seconds
-    }
-
-    stopHeartbeat() {
-        if (this.heartbeatInterval) {
-
-
-             fetch("/api/stopHeartbeat", {
-                    method: "POST",
-                    credentials: "include" // sends cookies
-                }).catch(err => console.error("Heartbeat error:", err));  
-
-
-            clearInterval(this.heartbeatInterval);
-            this.heartbeatInterval = null;
-        }
-    }
-
-    fetchOnlineUsers() {
-        fetch("/api/online-users", {
-            method: "GET",
-            credentials: "include" // sends cookies
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log("Online users:", data);
-            // update UI here
-
-            //Set ALL users to offline first
-            document.querySelectorAll(".status-indicator").forEach(indicator => {
-                    indicator.classList.add("offline");
-                    indicator.classList.remove("online");
-                });
-
-
-
-
-                //Set only online users to green
-                data.forEach(userId => {
-                    const indicator = document.getElementById("user-" + userId);
-                    if (indicator) {
-                        indicator.classList.add("online");
-                        indicator.classList.remove("offline");
-                    }
-                });
+        // Set ALL users to offline first
+        document.querySelectorAll(".status-indicator").forEach(indicator => {
+            indicator.classList.add("offline");
+            indicator.classList.remove("online");
         });
-    } //close fetchOnlineUsers
+
+        // Set only online users to green
+        data.forEach(userId => {
+            const indicator = document.getElementById("user-" + userId);
+            if (indicator) {
+                indicator.classList.add("online");
+                indicator.classList.remove("offline");
+            }
+        });
+    })
+    .catch(err => {
+        console.error("Error fetching online users:", err);
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+setInterval(() => {
+    fetchOnlineUsers();
+}, 5000); // every 5 seconds
 
 
-
-} //close class
-
-window.ZTERPWebSocket = new ZTERPWebSocket();
 
 });
 

@@ -119,6 +119,10 @@ func SetUserOnline(w http.ResponseWriter, r *http.Request) {
 func StopUserHeartbeat(w http.ResponseWriter, r *http.Request) {
 
 	// get cookies {session, email} from request , if no cookies, return 401
+
+	fmt.Printf("Received request to stop heartbeat\n")
+
+
 	cookies, err := r.Cookie("session")
 	if err != nil {
 		fmt.Printf("No session cookie found: %v\n", err)
@@ -140,6 +144,9 @@ func StopUserHeartbeat(w http.ResponseWriter, r *http.Request) {
 	if core.IsValidSessionToken(emailCookie.Value, cookies.Value) {
 		fmt.Printf("Valid session for user: %s\n", emailCookie.Value)
 		// Update user's online status in the database
+
+		fmt.Printf("Setting user %s as offline\n", emailCookie.Value)
+
 		core.SetUserIsOnline(emailCookie.Value, false)
 		
 	} else {

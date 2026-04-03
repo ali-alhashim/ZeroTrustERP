@@ -1,0 +1,87 @@
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("Initializing WebSocket connection...");
+
+
+
+class ZTERPWebSocket {
+    constructor() {
+        this.socket = null;
+        this.heartbeatInterval = null;
+        this.reconnectDelay = 3000; // 3 seconds
+        this.connect();
+    }
+
+    connect() {
+        const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+        const wsUrl = `${protocol}://${window.location.host}/ws`;
+
+        this.socket = new WebSocket(wsUrl);
+
+        this.socket.onopen = () => {
+            console.log("WebSocket connected");
+            this.startHeartbeat();
+
+               
+        };
+
+        this.socket.onmessage = (event) => {
+            console.log("WS Message:", event.data);
+
+            // Example: handle online users update
+            if (event.data === "ONLINE_USERS_UPDATE") {
+              
+            }
+        };
+
+        this.socket.onclose = () => {
+            console.warn("WebSocket closed, reconnecting...");
+            this.stopHeartbeat();
+            setTimeout(() => this.connect(), this.reconnectDelay);
+        };
+
+        this.socket.onerror = (err) => {
+            console.error("WebSocket error:", err);
+            this.stopHeartbeat();
+            this.socket.close();
+        };
+    }
+
+    startHeartbeat() {
+        this.heartbeatInterval = setInterval(() => {
+            if (this.socket.readyState === WebSocket.OPEN) {
+
+                
+               fetch("/api/heartbeat", {
+                    method: "POST",
+                    credentials: "include" // sends cookies
+                }).catch(err => console.error("Heartbeat error:", err));  
+
+                this.socket.send(JSON.stringify({ type: "heartbeat" }));
+            }
+        }, 5000); // every 5 seconds
+    }
+
+    stopHeartbeat() {
+        if (this.heartbeatInterval) {
+
+
+             fetch("/api/stopHeartbeat", {
+                    method: "POST",
+                    credentials: "include" // sends cookies
+                }).catch(err => console.error("Heartbeat error:", err));  
+
+
+            clearInterval(this.heartbeatInterval);
+            this.heartbeatInterval = null;
+        }
+    }
+
+  
+
+
+
+} //close class
+
+window.ZTERPWebSocket = new ZTERPWebSocket();
+
+});
