@@ -18,26 +18,24 @@ class ZTERPWebSocket {
             console.log("✅ WebSocket connected");
         };
 
-        this.socket.onmessage = (event) => {
-            console.log("WS Message:", event.data);
+       this.socket.onmessage = (event) => {
+        console.log("WS Message:", event.data);
 
-            let msg;
-            try {
-                msg = JSON.parse(event.data);
-            } catch (e) {
-                console.warn("Non-JSON WS message:", event.data);
-                return;
+        let msg;
+        try {
+            msg = JSON.parse(event.data);
+        } catch (e) {
+            console.warn("Received non‑JSON message:", event.data);
+            return;
+        }
+
+        if (msg.type === "ONLINE_USERS_UPDATE") {
+            console.log("✅ Presence update received:", msg.users);
+            if (this.onPresenceUpdate) {
+                this.onPresenceUpdate(msg.users);
             }
-
-            // ✅ Handle presence update
-            if (msg.type === "ONLINE_USERS_UPDATE") {
-                console.log("✅ Presence update received:", msg.users);
-
-                if (this.onPresenceUpdate) {
-                    this.onPresenceUpdate(msg.users);
-                }
-            }
-        };
+        }
+};
 
         this.socket.onclose = () => {
             console.warn("❌ WS closed, reconnecting...");
