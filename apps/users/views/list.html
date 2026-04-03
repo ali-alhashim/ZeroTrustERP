@@ -72,27 +72,43 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Listen for WebSocket presence updates
-    window.ZTERPWebSocket.onPresenceUpdate = (onlineUsers) => {
+    function waitForWebSocket() {
+        // If global WebSocket instance is ready → attach listener
+        if (window.ZTERPWebSocket) {
+            console.log("✅ ZTERPWebSocket is ready — attaching presence callback");
 
-        console.log("Online list updated:", onlineUsers);
+            window.ZTERPWebSocket.onPresenceUpdate = function(onlineUsers) {
 
-        document.querySelectorAll(".status-indicator")
-            .forEach(elem => {
-                elem.classList.remove("online");
-                elem.classList.add("offline");
-            });
+                console.log("✅ Online list updated:", onlineUsers);
 
-        onlineUsers.forEach(id => {
-            const elem = document.getElementById("user-" + id);
-            if (elem) {
-                elem.classList.add("online");
-                elem.classList.remove("offline");
-            }
-        });
-    };
+                // Set all users offline first
+                document.querySelectorAll(".status-indicator").forEach(elem => {
+                    elem.classList.remove("online");
+                    elem.classList.add("offline");
+                });
+
+                // Set online users to green
+                onlineUsers.forEach(id => {
+                    const elem = document.getElementById("user-" + id);
+                    if (elem) {
+                        elem.classList.add("online");
+                        elem.classList.remove("offline");
+                    }
+                });
+            };
+
+            return; // ✅ Done
+        }
+
+        // Not ready yet → try again shortly
+        console.warn("⏳ Waiting for ZTERPWebSocket to load...");
+        setTimeout(waitForWebSocket, 150);
+    }
+
+    waitForWebSocket();
 
 });
 </script>
+
 
 {{end}}
