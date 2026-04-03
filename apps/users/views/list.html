@@ -72,27 +72,46 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
+    function applyPresence(onlineUsers) {
+        console.log("✅ Updating online users:", onlineUsers);
+
+        // First mark all as offline
+        document.querySelectorAll(".status-indicator").forEach(elem => {
+            elem.classList.remove("online");
+            elem.classList.add("offline");
+        });
+
+        // Then mark online ones
+        onlineUsers.forEach(id => {
+            const elem = document.getElementById("user-" + id);
+            if (elem) {
+                elem.classList.add("online");
+                elem.classList.remove("offline");
+            }
+        });
+    }
+
+    function fetchInitialPresence() {
+        fetch("/api/online-users")
+            .then(res => {
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                return res.json();
+            })
+            .then(onlineUsers => {
+                applyPresence(onlineUsers);
+            })
+            .catch(err => console.warn("Could not fetch initial presence:", err));
+    }
+
     function waitForSocket() {
         if (window.ZTERPWebSocket) {
             console.log("✅ ZTERPWebSocket ready — attaching presence listener");
 
-            window.ZTERPWebSocket.onPresenceUpdate = function(onlineUsers) {
+            // Hook into real-time updates
+            window.ZTERPWebSocket.onPresenceUpdate = applyPresence;
 
-                console.log("✅ Updating online users:", onlineUsers);
-
-                document.querySelectorAll(".status-indicator").forEach(elem => {
-                    elem.classList.remove("online");
-                    elem.classList.add("offline");
-                });
-
-                onlineUsers.forEach(id => {
-                    const elem = document.getElementById("user-" + id);
-                    if (elem) {
-                        elem.classList.add("online");
-                        elem.classList.remove("offline");
-                    }
-                });
-            };
+            // ✅ Fetch current state immediately — don't wait for next WS event
+            fetchInitialPresence();
 
         } else {
             setTimeout(waitForSocket, 150);

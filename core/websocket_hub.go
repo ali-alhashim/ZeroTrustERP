@@ -73,7 +73,9 @@ func (h *Hub) NotifyOnlineUsers() {
     }
 
     data, _ := json.Marshal(msg)
-    h.broadcast <- data
+    // ✅ Must be non-blocking: Run() is the only reader of h.broadcast,
+    // so calling h.broadcast <- data directly from inside Run() deadlocks.
+    go func() { h.broadcast <- data }()
 }
 
 func (h *Hub) GetOnlineUserIDs() []string {
