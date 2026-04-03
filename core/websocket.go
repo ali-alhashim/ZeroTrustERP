@@ -3,7 +3,7 @@ package core
 import (
     "log"
     "net/http"
-
+    "time"
     "github.com/gorilla/websocket"
 )
 
@@ -20,32 +20,61 @@ type Client struct {
     Hub    *Hub
 }
 
+
+const (
+    writeWait = 10 * time.Second
+    pongWait  = 30 * time.Second
+    pingPeriod = (pongWait * 9) / 10 // must be < pongWait
+)
+
+
 func (c *Client) ReadPump() {
     defer func() {
         c.Hub.unregister <- c
         c.Conn.Close()
     }()
 
+    c.Conn.SetReadLimit(512)
+    c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+    c.Conn.SetPongHandler(func(string) error {
+        c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+        return nil
+    })
+
     for {
-        _, message, err := c.Conn.ReadMessage()
+        _, _, err := c.Conn.ReadMessage()
         if err != nil {
             log.Println("read error:", err)
             break
         }
-
-        // Optional: handle incoming messages
-        log.Println("Received:", string(message))
     }
 }
 
 func (c *Client) WritePump() {
-    defer c.Conn.Close()
+    ticker := time.NewTicker(pingPeriod)
 
-    for msg := range c.Send {
-        err := c.Conn.WriteMessage(websocket.TextMessage, msg)
-        if err != nil {
-            log.Println("write error:", err)
-            break
+    defer func() {
+        ticker.Stop()
+        c.Conn.Close()
+    }()
+
+    for {
+        select {
+        case msg, ok := <-c.Send:
+            c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+            if !ok {
+                c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+                return
+            }
+            if err := c.Conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+                return
+            }
+
+        case <-ticker.C:
+            c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+            if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+                return
+            }
         }
     }
 }
