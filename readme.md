@@ -169,3 +169,21 @@ To build a **secure, scalable, and developer-friendly ERP framework** that combi
 * go run main.go migrate -> to migrate your model struct to postgresql database  
 * go run main.go migrate <appname>
 
+
+
+### Minimum Viable Product (MVP) ###
+
+* Login system
+* Users CRUD
+* Roles & Permission
+* Employees CRUD
+* Simple dashboard
+* QR Assets
+* Leave Management
+* Payroll & WPS File
+* Chart of Accounts
+* Sales Invoice
+* Bills
+* IT Ticketing System
+* Action Tracker
+* CEO Dashboard
