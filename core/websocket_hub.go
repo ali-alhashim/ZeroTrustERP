@@ -6,7 +6,7 @@ import (
 )
 
 type Hub struct {
-    clients    map[string]map[*Client]bool // userID → set of connections
+    clients    map[string]map[*Client]bool
     register   chan *Client
     unregister chan *Client
     broadcast  chan []byte
@@ -25,44 +25,36 @@ func (h *Hub) Run() {
     for {
         select {
 
-        // ✅ New client connection
         case client := <-h.register:
-            if _, exists := h.clients[client.ID]; !exists {
+            if _, ok := h.clients[client.ID]; !ok {
                 h.clients[client.ID] = make(map[*Client]bool)
             }
             h.clients[client.ID][client] = true
 
-            fmt.Println("User connected:", client.ID)
+            fmt.Println("✅ User connected:", client.ID)
             h.NotifyOnlineUsers()
 
-        // ✅ Client disconnected
         case client := <-h.unregister:
-            if conns, exists := h.clients[client.ID]; exists {
-                // Remove client connection
-                if _, ok := conns[client]; ok {
+            if conns, ok := h.clients[client.ID]; ok {
+                if _, exists := conns[client]; exists {
                     delete(conns, client)
+                    close(client.Send)
                 }
-
-                // ✅ If user has zero websocket sessions → user is offline
+                // If no more open connections for this user → offline
                 if len(conns) == 0 {
                     delete(h.clients, client.ID)
-                    fmt.Println("User offline:", client.ID)
+                    fmt.Println("❌ User offline:", client.ID)
                 }
             }
-
-            // Prevent panic: close only user's channel
-            close(client.Send)
-
             h.NotifyOnlineUsers()
 
-        // ✅ Broadcast a message to ALL websocket connections
         case message := <-h.broadcast:
+            // Send to ALL connections
             for _, conns := range h.clients {
                 for client := range conns {
                     select {
                     case client.Send <- message:
                     default:
-                        // Drop stuck client
                         close(client.Send)
                         delete(conns, client)
                     }
@@ -73,25 +65,21 @@ func (h *Hub) Run() {
 }
 
 func (h *Hub) NotifyOnlineUsers() {
-    fmt.Println("Notifying clients about online users update")
-
-    users := h.GetOnlineUserIDs()
+    online := h.GetOnlineUserIDs()
 
     msg := map[string]interface{}{
         "type":  "ONLINE_USERS_UPDATE",
-        "users": users,
+        "users": online,
     }
 
     data, _ := json.Marshal(msg)
-
     h.broadcast <- data
 }
 
-// ✅ Helper: return all online user IDs
 func (h *Hub) GetOnlineUserIDs() []string {
     ids := []string{}
-    for userID := range h.clients {
-        ids = append(ids, userID)
+    for id := range h.clients {
+        ids = append(ids, id)
     }
     return ids
 }
