@@ -40,8 +40,7 @@ func OnlineUsersAPI(w http.ResponseWriter, r *http.Request) {
     }
 
     // ✅ Get real-time online users directly from Hub
-	var MainHub = core.GetMainHub() // Access the global Hub instance
-    onlineUsers := MainHub.GetOnlineUserIDs()
+	onlineUsers := core.GetMainHub().GetOnlineUserIDs()
 
     fmt.Println("Online users:", onlineUsers)
 

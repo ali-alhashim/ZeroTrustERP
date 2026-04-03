@@ -29,7 +29,7 @@ func RegisterRoutes() *http.ServeMux {
 
 
      // WebSocket endpoint
-     MainHub := NewHub()
+     MainHub = NewHub()
 	 go MainHub.Run()
 
 	
