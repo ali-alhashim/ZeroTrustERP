@@ -158,7 +158,8 @@ func isFirstUser() bool {
 
 func GetUserIDByEmail(email string) (string, error) {
 	email = strings.ToLower(strings.TrimSpace(email))
-
+    
+	fmt.Printf("Getting user ID for email: %s\n", email)
 	var id string
 
 	query := "SELECT id FROM users WHERE email = $1"
