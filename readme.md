@@ -172,24 +172,27 @@ To build a **secure, scalable, and developer-friendly ERP framework** that combi
 
 
 ### Minimum Viable Product (MVP) ###
-
 * Login system
 * Users CRUD
 * Roles & Permission
 * Employees CRUD
-* Clearance and End of Service
+* IT Ticketing System
 * Simple dashboard
+### Phase 2 ###
+* Action Tracker
 * QR Assets
 * Leave Management
-* Payroll & WPS File
 * Warehouses and Items
+### Phase 3 ###
+* Payroll & WPS File
 * Purchase Orders And Sales Orders
-* Chart of Accounts
+* Clearance and End of Service
+### Phase 4 ###
 * Sales Invoice
 * Bills
+* Chart of Accounts
+### Phase 5 ####
 * ZATCA
-* IT Ticketing System
-* Action Tracker
 * CEO Dashboard
 * E-commerce
 * Governance and Compliance
