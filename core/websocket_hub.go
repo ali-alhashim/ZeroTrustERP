@@ -1,6 +1,9 @@
 package core
 
-import "fmt"
+import (
+    "encoding/json"
+    "fmt"
+)
 
 type Hub struct {
     clients    map[string]map[*Client]bool // userID → set of connections
@@ -71,7 +74,17 @@ func (h *Hub) Run() {
 
 func (h *Hub) NotifyOnlineUsers() {
     fmt.Println("Notifying clients about online users update")
-    h.broadcast <- []byte("ONLINE_USERS_UPDATE")
+
+    users := h.GetOnlineUserIDs()
+
+    msg := map[string]interface{}{
+        "type":  "ONLINE_USERS_UPDATE",
+        "users": users,
+    }
+
+    data, _ := json.Marshal(msg)
+
+    h.broadcast <- data
 }
 
 // ✅ Helper: return all online user IDs

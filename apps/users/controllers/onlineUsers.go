@@ -7,7 +7,7 @@ import (
     "zerotrusterp/core"
 )
 
-// ✅ GET /api/online-users
+
 // Returns real-time online user IDs from Hub (not DB)
 
 func OnlineUsersAPI(w http.ResponseWriter, r *http.Request) {
