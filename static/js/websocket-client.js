@@ -24,12 +24,21 @@ class ZTERPWebSocket {
                
         };
 
-        this.socket.onmessage = (event) => {
+      this.socket.onmessage = (event) => {
             console.log("WS Message:", event.data);
 
-            // Example: handle online users update
-            if (event.data === "ONLINE_USERS_UPDATE") {
-              
+            let msg;
+            try {
+                msg = JSON.parse(event.data);
+            } catch (e) {
+                console.warn("Received non‑JSON WS message:", event.data);
+                return;
+            }
+
+            if (msg.type === "ONLINE_USERS_UPDATE") {
+                if (this.onPresenceUpdate) {
+                    this.onPresenceUpdate(msg.users);
+                }
             }
         };
 

@@ -72,32 +72,27 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
+    // Listen for WebSocket presence updates
+    window.ZTERPWebSocket.onPresenceUpdate = (onlineUsers) => {
 
-        // ✅ Update presence UI (no fetch / no API)
-        function updateOnlineStatus(onlineUsers) {
+        console.log("Online list updated:", onlineUsers);
 
-            console.log("✅ Updating online:", onlineUsers);
-
-            // Mark all as offline first
-            document.querySelectorAll(".status-indicator").forEach(indicator => {
-                indicator.classList.add("offline");
-                indicator.classList.remove("online");
+        document.querySelectorAll(".status-indicator")
+            .forEach(elem => {
+                elem.classList.remove("online");
+                elem.classList.add("offline");
             });
 
-            // Mark online users
-            onlineUsers.forEach(userId => {
-                const indicator = document.getElementById("user-" + userId);
-                if (indicator) {
-                    indicator.classList.add("online");
-                    indicator.classList.remove("offline");
-                }
-            });
-        }
+        onlineUsers.forEach(id => {
+            const elem = document.getElementById("user-" + id);
+            if (elem) {
+                elem.classList.add("online");
+                elem.classList.remove("offline");
+            }
+        });
+    };
+
 });
-
-
-updateOnlineStatus();
-
-  
 </script>
+
 {{end}}
