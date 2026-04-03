@@ -177,13 +177,16 @@ To build a **secure, scalable, and developer-friendly ERP framework** that combi
 * Users CRUD
 * Roles & Permission
 * Employees CRUD
+* Clearance and End of Service
 * Simple dashboard
 * QR Assets
 * Leave Management
 * Payroll & WPS File
+* Warehouses and Items
 * Chart of Accounts
 * Sales Invoice
 * Bills
 * IT Ticketing System
 * Action Tracker
 * CEO Dashboard
+* E-commerce
