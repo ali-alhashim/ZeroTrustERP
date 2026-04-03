@@ -183,10 +183,13 @@ To build a **secure, scalable, and developer-friendly ERP framework** that combi
 * Leave Management
 * Payroll & WPS File
 * Warehouses and Items
+* Purchase Orders And Sales Orders
 * Chart of Accounts
 * Sales Invoice
 * Bills
+* ZATCA
 * IT Ticketing System
 * Action Tracker
 * CEO Dashboard
 * E-commerce
+* Governance and Compliance
