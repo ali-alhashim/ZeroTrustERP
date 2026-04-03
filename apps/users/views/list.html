@@ -58,7 +58,7 @@
             <td>
                 <!-- Online Status Indicator  add .online or .offline-->
 
-                <div class="status-indicator" id="{{.ID}}"></div>
+                <div class="status-indicator" id="user-{{.ID}}"></div>
             </td>
 
             <td>{{.Active}}</td>
@@ -71,6 +71,10 @@
 
 <script>
     // websocket-client.js
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("Initializing WebSocket connection...");
+
+
 
 class ZTERPWebSocket {
     constructor() {
@@ -89,6 +93,9 @@ class ZTERPWebSocket {
         this.socket.onopen = () => {
             console.log("WebSocket connected");
             this.startHeartbeat();
+
+                // Fetch initial online users status
+                this.fetchOnlineUsers();
         };
 
         this.socket.onmessage = (event) => {
@@ -108,6 +115,7 @@ class ZTERPWebSocket {
 
         this.socket.onerror = (err) => {
             console.error("WebSocket error:", err);
+            this.stopHeartbeat();
             this.socket.close();
         };
     }
@@ -115,6 +123,14 @@ class ZTERPWebSocket {
     startHeartbeat() {
         this.heartbeatInterval = setInterval(() => {
             if (this.socket.readyState === WebSocket.OPEN) {
+
+                 this.fetchOnlineUsers();
+
+               fetch("/api/heartbeat", {
+                    method: "POST",
+                    credentials: "include" // sends cookies
+                }).catch(err => console.error("Heartbeat error:", err));  
+
                 this.socket.send(JSON.stringify({ type: "heartbeat" }));
             }
         }, 5000); // every 5 seconds
@@ -122,6 +138,14 @@ class ZTERPWebSocket {
 
     stopHeartbeat() {
         if (this.heartbeatInterval) {
+
+
+             fetch("/api/stopHeartbeat", {
+                    method: "POST",
+                    credentials: "include" // sends cookies
+                }).catch(err => console.error("Heartbeat error:", err));  
+
+
             clearInterval(this.heartbeatInterval);
             this.heartbeatInterval = null;
         }
@@ -136,18 +160,34 @@ class ZTERPWebSocket {
         .then(data => {
             console.log("Online users:", data);
             // update UI here
+
+            //Set ALL users to offline first
+            document.querySelectorAll(".status-indicator").forEach(indicator => {
+                    indicator.classList.add("offline");
+                    indicator.classList.remove("online");
+                });
+
+
+
+
+                //Set only online users to green
                 data.forEach(userId => {
-                    const indicator = document.getElementById(userId);
+                    const indicator = document.getElementById("user-" + userId);
                     if (indicator) {
                         indicator.classList.add("online");
                         indicator.classList.remove("offline");
                     }
                 });
         });
-    }
-}
+    } //close fetchOnlineUsers
+
+
+
+} //close class
 
 window.ZTERPWebSocket = new ZTERPWebSocket();
+
+});
 
 </script>
 

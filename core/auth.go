@@ -101,6 +101,20 @@ func isEmailExistsAndActive(email string) bool {
 	return exists
 }
 
+
+func SetUserIsOnline(email string, value bool) { 
+ 
+	email = strings.ToLower(strings.TrimSpace(email))
+
+	fmt.Printf("Setting user %s as online\n", email)
+
+	_, err := DB.Exec("UPDATE users SET online = $1 WHERE email = $2", value, email)
+	if err != nil {
+		log.Println("DB error (set user online):", err)
+	}
+	
+}
+
 func isEmailExistsAndActiveWithOTP(email string, otpHash string) bool {
 	var valid bool
 
@@ -287,7 +301,7 @@ func RegisterSessionTokenInDB(email string, sessionToken string) {
 
 
 // check he has a valid session 
-func isValidSessionToken(email string, sessionToken string) bool {
+func IsValidSessionToken(email string, sessionToken string) bool {
 
 	email = strings.ToLower(strings.TrimSpace(email))
 
@@ -324,7 +338,7 @@ func AuthMiddleware(next http.Handler, resource...string) http.Handler {
         }
 
         // 3. Use  function to check the database
-        if !isValidSessionToken(emailCookie.Value, sessionCookie.Value) {
+        if !IsValidSessionToken(emailCookie.Value, sessionCookie.Value) {
             http.Redirect(w, r, "/login", http.StatusSeeOther)
             return
         }
