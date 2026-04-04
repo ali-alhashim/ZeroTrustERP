@@ -42,11 +42,23 @@ func generateSessionToken(email string) string {
     // 4. Register the SessionToken in the database
     RegisterSessionTokenInDB(email, sessionToken)
 
+	//we generate a token so means the use is login so log the action
+    InsertLog(GetUserByEmail(email), "authentication", "login")
+
     return sessionToken
 }
 
 
+func InsertLog(user *models.User, resource string, action string) {
 
+	// TODO: implement log insertion to database, create a new log record with user id, resource, action and timestamp
+	query := "INSERT INTO logs (user_id, username, email, resource, action) VALUES ($1, $2, $3, $4, $5)"
+	_, err := DB.Exec(query, user.ID, user.Username, user.Email, resource, action)
+	if err != nil {
+		panic(err)
+	}
+	
+}
 
 
 

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	
 
 	
 )
@@ -230,6 +231,9 @@ func RegisterRoutes() *http.ServeMux {
 			// Update last login
 			updateLastLogin(email)
 
+
+
+
 			// Redirect to dashboard
 			http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 			return
@@ -255,6 +259,10 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"healthy"}`))
 }
+
+
+
+
 
 
 
