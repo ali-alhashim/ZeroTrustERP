@@ -1,0 +1,61 @@
+{{define "content"}}
+
+<h1>Roles</h1>
+
+<div class="toolbar">
+<!-- 🔍 Search Bar -->
+<form method="GET" style="margin-bottom: 15px;">
+    <input type="text" name="q" value="{{.Query}}" placeholder="Search..." />
+    <button type="submit" class="btn btn-secondary">Search</button>
+</form>
+
+
+</div><!--toolbar-->
+
+
+<table>
+    <thead>
+        <tr>
+            <th>
+                <a href="?sort=id&order={{if eq .Order "asc"}}desc{{else}}asc{{end}}">
+                    ID
+                </a>
+            </th>
+            <th>
+                <a href="?sort=username&order={{if eq .Order "asc"}}desc{{else}}asc{{end}}">
+                    Name
+                </a>
+            </th>
+            <th>Description</th>
+            <th>Permissions</th>
+            <th>CreatedAt</th>
+            <th>UpdatedAt</th>
+            
+        </tr>
+    </thead>
+
+    <tbody>
+        {{range .Roles}}
+        <tr>
+            <td>{{.ID}}</td>
+            <td>{{.Name}}</td>
+            <td>{{.Description}}</td>
+
+            <td>
+                {{.Permissions}}
+            </td>
+            
+            <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+            <td>{{.UpdatedAt.Format "2006-01-02 15:04:05"}}</td>
+        </tr>
+        {{end}}
+    </tbody>
+      
+    </tbody>
+</table>
+
+
+
+
+
+{{end}}
