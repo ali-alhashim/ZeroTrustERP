@@ -453,3 +453,44 @@ func GetRealIP(r *http.Request) string {
 	// Clean up any remaining whitespace or weird formatting
 	return strings.TrimSpace(ip)
 }
+
+
+func GetAllResources() []string{
+
+	fmt.Println("Fetching all resources for permissions...")
+
+	var resources []string
+    
+	//resoures is the names of tables in the database but not relations tables like users_roles or roles_permissions 
+	// just the main tables that we want to protect with permissions 
+	// like users, products, orders etc.. so we can check the permissions based on the resource name and action in the database
+	query := `
+        SELECT table_name 
+        FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+          AND column_name = 'id'
+          AND table_name NOT IN ('roles_permissions', 'users_roles')
+        ORDER BY table_name;`
+
+	
+	rows, err := DB.Query(query)
+    if err != nil {
+        fmt.Println("Error fetching resources:", err)
+        return resources
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var name string
+        if err := rows.Scan(&name); err != nil {
+            fmt.Println("Error scanning resource name:", err)
+            continue
+        }
+        resources = append(resources, name)
+    }
+
+	fmt.Printf("Resources found: %v\n", resources)
+
+
+	return resources
+}

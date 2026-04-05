@@ -54,12 +54,12 @@
             1
         </td>
      <td>
-               <select name="Resource" id="Resource" class="w-100 select-search">
-                <option value="">Select resource</option>
-                {{range .Resources}}
-                    <option value="{{.ID}}">{{.Name}}</option>
-                {{end}}
-                </select>
+             <select name="Resource" id="Resource" class="w-100 select-search">
+                  <option value="">Select resource</option>
+                  {{range .Resources}}
+                      <option value="{{.}}">{{.}}</option>
+                  {{end}}
+              </select>
      </td>
 
      <td>
