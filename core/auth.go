@@ -469,7 +469,7 @@ func GetAllResources() []string{
         FROM information_schema.columns 
         WHERE table_schema = 'public' 
           AND column_name = 'id'
-          AND table_name NOT IN ('roles_permissions', 'users_roles')
+          AND table_name NOT IN ('%_%')
         ORDER BY table_name;`
 
 	

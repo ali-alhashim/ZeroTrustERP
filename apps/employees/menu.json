@@ -5,6 +5,11 @@
     "icon": "users"
   },
   {
+    "name": "Jobs",
+    "path": "/employees/Jobs",
+    "icon": "briefcase"
+  },
+  {
     "name": "Departments",
     "path": "/employees/departments",
     "icon": "identification"
