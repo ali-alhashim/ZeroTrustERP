@@ -67,6 +67,7 @@
             <th colspan="2">Assign Roles</th>
         </tr>
     </thead>
+    <tbody id="Roles-Table-Body">
     <tr>
         <td>
             1
@@ -80,11 +81,27 @@
                 </select>
      </td>
     </tr>
+    </tbody>
+
+    <tr>
+      <td colspan="2">
+         <button type="button" class="btn btn-primery" onclick="addExtraRole()">
+           <img src="/static/icons/plus.svg" alt="Add New User +"  class="icon" width="20"/>
+         </button>
+      </td>
+    </tr>
 </table>
 
 
 <button type="submit" class="btn btn-primary m-5">Create User</button>
 
 </form>
+
+<script>
+  <!-- JavaScript function to add extra role selection -->
+  function addExtraRole() {
+    console.log("Adding extra role selection...");
+  }
+</script>
 
 {{end}}

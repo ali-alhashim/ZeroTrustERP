@@ -30,7 +30,7 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	core.RenderPage(w,r, "apps/users/views/list.html", data)
+	core.RenderPage(w,r, "apps/users/views/users-list.html", data)
 }
 
 func GetUsersFromDB(search, sort, order, page, pageSize string) []models.User {

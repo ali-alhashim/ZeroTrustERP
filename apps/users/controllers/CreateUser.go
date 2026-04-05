@@ -14,7 +14,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		data := map[string]interface{}{
 			"Title": "Create User",
 		}
-		core.RenderPage(w,r, "apps/users/views/createUser.html", data)
+		core.RenderPage(w,r, "apps/users/views/users-create.html", data)
 		return
 	}
 

@@ -1,0 +1,106 @@
+{{define "content"}}
+
+<h4>Create Role</h4>
+
+<form method="post" action="/roles/create">
+<table>
+
+     <tr>
+        <td>
+          Name
+        </td>
+        <td>
+          <input type="text" name="Name" id="Name" value="" placeholder="Enter Role Name" class="w-100"/>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+          Description
+        </td>
+        <td>
+          <input type="text" name="Description" id="Description" value="" placeholder="Enter Description" class="w-100"/>
+        </td>
+    </tr>
+
+
+
+   
+
+
+
+    
+</table>
+
+
+<table class="xy-5">
+    <thead>
+        <tr>
+            <th colspan="4">Role Permissions</th>
+        </tr>
+        <tr>
+            <th>#</th>
+            <th>Resource</th>
+            <th>Action</th>
+            <th>Description</th>
+         </tr>
+
+    </thead>
+    <tbody id="permission-Table-Body">
+
+        
+    <tr>
+        <td>
+            1
+        </td>
+     <td>
+               <select name="Resource" id="Resource" class="w-100 select-search">
+                <option value="">Select resource</option>
+                {{range .Resources}}
+                    <option value="{{.ID}}">{{.Name}}</option>
+                {{end}}
+                </select>
+     </td>
+
+     <td>
+                <select name="Action" id="Action" class="w-100 select-search">
+                 <option value="">Select action</option>
+                 
+                      <option value="R">Read</option>
+                      <option value="W">Write</option>
+                      <option value="U">Update</option>
+                      <option value="D">Delete</option>
+                      <option value="A">All</option>
+                
+                </select>
+     </td>
+     
+     <td>
+        <input type="text" name="description" id="description" value="" placeholder="Enter description" class="w-100"/>
+     </td>
+
+    </tr>
+    </tbody>
+
+    <tr>
+      <td colspan="2">
+         <button type="button" class="btn btn-primery" onclick="addExtraPermission()">
+           <img src="/static/icons/plus.svg" alt="Add New User +"  class="icon" width="20"/>
+         </button>
+      </td>
+    </tr>
+</table>
+
+
+<button type="submit" class="btn btn-primary m-5">Create Role</button>
+
+</form>
+
+<script>
+  <!-- JavaScript function to add extra permission selection -->
+  function addExtraPermission() {
+    console.log("Adding extra permission selection...");
+  }
+</script>
+
+{{end}}
