@@ -11,5 +11,5 @@ func ListDepartments(w http.ResponseWriter, r *http.Request) {
 		
 	}
 
-	core.RenderPage(w,r, "apps/employees/views/listDepartments.html", data)
+	core.RenderPage(w,r, "apps/employees/views/departments-list.html", data)
 }
