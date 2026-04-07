@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	
 	"fmt"
 	"net/http"
 
@@ -20,32 +21,62 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
+	// Handle POST request to create role
 
 	if r.Method == http.MethodPost {
-		err := r.ParseForm()
-		if err != nil {
-			http.Error(w, "Failed to parse form", http.StatusBadRequest)
-			return
-		}
+    err := r.ParseForm()
+    if err != nil {
+        http.Error(w, "Failed to parse form", http.StatusBadRequest)
+        return
+    }
 
-		roleName := r.FormValue("roleName")
-		description := r.FormValue("description")
-		permissionsCount := r.FormValue("permissionsCount")
+    roleName := r.FormValue("roleName")
+    roleDescription := r.FormValue("roleDescription")
 
-		fmt.Printf("Received form data: roleName=%s, description=%s, permissionsCount=%s\n", roleName, description, permissionsCount)
+    // 1. Use $1, $2 for PostgreSQL
+    // Also, use "RETURNING id" if LastInsertId() is not supported by your driver
+    var roleID int64
+    sql := "INSERT INTO roles (name, description) VALUES ($1, $2) RETURNING id"
+    err = core.DB.QueryRow(sql, roleName, roleDescription).Scan(&roleID)
+    
+    if err != nil {
+        fmt.Printf("Failed to create role: %v\n", err)
+        http.Error(w, "Database error", http.StatusInternalServerError)
+        return
+    }
 
-		//ok we received permissionsCount as string, we need to convert it to int
-		// also we need to loop through the permissions and create a slice of permissions
-		// Resource[], Action[], description[]
-		// we will insert the role first and get the role ID, then we will insert the permissions with the role ID
+	fmt.Print("Role created with ID: ", roleID)
 
+    pDescriptions := r.Form["description[]"]
+    pResources := r.Form["Resource[]"]
+    pActions := r.Form["Action[]"]
 
+    for i := 0; i < len(pDescriptions); i++ {
+        var permID int64
+        // 2. Again, use $1, $2, $3 for Postgres
+        sql = "INSERT INTO permissions (resource, action, description) VALUES ($1, $2, $3) RETURNING id"
+        err = core.DB.QueryRow(sql, pResources[i], pActions[i], pDescriptions[i]).Scan(&permID)
+        
+        if err != nil {
+            http.Error(w, "Failed to create permission", http.StatusInternalServerError)
+            return
+        }
 
-		http.Redirect(w, r, "/users/roles", http.StatusSeeOther)
-		return
-	}
+		fmt.Printf("Permission created with ID: %d for resource: %s and action: %s\n", permID, pResources[i], pActions[i])
 
-	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        // 3. Mapping table insert
+        sql = "INSERT INTO roles_permissions (role_id, permission_id) VALUES ($1, $2)"
+        _, err = core.DB.Exec(sql, roleID, permID)
+        if err != nil {
+            http.Error(w, "Failed to assign permission", http.StatusInternalServerError)
+            return
+        }
+    }
+
+    http.Redirect(w, r, "/users/roles", http.StatusSeeOther)
+    return
+}
+
 
 }
+
