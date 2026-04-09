@@ -50,7 +50,10 @@
             <td>{{.Description}}</td>
 
             <td>
-                {{.Permissions}}
+                {{range .Permissions}}
+                    {{.Resource}}:{{.Action}}<br/>
+                {{end}}
+                
             </td>
             
             <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>

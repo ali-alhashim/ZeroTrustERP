@@ -24,6 +24,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 	// Handle POST request to create role
 
 	if r.Method == http.MethodPost {
+
     err := r.ParseForm()
     if err != nil {
         http.Error(w, "Failed to parse form", http.StatusBadRequest)
@@ -45,19 +46,26 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-	fmt.Print("Role created with ID: ", roleID)
+	fmt.Print("Role created with ID: ", roleID ,"\n")
 
-    pDescriptions := r.Form["description[]"]
-    pResources := r.Form["Resource[]"]
-    pActions := r.Form["Action[]"]
+    pDescriptions := r.Form["description"]
+    pResources    := r.Form["Resource"]
+    pActions      := r.Form["Action"]
+    
+    fmt.Printf("Received permissions: %v\n", pResources)
 
-    for i := 0; i < len(pDescriptions); i++ {
+    fmt.Printf("Count: %s\n", r.FormValue("permissionsCount"))
+
+    for i := 0; i < len(pResources); i++ {
         var permID int64
         // 2. Again, use $1, $2, $3 for Postgres
         sql = "INSERT INTO permissions (resource, action, description) VALUES ($1, $2, $3) RETURNING id"
+        // pDescriptions[i] might be empty, so we can handle that case if needed
+        fmt.Printf("Inserting permission with Resource: %s, Action: %s, Description: %s\n", pResources[i], pActions[i], pDescriptions[i])
         err = core.DB.QueryRow(sql, pResources[i], pActions[i], pDescriptions[i]).Scan(&permID)
         
         if err != nil {
+            fmt.Printf("Failed to create permission: %v\n", err)
             http.Error(w, "Failed to create permission", http.StatusInternalServerError)
             return
         }
@@ -68,9 +76,12 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
         sql = "INSERT INTO roles_permissions (role_id, permission_id) VALUES ($1, $2)"
         _, err = core.DB.Exec(sql, roleID, permID)
         if err != nil {
+            fmt.Print(err)
             http.Error(w, "Failed to assign permission", http.StatusInternalServerError)
             return
         }
+
+        fmt.Printf("Assigned permission ID %d to role ID %d\n", permID, roleID)
     }
 
     http.Redirect(w, r, "/users/roles", http.StatusSeeOther)
