@@ -125,3 +125,58 @@ func GetRolesFromDB(search, sort, order, page, pageSize string) []models.Role {
 
     return roles
 }
+
+// Get Roles ID & Names as JSON for dropdowns and APIs
+// GetRolesAsJson returns the roles as a JSON byte slice
+func GetRolesAsJson() ([]byte, error) {
+    rows, err := core.DB.Query("SELECT id, name FROM roles ORDER BY name")
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    // Define a local struct for clean JSON mapping
+    type role struct {
+        ID   int    `json:"id"`
+        Name string `json:"name"`
+    }
+
+    var roles []role
+    for rows.Next() {
+        var r role
+        if err := rows.Scan(&r.ID, &r.Name); err != nil {
+            return nil, err
+        }
+        roles = append(roles, r)
+    }
+
+    // Check if the loop finished correctly or hit a connection error
+    if err = rows.Err(); err != nil {
+        return nil, err
+    }
+
+    // Convert the slice to JSON
+    return json.Marshal(roles)
+}
+
+func FetchRolesAPI(w http.ResponseWriter, r *http.Request) {
+    fmt.Print("Fetch Roles API")
+
+
+    if r.Method != http.MethodGet {
+        fmt.Println("Invalid method for FetchRolesAPI:", r.Method)
+         http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+
+    fmt.Print("FetchRolesAPI GET Request")
+    jsonData, err := GetRolesAsJson()
+    if err != nil {
+        http.Error(w, "Failed to fetch roles", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.Write(jsonData)
+
+}

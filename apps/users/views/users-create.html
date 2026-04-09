@@ -75,10 +75,31 @@
      <td>
                <select name="Role" id="Role" class="w-100 select-search">
                 <option value="">Select Role</option>
-                {{range .Roles}}
-                    <option value="{{.ID}}">{{.Name}}</option>
-                {{end}}
                 </select>
+
+                <script>
+                  // Fetch roles from the server and populate the dropdown 
+                  // Fetch GET method with credentials included
+
+                  fetch('/api/fetch-roles', {
+                    method: 'GET',
+                    credentials: 'include'
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    const roleSelect = document.getElementById('Role');
+
+                    data.forEach(data => {
+                      const option = document.createElement('option');
+                      option.value = data.id;
+                      option.textContent = data.name;
+                      roleSelect.appendChild(option);
+                    });
+                  })
+                  .catch(error => {
+                    console.error('Error fetching roles:', error);
+                  });
+                </script>
      </td>
     </tr>
     </tbody>

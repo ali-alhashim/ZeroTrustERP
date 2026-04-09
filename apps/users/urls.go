@@ -20,6 +20,7 @@ func UserListRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /users/roles", core.AuthMiddleware(http.HandlerFunc(controllers.ListRoles), "roles:list"))
 	mux.Handle("GET /roles/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateRole), "roles:create"))
 	mux.Handle("POST /roles/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateRole), "roles:create"))
+	mux.Handle("GET /api/fetch-roles", core.AuthMiddleware(http.HandlerFunc(controllers.FetchRolesAPI), "roles:list"))
 
 }
 
