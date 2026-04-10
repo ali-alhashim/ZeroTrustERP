@@ -1,0 +1,89 @@
+{{define "content"}}
+
+<h1>User /  {{.User.ID}}</h1>
+
+
+<table>
+    <thead>
+       <th colspan="2">User Info</th>
+    </thead>
+    <tbody>
+       <tr>
+        <td>
+            ID
+        </td>
+        <td>
+            {{.User.ID}}
+        </td>
+       </tr>
+
+       <tr>
+        <td>
+            Username
+        </td>
+        <td>
+            <input type="text" value="{{.User.Username}}" name="Username">
+        </td>
+       </tr>
+
+        <tr>
+        <td>
+            Email
+        </td>
+        <td>
+            <input type="email" value="{{.User.Email}}" name="Email">
+        </td>
+       </tr>
+    </tbody>
+</table>
+
+<br/>
+
+<table>
+    <thead>
+       <th colspan="2">User Security</th>
+    </thead>
+    <tbody>
+
+        <tr>
+        <td>
+         Active
+        </td>
+        <td>
+          <input type="checkbox" name="Active" id="Active" {{if .User.Active}}checked{{end}}>
+        </td>
+       </tr>
+
+
+       <tr>
+        <td>
+           Last Login
+        </td>
+        <td>
+            {{.User.LastLogin.Format "2006-01-02 15:04:05"}}
+        </td>
+       </tr>
+
+       <tr>
+        <td>
+           Created At
+        </td>
+        <td>
+            {{.User.CreatedAt.Format "2006-01-02 15:04:05"}}
+        </td>
+       </tr>
+
+         <tr>
+        <td>
+           Updated At
+        </td>
+        <td>
+            {{.User.UpdatedAt.Format "2006-01-02 15:04:05"}}
+        </td>
+       </tr>
+
+    </tbody>
+</table>
+
+
+{{end}}

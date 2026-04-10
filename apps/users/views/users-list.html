@@ -53,7 +53,12 @@
     <tbody>
         {{range .Users}}
         <tr>
-            <td>{{.ID}}</td>
+            <td>
+                <a class="btn btn-primary" href="/users/details/{{.ID}}">
+                {{.ID}}
+                </a>
+            </td>
+
             <td>{{.Username}}</td>
             <td>{{.Email}}</td>
 
@@ -169,6 +174,9 @@ document.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.error("Error:", err));
 
     }
+
+
+   
 </script>
 
 
