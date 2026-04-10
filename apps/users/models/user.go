@@ -41,8 +41,8 @@ type Role struct {
 //Permissions read R, write W, delete D, update U,  all A
 type Permission struct {
 	ID          int     `f:"number, primary, auto"`
-	Resource    string  `f:"text, unique, notnull"` // resource can be the name of the model or the name of the API endpoint or the name of the action
-	Action      string  `f:"text, unique, notnull"` // action can be R, W, D, U, A
+	Resource    string  `f:"text,  notnull"` // resource can be the name of the model or the name of the API endpoint or the name of the action
+	Action      string  `f:"text,  notnull"` // action can be R, W, D, U, A
     Description string  `f:"text"`
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
