@@ -64,7 +64,7 @@
 <table class="xy-5">
     <thead>
         <tr>
-            <th colspan="2">Assign Roles</th>
+            <th colspan="3">Assign Roles</th>
         </tr>
     </thead>
     <tbody id="Roles-Table-Body">
@@ -77,29 +77,10 @@
                 <option value="">Select Role</option>
                 </select>
 
-                <script>
-                  // Fetch roles from the server and populate the dropdown 
-                  // Fetch GET method with credentials included
-
-                  fetch('/api/fetch-roles', {
-                    method: 'GET',
-                    credentials: 'include'
-                  })
-                  .then(response => response.json())
-                  .then(data => {
-                    const roleSelect = document.getElementById('Role');
-
-                    data.forEach(data => {
-                      const option = document.createElement('option');
-                      option.value = data.id;
-                      option.textContent = data.name;
-                      roleSelect.appendChild(option);
-                    });
-                  })
-                  .catch(error => {
-                    console.error('Error fetching roles:', error);
-                  });
-                </script>
+             
+     </td>
+     <td>
+       -
      </td>
     </tr>
     </tbody>
@@ -110,19 +91,104 @@
            <img src="/static/icons/plus.svg" alt="Add New User +"  class="icon" width="20"/>
          </button>
       </td>
+      <td>
+
+      </td>
     </tr>
 </table>
-
+<input type="hidden" name="rolesCountInput" id="rolesCountInput" value="0"/>
 
 <button type="submit" class="btn btn-primary m-5">Create User</button>
 
 </form>
 
 <script>
-  <!-- JavaScript function to add extra role selection -->
+  // 1. Global variable to store roles once fetched
+  let globalRoles = [];
+
+  // 2. Main initialization on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    fetchRoles();
+  });
+
+  function fetchRoles() {
+    fetch('/api/fetch-roles', {
+      method: 'GET',
+      credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+      globalRoles = data;
+      
+      // Populate the first row's select
+      // We look for any select with the name "Role"
+      const firstSelect = document.querySelector('select[name="Role"]');
+      if (firstSelect) {
+        populateOptions(firstSelect);
+      }
+    })
+    .catch(error => console.error('Error fetching roles:', error));
+  }
+
+  // 3. Helper function to fill a select element
+  function populateOptions(selectElement) {
+    // Keep the "Select Role" placeholder, remove others
+    selectElement.innerHTML = '<option value="">Select Role</option>';
+    
+    globalRoles.forEach(role => {
+      const option = document.createElement('option');
+      option.value = role.id;
+      option.textContent = role.name;
+      selectElement.appendChild(option);
+    });
+  }
+
+  // 4. Function to add extra rows
   function addExtraRole() {
-    console.log("Adding extra role selection...");
+    const tableBody = document.getElementById('Roles-Table-Body');
+    const rowCount = tableBody.rows.length + 1;
+    const newRow = tableBody.insertRow();
+    
+    newRow.innerHTML = `
+        <td>${rowCount}</td>
+        <td>
+            <select name="Role" class="w-100 select-search">
+                <option value="">Select Role</option>
+            </select>
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger" onclick="removeTR(this)">
+                <img src="/static/icons/trash.svg" alt="remove" class="icon" width="20"/>
+            </button>
+        </td>
+    `;
+
+    // Fill the newly created select
+    const newSelect = newRow.querySelector('select');
+    populateOptions(newSelect);
+    
+    updateCount();
+  }
+
+  // 5. Function to remove rows
+  function removeTR(button) {
+    const row = button.closest('tr');
+    row.remove();
+    updateCount();
+    reIndexRows();
+  }
+
+  function updateCount() {
+    const tableBody = document.getElementById('Roles-Table-Body');
+    const input = document.getElementById('rolesCountInput');
+    if (input) input.value = tableBody.rows.length;
+  }
+
+  function reIndexRows() {
+    const rows = document.querySelectorAll('#Roles-Table-Body tr');
+    rows.forEach((row, index) => {
+      row.cells[0].innerText = index + 1;
+    });
   }
 </script>
-
 {{end}}

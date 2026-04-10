@@ -98,7 +98,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 		}
 
 
-		InsertLog(CurrentUser, "User", fmt.Sprintf("Created Role Name : %s ",roleName))
+		InsertLog(CurrentUser, "Roles", fmt.Sprintf("Created Role Name : %s ",roleName))
 
 
 

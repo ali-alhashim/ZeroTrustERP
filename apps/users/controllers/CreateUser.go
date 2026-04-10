@@ -70,7 +70,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		}
 
 
-		InsertLog(CurrentUser, "User", fmt.Sprintf("Created user %s with email: %s",username, email))
+		InsertLog(CurrentUser, "Users", fmt.Sprintf("Created user %s with email: %s",username, email))
 
 
 
