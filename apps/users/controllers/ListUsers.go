@@ -35,7 +35,7 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 
 func GetUsersFromDB(search, sort, order, page, pageSize string) []models.User {
 
-	query := "SELECT id, username, email, active, online FROM users WHERE 1=1"
+	query := "SELECT id, username, email, active, online, last_login FROM users WHERE 1=1"
 	args := []interface{}{}
 	argIndex := 1
 
@@ -54,6 +54,7 @@ func GetUsersFromDB(search, sort, order, page, pageSize string) []models.User {
 		"Email":  "email",
 		"Active": "active",
 		"Online": "online",
+		"LastLogin":"last_login",
 	}
 
 	if col, ok := allowedSort[sort]; ok {
@@ -95,7 +96,7 @@ func GetUsersFromDB(search, sort, order, page, pageSize string) []models.User {
 
 	for rows.Next() {
 		var u models.User
-		err := rows.Scan(&u.ID, &u.Username, &u.Email, &u.Active, &u.Online)
+		err := rows.Scan(&u.ID, &u.Username, &u.Email, &u.Active, &u.Online, &u.LastLogin)
 		if err != nil {
 			panic(err)
 		}

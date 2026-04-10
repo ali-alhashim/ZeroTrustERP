@@ -12,9 +12,9 @@ type User struct {
     Active    bool       `f:"bool, default:true"` // if user not active, then user cannot login
     OTPHash   string     `f:"text"`
     SessionToken string  `f:"text"`
-    SessionExpiry int64   `f:"timestamp"`
-    OTPExpiry int64       `f:"timestamp"`
-    LastLogin int64       `f:"timestamp"`
+    SessionExpiry time.Time  `f:"timestamp"`
+    OTPExpiry time.Time   `f:"timestamp"`
+    LastLogin time.Time    `f:"timestamp"`
     IncorrectOtpAttempts int     `f:"number, default:0"` // number of incorrect OTP attempts, reset to 0 after successful login
     Online    bool     `f:"bool, default:false"` //user becomes online after verification -> WebSocket Approach (Real-time)
 

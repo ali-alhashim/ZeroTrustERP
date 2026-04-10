@@ -45,6 +45,8 @@
             <th>Email</th>
             <th>Online</th>
             <th>Active</th>
+            <th>Last Login</th>
+            <th>Revoke Session</th>
         </tr>
     </thead>
 
@@ -62,6 +64,15 @@
             </td>
 
             <td>{{.Active}}</td>
+
+            <td>
+                {{.LastLogin.Format "2006-01-02 15:04:05"}}
+            </td>
+            <td>
+                <button onclick="RevokeSession(this)" data-userid="{{.ID}}">
+                    <img src="/static/icons/power.svg" class="icon" width="20">
+                </button>
+            </td>
         </tr>
         {{end}}
     </tbody>
@@ -120,7 +131,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
     waitForSocket();
 
+
+
+
+  
 });
+
+
+  function RevokeSession(button)
+    {
+        const userID = button.dataset.userid;
+        if (!confirm(`Are you sure you want to revoke user ${userID} session?`)) return;
+
+        //send post request to /users/RevokeSession/userID
+        console.log(`RevokeSession for userID ${userID}`);
+
+        fetch(`/users/RevokeSession/${userID}`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json'
+            // Add CSRF tokens here if your Go backend requires them
+        }
+    })
+    .then(response => {
+        if (response.status==200) {
+            alert("Session revoked successfully.");
+            location.reload(); // Refresh to update the UI
+        } else {
+            alert(`Failed to revoke session. ${response.status}`);
+        }
+    })
+    .catch(err => console.error("Error:", err));
+
+    }
 </script>
 
 
