@@ -14,7 +14,7 @@ type User struct {
     SessionToken string  `f:"text"`
     SessionExpiry time.Time  `f:"timestamp"`
     OTPExpiry time.Time   `f:"timestamp"`
-    LastLogin time.Time    `f:"timestamp"`
+    LastLogin *time.Time    `f:"timestamp"`
     IncorrectOtpAttempts int     `f:"number, default:0"` // number of incorrect OTP attempts, reset to 0 after successful login
     Online    bool     `f:"bool, default:false"` //user becomes online after verification -> WebSocket Approach (Real-time)
 

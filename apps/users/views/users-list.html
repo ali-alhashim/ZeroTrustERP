@@ -65,8 +65,12 @@
 
             <td>{{.Active}}</td>
 
-            <td>
+           <td>
+            {{if .LastLogin}}
                 {{.LastLogin.Format "2006-01-02 15:04:05"}}
+            {{else}}
+                Never
+            {{end}}
             </td>
             <td>
                 <button onclick="RevokeSession(this)" data-userid="{{.ID}}">
