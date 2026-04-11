@@ -379,7 +379,24 @@ func AuthMiddleware(next http.Handler, resource...string) http.Handler {
 		// but we need to check the permissions
 		// what is the resource they are trying to access and does the user have permission to access it or not so pass the resource name in the header and check it in the database if the user has permission to access it or not
 		if(len(resource) > 0){
-			fmt.Printf("Checking permissions for %s on resource %s\n", emailCookie.Value, resource[0])
+			fmt.Printf(" Checking permissions for %s on resource %s\n", emailCookie.Value, resource[0])
+            
+			parts := strings.Split(resource[0], ":")
+
+			resourceName := parts[0] 
+            actionType   := parts[1] 
+			fmt.Print("\n ok the resource is: ", resourceName, " and the action type is: ", actionType,"\n")
+			
+			if !isAuthorized(GetUserByEmail(emailCookie.Value),resourceName, actionType) {
+                fmt.Print("You Are not Authorized for the Selected Resource ", resource[0])
+				
+				//HTTP 403 Forbidden 
+				w.WriteHeader(http.StatusForbidden)
+				w.Write([]byte("403 - You are not authorized for this resource"))
+				return // Stop execution here!
+			}
+
+			fmt.Print("\n ***Ok the User is Authorized*** \n")
 		}
 
         
@@ -496,25 +513,32 @@ func GetAllResources() []string{
 }
 
 
-func isAuthorized(theUser models.User,resources string, permission string) bool{
+func isAuthorized(theUser *models.User, resource string, action string) bool {
+    // This query checks two things:
+    // 1. Is the user an 'admin'?
+    // 2. Does the user have a role linked to the specific resource and action?
+	fmt.Print(" \n check if the user with ID: ", theUser.ID, " has permisstion as ", action , " on ", resource ,"\n")
 
-fmt.Println("isAuthorized for user ID", theUser.ID, "for Resources", resources, "with Permission", permission)
+    query := `
+        SELECT EXISTS (
+            SELECT 1 
+            FROM users_roles ur
+            JOIN roles r ON ur.role_id = r.id
+            LEFT JOIN roles_permissions rp ON r.id = rp.role_id
+            LEFT JOIN permissions p ON rp.permission_id = p.id
+            WHERE ur.user_id = $1 
+            AND (
+                r.name = 'admin' 
+                OR (p.resource = $2 AND p.action = $3)
+            )
+        )`
 
-// SQL query to check if user has permission we skip if user has role name = admin 
-// so first check if user has role admin no need to check the permission in not check
-
-
-// no roles return false
-if theUser.Roles == nil {
+    var authorized bool
+    err := DB.QueryRow(query, theUser.ID, resource, action).Scan(&authorized)
+    if err != nil {
+        fmt.Println("Error checking authorization:", err)
         return false
     }
 
-//has admin role retrun true
-for _, role := range *theUser.Roles {
-        if role.Name == "admin" {
-            return true
-        }
-    }
-
-return false
+    return authorized
 }
