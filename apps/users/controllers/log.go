@@ -5,6 +5,7 @@ import (
 	"zerotrusterp/apps/users/models"
 	"zerotrusterp/core"
 	"strconv"
+	"fmt"
 
 )
 
@@ -28,11 +29,14 @@ func ListLogs(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 
-	search    := query.Get("q")
-	sortBy    := query.Get("sort")
-	order     := query.Get("order")
-	page := query.Get("page")
+	search     := query.Get("q")
+	sortBy     := query.Get("sort")
+	order      := query.Get("order")
+	page       := query.Get("page")
 	pageSize   := query.Get("pageSize")
+
+	fmt.Printf("list logs: search=%s, sort=%s, order=%s, page=%s, pageSize=%s\n", search, sortBy, order, page, pageSize)
+    
 
 	logs := GetLogsFromDB(search, sortBy, order, page, pageSize)
 
@@ -59,7 +63,7 @@ func GetLogsFromDB(search, sort, order, page, pageSize string) []models.Log {
 
 	if search != "" {
 		query += " AND (username ILIKE $" + strconv.Itoa(argIndex) +
-			" OR email ILIKE $" + strconv.Itoa(argIndex+1) + ")"
+			     " OR email ILIKE $" + strconv.Itoa(argIndex+1) + ")"
 
 		args = append(args, "%"+search+"%", "%"+search+"%")
 		argIndex += 2
@@ -68,12 +72,12 @@ func GetLogsFromDB(search, sort, order, page, pageSize string) []models.Log {
 
 	// 🔒 Safe sorting
 	allowedSort := map[string]string{
-		"ID":     "id",
-		"Email":  "email",
-		"UserID": "user_id",
-		"Resource": "resource",
-		"Action": "action",
-		"Timestamp": "timestamp",
+		"id":        "id",
+		"email":     "email",
+		"userid":    "user_id",
+		"resource":  "resource",
+		"action":    "action",
+		"timestamp": "timestamp",
 	}
 
 	if col, ok := allowedSort[sort]; ok {

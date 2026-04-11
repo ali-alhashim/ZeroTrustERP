@@ -72,9 +72,9 @@ func GetRolesFromDB(search, sort, order, page, pageSize string) []models.Role {
 
     // 4. Add Sorting
     allowedSort := map[string]string{
-        "ID":          "r.id",
-        "Name":        "r.name",
-        "Description": "r.description",
+        "id":          "r.id",
+        "name":        "r.name",
+        "description": "r.description",
     }
     if col, ok := allowedSort[sort]; ok {
         fullQuery += " ORDER BY " + col

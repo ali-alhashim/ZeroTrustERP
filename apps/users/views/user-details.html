@@ -2,7 +2,7 @@
 
 <h1>User /  {{.User.ID}}</h1>
 
-
+<form action="/users/update" method="PATCH">
 <table>
     <thead>
        <th colspan="2">User Info</th>
@@ -85,5 +85,10 @@
     </tbody>
 </table>
 
+
+<br>
+<button type="submit" class="btn btn-primary">Update</button>
+
+</form>
 
 {{end}}

@@ -50,11 +50,11 @@ func GetUsersFromDB(search, sort, order, page, pageSize string) []models.User {
 
 	// 🔒 Safe sorting
 	allowedSort := map[string]string{
-		"ID":     "id",
-		"Email":  "email",
-		"Active": "active",
-		"Online": "online",
-		"LastLogin":"last_login",
+		"id":     "id",
+		"email":  "email",
+		"active": "active",
+		"online": "online",
+		"last_login":"last_login",
 	}
 
 	if col, ok := allowedSort[sort]; ok {
