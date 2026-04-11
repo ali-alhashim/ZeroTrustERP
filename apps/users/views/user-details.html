@@ -2,7 +2,8 @@
 
 <h1>User /  {{.User.ID}}</h1>
 
-<form action="/users/update/{{.User.ID}}" method="PATCH">
+<form id="updateUserForm">
+
 <table>
     <thead>
        <th colspan="2">User Info</th>
@@ -60,7 +61,11 @@
            Last Login
         </td>
         <td>
+            {{if .User.LastLogin}}
             {{.User.LastLogin.Format "2006-01-02 15:04:05"}}
+            {{else}}
+             Never
+            {{end}}
         </td>
        </tr>
 
@@ -90,5 +95,23 @@
 <button type="submit" class="btn btn-primary">Update</button>
 
 </form>
+
+
+
+<script>
+document.getElementById('updateUserForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    fetch('/users/update/{{.User.ID}}', {
+        method: 'PATCH',
+        credentials: 'include',
+        body: new FormData(this)
+    }).then(response => {
+        if (response.ok) {
+            window.location.href = '/users/details/{{.User.ID}}';
+        }
+    });
+});
+</script>
 
 {{end}}
