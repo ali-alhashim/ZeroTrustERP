@@ -494,3 +494,27 @@ func GetAllResources() []string{
 
 	return resources
 }
+
+
+func isAuthorized(theUser models.User,resources string, permission string) bool{
+
+fmt.Println("isAuthorized for user ID", theUser.ID, "for Resources", resources, "with Permission", permission)
+
+// SQL query to check if user has permission we skip if user has role name = admin 
+// so first check if user has role admin no need to check the permission in not check
+
+
+// no roles return false
+if theUser.Roles == nil {
+        return false
+    }
+
+//has admin role retrun true
+for _, role := range *theUser.Roles {
+        if role.Name == "admin" {
+            return true
+        }
+    }
+
+return false
+}
