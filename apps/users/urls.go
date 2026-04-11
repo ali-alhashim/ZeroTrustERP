@@ -22,7 +22,9 @@ func UserListRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /roles/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateRole), "roles:W"))
 	mux.Handle("GET /api/fetch-roles", core.AuthMiddleware(http.HandlerFunc(controllers.FetchRolesAPI), "roles:R"))
 	mux.Handle("POST /users/RevokeSession/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.RevokeSession),"users:U"))
+
 	mux.Handle("GET /users/details/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.UserDetails),"users:R"))
+	mux.Handle("PATCH /users/update/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.UpdateUser), "users:U"))
 
 }
 

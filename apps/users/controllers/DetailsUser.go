@@ -61,3 +61,18 @@ func getUserByID(id string) models.User {
 
     return user
 }
+
+
+
+func UpdateUser(w http.ResponseWriter, r *http.Request){
+
+    if r.Method != http.MethodPatch {
+        fmt.Print("only Patch Request Allowed")
+		http.Error(w, "only Patch Request Allowed", http.StatusBadRequest)
+    }
+
+    userID := r.PathValue("id")
+
+    fmt.Print(" Ok we have request to update user ID: ", userID)
+
+}

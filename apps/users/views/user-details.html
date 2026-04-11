@@ -2,7 +2,7 @@
 
 <h1>User /  {{.User.ID}}</h1>
 
-<form action="/users/update" method="PATCH">
+<form action="/users/update/{{.User.ID}}" method="PATCH">
 <table>
     <thead>
        <th colspan="2">User Info</th>
