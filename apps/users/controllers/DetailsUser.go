@@ -107,6 +107,10 @@ func UpdateUser(w http.ResponseWriter, r *http.Request){
 
     fmt.Print(CurrentUser.ID ," : " , CurrentUser.Username ,"  sent the following ", Username, " : ", Email, " : ", Active, " to update the User ID : ", userID)
 
+
+     //also see the roles and update if the user made any update 
+
+
      url := fmt.Sprintf("/users/details/%s", userID)
      http.Redirect(w, r, url, http.StatusSeeOther)
      
