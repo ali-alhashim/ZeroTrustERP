@@ -69,8 +69,8 @@ body {
 
 .sidebar a.active {
     background: #fff7ed;
-    color: #f48120;
-    border-left: 3px solid #f48120;
+    color: #00663d;
+    border-left: 3px solid #00663d;
     font-weight: 500;
 }
 
@@ -167,14 +167,14 @@ body {
 
 /* Primary (ONLY highlight action) */
 .btn-primary {
-    background-color: #f48120;
-    border-color: #f48120;
+    background-color: #00663d;
+    border-color: #00663d;
     color: #ffffff;
 }
 
 .btn-primary:hover {
-    background-color: #d96a10;
-    border-color: #d96a10;
+    background-color: #00663d;
+    border-color: #00663d;
 }
 
 /* Secondary (default) */
@@ -233,8 +233,8 @@ input[type="number"] {
 /* Focus */
 input:focus,
 select:focus {
-    border-color: #f48120;
-    box-shadow: 0 0 0 1px rgba(244, 129, 32, 0.3);
+    border-color: #00663D;
+    box-shadow: 0 0 0 1px rgba(32, 244, 85, 0.3);
 }
 
 /* =========================
