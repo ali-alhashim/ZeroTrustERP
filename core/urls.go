@@ -101,6 +101,10 @@ func RegisterRoutes() *http.ServeMux {
 				"Your OTP Code",
 				fmt.Sprintf("Your verification code is: %s (expires in 3 minutes)", otp),
 			)
+
+
+
+			
 			if err != nil {
 				fmt.Printf("Failed to send OTP email: %v\n", err)
 				RenderPageNoLayout(w, "core/templates/login.html", map[string]interface{}{
@@ -109,6 +113,8 @@ func RegisterRoutes() *http.ServeMux {
 				})
 				return
 			}
+
+			InsertLog(GetUserByEmail(email),"OTP Sent to Email: "+ email + " with IP: "+GetRealIP(r),"Generate OTP")
 
 			// Store OTP (hashed + expiry)
 			err = insertOtphashForEmail(email, HashOTP(otp), time.Now().Add(3*time.Minute))

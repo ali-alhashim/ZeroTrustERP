@@ -96,7 +96,7 @@
 <table>
     <thead>
         <tr>
-        <th colspan="4">
+        <th colspan="5">
             Roles
         </th>
         </tr>
@@ -114,18 +114,28 @@
             <td>
                 Permisstions
             </td>
+            <td>-</td>
+
+            
+
         </tr>
 
 
         
 
     </thead>
-  <tbody>
+  <tbody id="roles-Table-Body">
     {{range .User.Roles}}
     <tr>
         <td>{{.ID}}</td>
         <td><strong>{{.Name}}</strong></td>
         <td>{{.Description}}</td>
+
+
+
+         
+
+
         <td>
             <table>
                 <thead>
@@ -147,6 +157,14 @@
                </tbody>
             </table>
         </td>
+
+
+         <td>
+                <button type="button" class="btn btn-danger" onclick="removeTR(this)">
+                <img src="/static/icons/trash.svg" alt="remove"  class="icon" width="20"/>
+                </button>
+           </td>
+
     </tr>
     {{else}}
     <tr>
@@ -159,7 +177,7 @@
 
 <br>
 <button type="submit" class="btn btn-primary">Update</button>
-
+<input type="hidden" name="rolesCountInput" id="rolesCountInput" value="">
 </form>
 
 
@@ -178,6 +196,21 @@ document.getElementById('updateUserForm').addEventListener('submit', function(e)
         }
     });
 });
+
+
+
+ function removeTR(button) {
+    const row = button.parentNode.parentNode; // Get the parent row of the button
+    row.parentNode.removeChild(row); // Remove the row from the table
+
+    // Update the roles count after removal
+    const tableBody = document.getElementById('roles-Table-Body');
+    const rolesCountInput = document.getElementById('rolesCount');
+    rolesCountInput.value = tableBody.rows.length; // Update count to current number of rows
+  }
+
+
+
 </script>
 
 {{end}}

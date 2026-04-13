@@ -51,6 +51,8 @@ func generateSessionToken(email string) string {
 
 func InsertLog(user *models.User, resource string, action string) {
 
+	fmt.Printf("\n Insert Log %d  by %s  for %s with action: %s\n", user.ID, user.Username, resource, action)
+
 	// TODO: implement log insertion to database, create a new log record with user id, resource, action and timestamp
 	query := "INSERT INTO logs (user_id, username, email, resource, action) VALUES ($1, $2, $3, $4, $5)"
 	_, err := DB.Exec(query, user.ID, user.Username, user.Email, resource, action)
@@ -402,7 +404,8 @@ func AuthMiddleware(next http.Handler, resource...string) http.Handler {
         
     
         ctx := context.WithValue(r.Context(), UserKey, GetUserByEmail(emailCookie.Value))
-
+        
+		
 
         next.ServeHTTP(w, r.WithContext(ctx))
     })
