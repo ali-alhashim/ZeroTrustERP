@@ -415,17 +415,88 @@ func GetUserByEmail(email string) *models.User {
 
 	email = strings.ToLower(strings.TrimSpace(email))
 
-	var user models.User
+	
 
-	query := "SELECT id, username, email, active FROM users WHERE email = $1"
+	 query := `
+        SELECT 
+            u.id, u.username, u.email, u.active, u.online, u.last_login, u.created_at, u.updated_at,
+            r.id, r.name, r.description,
+            p.id, p.resource, p.action
+        FROM users u
+        LEFT JOIN users_roles ur ON u.id = ur.user_id
+        LEFT JOIN roles r ON ur.role_id = r.id
+        LEFT JOIN roles_permissions rp ON r.id = rp.role_id
+        LEFT JOIN permissions p ON rp.permission_id = p.id
+        WHERE u.email = $1`
 
-	err := DB.QueryRow(query, email).Scan(&user.ID, &user.Username, &user.Email, &user.Active)
-	if err != nil {
-		log.Println("DB error:", err)
-		return nil
-	}
+	 rows, err := DB.Query(query, email)
+    if err != nil {
+        fmt.Printf("Database error: %v\n", err)
+        return &models.User{}
+    }
+    defer rows.Close()
 
-	return &user
+    var user models.User
+    // Use maps to track unique Roles and Permissions as we iterate rows
+    roleMap := make(map[int]*models.Role)
+    // Map to keep track of which permissions belong to which role
+    permMap := make(map[int]map[int]bool) 
+
+    for rows.Next() {
+        var (
+            // Using pointers for nullable JOIN columns
+            rID *int
+            rName *string
+            rDesc *string
+            pID *int
+            pResource *string
+            pAction *string
+        )
+
+        err := rows.Scan(
+            &user.ID, &user.Username, &user.Email, &user.Active, &user.Online, &user.LastLogin, &user.CreatedAt, &user.UpdatedAt,
+            &rID, &rName, &rDesc,
+            &pID, &pResource, &pAction,
+        )
+        if err != nil {
+            fmt.Printf("Scan error: %v\n", err)
+            return &models.User{}
+        }
+
+        // Handle Roles
+        if rID != nil {
+            role, exists := roleMap[*rID]
+            if !exists {
+                role = &models.Role{
+                    ID:          *rID,
+                    Name:        *rName,
+                    Description: *rDesc,
+                    Permissions: &[]models.Permission{}, // Initialize the pointer to a slice
+                }
+                roleMap[*rID] = role
+                permMap[*rID] = make(map[int]bool)
+            }
+
+            // Handle Permissions inside the Role
+            if pID != nil && !permMap[*rID][*pID] {
+                *role.Permissions = append(*role.Permissions, models.Permission{
+                    ID:       *pID,
+                    Resource: *pResource,
+                    Action:   *pAction,
+                })
+                permMap[*rID][*pID] = true
+            }
+        }
+    }
+
+    // Convert the map of roles into the user's *[]Role slice
+    rolesSlice := []models.Role{}
+    for _, role := range roleMap {
+        rolesSlice = append(rolesSlice, *role)
+    }
+    user.Roles = &rolesSlice
+
+    return &user
 }
 
 
