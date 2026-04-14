@@ -40,6 +40,8 @@ func ListLogs(w http.ResponseWriter, r *http.Request) {
 
 	logs := GetLogsFromDB(search, sortBy, order, page, pageSize)
 
+	totalRecords := core.GetCountRecords("logs")
+
 	data := map[string]interface{}{
 		"Title": "Logs",
 		"Logs": logs,
@@ -48,11 +50,14 @@ func ListLogs(w http.ResponseWriter, r *http.Request) {
 		"Order": order,
 		"Page":  page,
 		"PageSize": pageSize,
+		"TotalRecords":totalRecords,
 
 	}
 
 	core.RenderPage(w,r, "apps/users/views/logs-list.html", data)
 }
+
+
 
 
 func GetLogsFromDB(search, sort, order, page, pageSize string) []models.Log {
@@ -74,7 +79,8 @@ func GetLogsFromDB(search, sort, order, page, pageSize string) []models.Log {
 	allowedSort := map[string]string{
 		"id":        "id",
 		"email":     "email",
-		"userid":    "user_id",
+		"userid":    "userid",
+		"username":  "username",
 		"resource":  "resource",
 		"action":    "action",
 		"timestamp": "timestamp",
