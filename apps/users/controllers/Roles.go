@@ -180,3 +180,39 @@ func FetchRolesAPI(w http.ResponseWriter, r *http.Request) {
     w.Write(jsonData)
 
 }
+
+
+func DeleteRoleFromUser(w http.ResponseWriter, r *http.Request){
+
+    userID := r.PathValue("userID")
+    roleID := r.PathValue("roleID")
+
+
+    fmt.Print("delete Role API userID=", userID, " roleID= ", roleID)
+
+
+    // DELETE FROM users_roles 
+    // WHERE user_id = $1 AND role_id = $2;
+
+    if userID == "" || roleID == "" {
+        http.Error(w, "Missing userID or roleID", http.StatusBadRequest)
+        return
+    }
+
+    sqlStatement := `DELETE FROM users_roles WHERE user_id = $1 AND role_id = $2`
+    result, err := core.DB.Exec(sqlStatement, userID, roleID)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    rowsAffected, _ := result.RowsAffected()
+    if rowsAffected == 0 {
+        fmt.Println("No record found to delete.")
+    }
+
+    // 5. Respond to frontend
+    w.Header().Set("Content-Type", "application/json")
+    fmt.Fprintf(w, `{"status": "success", "message": "Role deleted"}`)
+
+}

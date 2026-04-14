@@ -26,9 +26,21 @@
 </form>
 
 
+
+<button type="button" class="btn" style="margin-bottom: 15px;" id="backBtn"> < Back</button>
+<select name="pageSize" style="margin-bottom: 15px;" id="selectPageSize">
+    <option>10</option>
+    <option>20</option>
+    <option>50</option>
+    <option>100</option>
+    <option>200</option>
+</select>
+<button type="button" class="btn" style="margin-bottom: 15px;" id="nextBtn">Next > </button>
+
+
 </div><!--toolbar-->
 
-
+Count Records: {{.TotalRecords}}
 <table>
     <thead>
         <tr>
@@ -177,6 +189,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
    
+</script>
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const backBtn = document.getElementById('backBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const selectPageSize = document.getElementById('selectPageSize');
+
+    // Get current URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Parse current page and pageSize (default to 1 and 10)
+    let currentPage = parseInt(urlParams.get('page')) || 1;
+    let currentPageSize = urlParams.get('pageSize') || "10";
+
+    // Set the dropdown to match the current URL state
+    selectPageSize.value = currentPageSize;
+
+    // Helper function to update URL and redirect
+    const updateLocation = (newPage, newSize) => {
+        urlParams.set('page', newPage);
+        urlParams.set('pageSize', newSize);
+        window.location.search = urlParams.toString();
+    };
+
+    // --- Event Listeners ---
+
+    backBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            updateLocation(currentPage - 1, selectPageSize.value);
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        updateLocation(currentPage + 1, selectPageSize.value);
+    });
+
+    selectPageSize.addEventListener('change', () => {
+        // When changing page size, usually best to reset to page 1
+        updateLocation(1, selectPageSize.value);
+    });
+});
 </script>
 
 

@@ -160,7 +160,7 @@
 
 
          <td>
-                <button type="button" class="btn btn-danger" onclick="removeTR(this)">
+                <button type="button" class="btn btn-danger" onclick="removeTR(this)" data-roleid="{{.ID}}">
                 <img src="/static/icons/trash.svg" alt="remove"  class="icon" width="20"/>
                 </button>
            </td>
@@ -172,6 +172,45 @@
     </tr>
     {{end}}
 </tbody>
+</table>
+
+
+<br/>
+
+<table class="xy-5">
+    <thead>
+        <tr>
+            <th colspan="3"> + Assign Roles</th>
+        </tr>
+    </thead>
+    <tbody id="Roles-Table-Body">
+    <tr>
+        <td>
+            1
+        </td>
+     <td>
+               <select name="Role" id="Role" class="w-100 select-search">
+                <option value="">Select Role</option>
+                </select>
+
+             
+     </td>
+     <td>
+       -
+     </td>
+    </tr>
+    </tbody>
+
+    <tr>
+      <td colspan="2">
+         <button type="button" class="btn btn-primery" onclick="addExtraRole()">
+           <img src="/static/icons/plus.svg" alt="Add New User +"  class="icon" width="20"/>
+         </button>
+      </td>
+      <td>
+
+      </td>
+    </tr>
 </table>
 
 
@@ -199,16 +238,133 @@ document.getElementById('updateUserForm').addEventListener('submit', function(e)
 
 
 
- function removeTR(button) {
-    const row = button.parentNode.parentNode; // Get the parent row of the button
-    row.parentNode.removeChild(row); // Remove the row from the table
 
-    // Update the roles count after removal
-    const tableBody = document.getElementById('roles-Table-Body');
-    const rolesCountInput = document.getElementById('rolesCount');
-    rolesCountInput.value = tableBody.rows.length; // Update count to current number of rows
+
+
+
+</script>
+
+
+
+
+<script>
+  // 1. Global variable to store roles once fetched
+  let globalRoles = [];
+
+  // 2. Main initialization on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    fetchRoles();
+  });
+
+  function fetchRoles() {
+    fetch('/api/fetch-roles', {
+      method: 'GET',
+      credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+      globalRoles = data;
+      
+      // Populate the first row's select
+      // We look for any select with the name "Role"
+      const firstSelect = document.querySelector('select[name="Role"]');
+      if (firstSelect) {
+        populateOptions(firstSelect);
+      }
+    })
+    .catch(error => console.error('Error fetching roles:', error));
   }
 
+  // 3. Helper function to fill a select element
+  function populateOptions(selectElement) {
+    // Keep the "Select Role" placeholder, remove others
+    selectElement.innerHTML = '<option value="">Select Role</option>';
+    
+    globalRoles.forEach(role => {
+      const option = document.createElement('option');
+      option.value = role.id;
+      option.textContent = role.name;
+      selectElement.appendChild(option);
+    });
+  }
+
+  // 4. Function to add extra rows
+  function addExtraRole() {
+    const tableBody = document.getElementById('Roles-Table-Body');
+    const rowCount = tableBody.rows.length + 1;
+    const newRow = tableBody.insertRow();
+    
+    newRow.innerHTML = `
+        <td>${rowCount}</td>
+        <td>
+            <select name="Role" class="w-100 select-search">
+                <option value="">Select Role</option>
+            </select>
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger" onclick="removeTR(this)">
+                <img src="/static/icons/trash.svg" alt="remove" class="icon" width="20"/>
+            </button>
+        </td>
+    `;
+
+    // Fill the newly created select
+    const newSelect = newRow.querySelector('select');
+    populateOptions(newSelect);
+    
+    updateCount();
+  }
+
+  // 5. Function to remove rows // confrim if ok we will send to backend to delete this role from user 
+  function removeTR(button) {
+    const roleID = button.dataset.roleid;
+    const userID = "{{.User.ID}}";
+     if (!confirm(`Are you sure you want to delete role from user ${userID} / role ID ${roleID} ?`)) return;
+    const row = button.closest('tr');
+    row.remove();
+    updateCount();
+    reIndexRows();
+
+    //delete 
+    deleteRole(roleID, userID);
+
+  }
+
+  function updateCount() {
+    const tableBody = document.getElementById('Roles-Table-Body');
+    const input = document.getElementById('rolesCountInput');
+    if (input) input.value = tableBody.rows.length;
+  }
+
+  function reIndexRows() {
+    const rows = document.querySelectorAll('#Roles-Table-Body tr');
+    rows.forEach((row, index) => {
+      row.cells[0].innerText = index + 1;
+    });
+  }
+
+
+
+
+
+  function deleteRole(roleID, userID) {
+    // Construct the URL with parameters
+    const url = `/api/users/delete-role/${roleID}/${userID}`;
+
+    fetch(url, {
+      method: 'DELETE',
+      credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
+    .then(data => {
+        console.log("Deleted successfully:", data);
+      
+    })
+    .catch(error => console.error('Error deleting role:', error));
+}
 
 
 </script>

@@ -18,6 +18,8 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 	pageSize   := query.Get("pageSize")
 
 	users := GetUsersFromDB(search, sortBy, order, page, pageSize)
+	totalRecords := core.GetCountRecords("users")
+
 
 	data := map[string]interface{}{
 		"Title": "Users",
@@ -27,6 +29,7 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 		"Order": order,
 		"Page":  page,
 		"PageSize": pageSize,
+		"TotalRecords":totalRecords,
 
 	}
 
