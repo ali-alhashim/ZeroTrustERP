@@ -45,7 +45,11 @@
     <tbody>
         {{range .Roles}}
         <tr>
-            <td>{{.ID}}</td>
+            <td>
+                 <a class="btn btn-primary" href="/role/details/{{.ID}}">
+                  {{.ID}}
+                 </a>
+            </td>
             <td>{{.Name}}</td>
             <td>{{.Description}}</td>
 
