@@ -2,7 +2,7 @@
 
 <h1>User /  {{.User.ID}}</h1>
 
-<form id="updateUserForm">
+<form id="updateUserFormId" name="updateUserFrom">
 
 <table>
     <thead>
@@ -215,34 +215,15 @@
 
 
 <br>
-<button type="submit" class="btn btn-primary">Update</button>
+
+
+
 <input type="hidden" name="rolesCountInput" id="rolesCountInput" value="">
 </form>
+<button type="submit" class="btn btn-primary" onclick="submitTheUpdateForm()">Update</button>
 
 
 
-<script>
-document.getElementById('updateUserForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    fetch('/users/update/{{.User.ID}}', {
-        method: 'PATCH',
-        credentials: 'include',
-        body: new FormData(this)
-    }).then(response => {
-        if (response.ok) {
-            window.location.href = '/users/details/{{.User.ID}}';
-        }
-    });
-});
-
-
-
-
-
-
-
-</script>
 
 
 
@@ -252,9 +233,10 @@ document.getElementById('updateUserForm').addEventListener('submit', function(e)
   let globalRoles = [];
 
   // 2. Main initialization on page load
-  document.addEventListener('DOMContentLoaded', function() {
+ document.addEventListener('DOMContentLoaded', function() {
     fetchRoles();
-  });
+    });
+
 
   function fetchRoles() {
     fetch('/api/fetch-roles', {
@@ -366,6 +348,36 @@ document.getElementById('updateUserForm').addEventListener('submit', function(e)
     .catch(error => console.error('Error deleting role:', error));
 }
 
+
+
+
+ function submitTheUpdateForm()
+       {
+            const form = document.getElementById('updateUserFormId');
+             console.log("Attempting PATCH Request...");
+             // Ensure the URL is rendered correctly by Go templates
+                const userId = "{{.User.ID}}";
+                const url = `/users/update/${userId}`;
+                const formData = new FormData(form);
+
+
+                fetch(url, {
+                        method: 'PATCH',
+                        credentials: 'include',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("Update successful");
+                            window.location.href = `/users/details/${userId}`;
+                        } else {
+                            console.error("Update failed with status:", response.status);
+                        }
+                    })
+                    .catch(err => console.error("Fetch error:", err));
+        }
+        
+       
 
 </script>
 

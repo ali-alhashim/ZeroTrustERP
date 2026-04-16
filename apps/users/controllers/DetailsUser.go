@@ -35,7 +35,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "only Patch Request Allowed", http.StatusBadRequest)
 	}
 
-	fmt.Print("Update User with Patch Request .....")
+	fmt.Print("\n...............Update User with Patch Request .....\n")
 
 	userID := r.PathValue("id")
 
@@ -54,6 +54,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	Username := r.FormValue("Username")
 	Email := r.FormValue("Email")
 	Active := r.FormValue("Active") == "on"
+	selectedRoles := r.Form["Role"]
 
 	var CurrentUser *models.User
 
@@ -66,6 +67,38 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Print(CurrentUser.ID, " : ", CurrentUser.Username, "  sent the following ", Username, " : ", Email, " : ", Active, " to update the User ID : ", userID)
+    fmt.Print("\n selectedRoles=", selectedRoles, "\n")
+
+
+	// 4. Update the User basic info
+	tx, err := core.DB.Begin()
+    updateUserQuery := "UPDATE users SET username=$1, email=$2, active=$3 WHERE id=$4"
+    _, err = tx.Exec(updateUserQuery, Username, Email, Active, userID)
+    if err != nil {
+        fmt.Println("User update error:", err)
+        return
+    }
+
+
+	for _, roleID := range selectedRoles {
+        if roleID == "" { continue }
+        _, err = tx.Exec("INSERT INTO users_roles (user_id, role_id) VALUES ($1, $2)", userID, roleID)
+        if err != nil {
+            fmt.Println("Role insertion error:", err)
+            return
+        }
+    }
+    
+
+
+	// Commit everything
+    if err := tx.Commit(); err != nil {
+        http.Error(w, "Failed to save changes", http.StatusInternalServerError)
+        return
+    }
+	//active is a checkbox input checked = true not checked false
+    // if request has Role [] then assign the role to the user by insert record in users_roles (user_id, role_id)
+
 
 	//also see the roles and update if the user made any update
 
