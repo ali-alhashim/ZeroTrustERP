@@ -1,0 +1,57 @@
+/* Container for the tags and the input */
+.select-search-container {
+    position: relative;
+    font-family: "DIN", sans-serif;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+    background: white;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-height: 40px;
+    align-items: center;
+}
+
+table, thead, tbody, tr, td {
+    overflow: visible !important;
+}
+
+/* Selected items as "Tags" */
+.select-tag {
+    background: #067c19;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 3px;
+    
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 800;
+}
+
+.select-tag .remove-tag {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.select-search-input {
+    border: none !important;
+    outline: none !important;
+    flex: 1;
+    min-width: 50px;
+    padding: 5px;
+}
+
+.select-search-dropdown {
+    position: absolute;
+    top: 100%; 
+    left: 0;
+    width: 100%;
+    z-index: 9999; /* Ensure it's above other rows */
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    display: none;
+}
