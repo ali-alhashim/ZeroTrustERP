@@ -80,7 +80,17 @@ Count Records: {{.TotalRecords}}
                 <div class="status-indicator" id="user-{{.ID}}"></div>
             </td>
 
-            <td>{{.Active}}</td>
+            <td>
+                {{if .Active}}
+                <a href="/users/status/{{.ID}}/Inactive">
+                <img src="/static/icons/lock-open.svg" class="icon" width="20" title="Active"/>
+                </a>
+                {{else}}
+                <a href="/users/status/{{.ID}}/Active">
+                <img src="/static/icons/lock-closed.svg" class="icon" width="20" title="Inactive"/>
+                </a>
+                {{end}}
+            </td>
 
            <td>
             {{if .LastLogin}}

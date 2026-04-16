@@ -157,7 +157,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
+    text-decoration: none;
     height: 32px;                 /* SAME as inputs */
     padding: 0 12px;
 
@@ -181,7 +181,7 @@ body {
 }
 
 .btn-primary:hover {
-    background-color: #00663d;
+    background-color: #057749;
     border-color: #00663d;
 }
 

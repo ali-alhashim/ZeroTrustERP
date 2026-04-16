@@ -1,10 +1,11 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
-	"zerotrusterp/core"
-	"zerotrusterp/apps/users/models"
 	"strconv"
+	"zerotrusterp/apps/users/models"
+	"zerotrusterp/core"
 )
 
 func ListUsers(w http.ResponseWriter, r *http.Request) {
@@ -107,6 +108,36 @@ func GetUsersFromDB(search, sort, order, page, pageSize string) []models.User {
 	}
 
 	return users
+}
+
+
+
+func SetUserActive(w http.ResponseWriter, r *http.Request){
+
+	userID := r.PathValue("id")
+	fmt.Print("set user active with ID:", userID)
+    
+	query :="update users set active=true where id = $1"
+
+	core.DB.Exec(query, userID)
+
+
+	http.Redirect(w, r, "/users/list", http.StatusSeeOther)
+	
+
+}
+
+func SetUserInactive(w http.ResponseWriter, r *http.Request){
+
+	userID := r.PathValue("id")
+	fmt.Print("set user inactive ID:", userID)
+    
+	query :="update users set active=false where id = $1"
+
+	core.DB.Exec(query, userID)
+
+	http.Redirect(w, r, "/users/list", http.StatusSeeOther)
+		
 }
 
 
