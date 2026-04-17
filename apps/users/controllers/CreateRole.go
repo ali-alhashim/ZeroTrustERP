@@ -53,7 +53,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
     pResources    := r.Form["Resource"]
     pActions      := r.Form["Action"]
     
-    fmt.Printf("Received permissions: %v\n", pResources)
+    fmt.Printf("Received permissions: %v with Actions: %v\n", pResources, pActions)
 
     fmt.Printf("Count: %s\n", r.FormValue("permissionsCount"))
 

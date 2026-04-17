@@ -6,11 +6,11 @@ document.addEventListener("DOMContentLoaded", function() {
         container.className = 'select-search-container';
         
         const tagArea = document.createElement('div');
-        tagArea.style.display = 'contents'; // Let tags mingle with input
+        tagArea.className = 'tag-area';
         
         const input = document.createElement('input');
         input.className = 'select-search-input';
-        input.placeholder = "Search...";
+        input.placeholder = "Click to view or type...";
 
         const dropdown = document.createElement('div');
         dropdown.className = 'select-search-dropdown';
@@ -35,24 +35,47 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         };
 
+        const addCustomValue = () => {
+            const val = input.value.trim().replace(/,+$/, '');
+            if (val === '') return;
+
+            let existingOpt = Array.from(select.options).find(
+                opt => opt.text.toLowerCase() === val.toLowerCase()
+            );
+
+            if (existingOpt) {
+                existingOpt.selected = true;
+            } else {
+                const newOpt = new Option(val, val, true, true);
+                select.add(newOpt);
+            }
+
+            input.value = '';
+            renderTags();
+            dropdown.style.display = 'none';
+            select.dispatchEvent(new Event('change'));
+        };
+
         const updateDropdown = () => {
             dropdown.innerHTML = '';
-            const filter = input.value.toLowerCase();
+            const filter = input.value.toLowerCase().trim();
             let hasResults = false;
 
             Array.from(select.options).forEach(opt => {
-                if (opt.text.toLowerCase().includes(filter)) {
+                // Show if filter matches OR if filter is empty (show all)
+                if (!filter || opt.text.toLowerCase().includes(filter)) {
                     const item = document.createElement('div');
                     item.className = 'select-search-option' + (opt.selected ? ' selected' : '');
-                    item.style.padding = '8px';
-                    item.style.cursor = 'pointer';
                     item.textContent = opt.text;
                     
-                    item.onclick = () => {
+                    item.onclick = (e) => {
+                        e.stopPropagation();
                         opt.selected = !opt.selected;
-                        renderTags();
                         input.value = '';
-                        dropdown.style.display = 'none';
+                        renderTags();
+                        // Keep dropdown open for multi-select, or hide it:
+                        // dropdown.style.display = 'none'; 
+                        updateDropdown(); // Refresh highlights
                         select.dispatchEvent(new Event('change'));
                     };
                     dropdown.appendChild(item);
@@ -62,15 +85,17 @@ document.addEventListener("DOMContentLoaded", function() {
             dropdown.style.display = hasResults ? 'block' : 'none';
         };
 
-        input.onfocus = updateDropdown;
-        input.oninput = updateDropdown;
+        input.addEventListener('blur', () => {
+            setTimeout(addCustomValue, 200);
+        });
+
+        input.addEventListener('input', updateDropdown);
+        input.onfocus = updateDropdown; // Shows all options on click
         
-        // Close if clicking away
         document.addEventListener('click', (e) => {
             if (!container.contains(e.target)) dropdown.style.display = 'none';
         });
 
-        // Initialize tags if options are already selected (on edit page)
         renderTags();
     });
 });

@@ -1,57 +1,94 @@
-/* Container for the tags and the input */
 .select-search-container {
     position: relative;
-    font-family: "DIN", sans-serif;
+    font-family: sans-serif;
     width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 5px;
-    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 4px 8px;
+    background: #fff;
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
-    min-height: 40px;
+    gap: 6px;
+    min-height: 42px;
     align-items: center;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
 }
 
-table, thead, tbody, tr, td {
-    overflow: visible !important;
+.select-search-container:focus-within {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
-/* Selected items as "Tags" */
+.tag-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
 .select-tag {
     background: #067c19;
     color: white;
-    padding: 2px 8px;
-    border-radius: 3px;
-    
+    padding: 3px 10px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-weight: 800;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
 }
 
-.select-tag .remove-tag {
+.remove-tag {
     cursor: pointer;
-    font-weight: bold;
+    opacity: 0.8;
+}
+
+.remove-tag:hover {
+    opacity: 1;
 }
 
 .select-search-input {
     border: none !important;
     outline: none !important;
     flex: 1;
-    min-width: 50px;
-    padding: 5px;
+    min-width: 80px;
+    padding: 6px 0;
+    font-size: 14px;
 }
 
 .select-search-dropdown {
     position: absolute;
-    top: 100%; 
+    top: calc(100% + 5px);
     left: 0;
     width: 100%;
-    z-index: 9999; /* Ensure it's above other rows */
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 10000;
     background: white;
-    border: 1px solid #ccc;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     display: none;
 }
+
+.select-search-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.1s;
+}
+
+.select-search-option:hover {
+    background: #f3f4f6;
+}
+
+.select-search-option.selected {
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: bold;
+}
+
+table, thead, tbody, tr, td {
+    overflow: visible !important;
+}
+
