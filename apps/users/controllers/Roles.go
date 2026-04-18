@@ -211,8 +211,52 @@ func DeleteRoleFromUser(w http.ResponseWriter, r *http.Request){
         fmt.Println("No record found to delete.")
     }
 
+     var CurrentUser *models.User
+
+		if user, ok := r.Context().Value(core.UserKey).(*models.User); ok {
+			CurrentUser = user
+		} else {
+			fmt.Println("No user in context")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+    InsertLog(CurrentUser, "Delete Role From User", fmt.Sprintf("User ID : %s , Role ID: ",roleID))
+
     // 5. Respond to frontend
     w.Header().Set("Content-Type", "application/json")
     fmt.Fprintf(w, `{"status": "success", "message": "Role deleted"}`)
+
+}
+
+
+
+
+func RoleDeatils(w http.ResponseWriter, r *http.Request){
+    roleID := r.PathValue("roleID")
+
+    fmt.Print("...Role Details ID:", roleID)
+
+    Role := GetRoleByID(roleID)
+
+    data := map[string]interface{}{
+		"Title": "Users",
+		"Role": Role,
+	}
+
+
+    core.RenderPage(w,r, "apps/users/views/roles-details.html", data)
+}
+
+
+func GetRoleByID(roleID string) models.Role{
+    
+    var role models.Role
+
+
+    // select role with related permissions 
+    // 
+
+    return role
 
 }

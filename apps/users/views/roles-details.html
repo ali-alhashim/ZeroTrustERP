@@ -1,0 +1,171 @@
+{{define "content"}}
+
+<h4>Role Details</h4>
+
+<form method="post" action="/roles/update/{{.ID}}">
+<table>
+
+     <tr>
+        <td>
+          Name
+        </td>
+        <td>
+          <input type="text" name="roleName" id="Name" value="{{.Name}}" placeholder="Enter Role Name" class="w-100"/>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+          Description
+        </td>
+        <td>
+          <input type="text" name="roleDescription" id="roleDescription" value="{{.Description}}" placeholder="Enter Description" class="w-100"/>
+        </td>
+    </tr>
+
+
+
+   
+
+
+
+    
+</table>
+
+
+<table class="xy-5">
+    <thead>
+        <tr>
+            <th colspan="5">Role Permissions</th>
+        </tr>
+        <tr>
+            <th>#</th>
+            <th>Resource</th>
+            <th>Action</th>
+            <th>Description</th>
+            <th>-</th>
+         </tr>
+
+    </thead>
+    <tbody id="permission-Table-Body">
+
+        
+    <tr>
+        <td>
+            1
+        </td>
+     <td>
+             <select name="Resource" id="Resource" class="w-100 select-search">
+                  <option value="">Select resource</option>
+                  {{range .Resources}}
+                      <option value="{{.}}">{{.}}</option>
+                  {{end}}
+              </select>
+     </td>
+
+     <td>
+                <select name="Action" id="Action" class="w-100 select-search">
+                 <option value="">Select action</option>
+                 
+                      <option value="R">Read</option>
+                      <option value="W">Write</option>
+                      <option value="U">Update</option>
+                      <option value="D">Delete</option>
+                      <option value="A">All</option>
+                
+                </select>
+     </td>
+     
+     <td>
+        <input type="text" name="description" id="description" value="Role Description" placeholder="Enter description" class="w-100"/>
+
+      
+
+     </td>
+
+     <td>
+        <button type="button" class="btn btn-danger" onclick="removeTR(this)">
+         <img src="/static/icons/trash.svg" alt="remove"  class="icon" width="20"/>
+        </button>
+     </td>
+
+    </tr>
+    </tbody>
+
+    <tr>
+      <td colspan="2">
+
+
+         <button type="button" class="btn btn-primery" onclick="addExtraPermission()">
+           <img src="/static/icons/plus.svg" alt="Add New User +"  class="icon" width="20"/>
+         </button>
+
+      </td>
+    </tr>
+</table>
+
+
+<input type="hidden" name="permissionsCount" id="permissionsCount" value="0"/>
+
+<button type="submit" class="btn btn-primary m-5">Update Role</button>
+
+</form>
+
+<script>
+  <!-- JavaScript function to add extra permission selection -->
+  function addExtraPermission() {
+    console.log("Adding extra permission selection...");
+
+    const tableBody = document.getElementById('permission-Table-Body');
+    const rowCount = tableBody.rows.length + 1; // Get current row count for numbering
+    const newRow = tableBody.insertRow(); // Insert a new row at the end of the table 
+    newRow.innerHTML = `
+      <td>${rowCount}</td>
+      <td>
+        <select name="Resource" class="w-100 select-search">
+          <option value="">Select resource</option>
+          {{range .Resources}}
+              <option value="{{.}}">{{.}}</option>
+          {{end}}
+        </select>
+      </td>
+      <td>
+        <select name="Action" class="w-100 select-search">
+          <option value="">Select action</option>
+          <option value="R">Read</option>
+          <option value="W">Write</option>
+          <option value="U">Update</option>
+          <option value="D">Delete</option>
+          <option value="A">All</option>
+        </select>
+      </td>
+      <td>
+        <input type="text" name="description" value="Role Description" placeholder="Enter description" class="w-100"/>
+      </td>
+
+       <td>
+        <button type="button" class="btn btn-danger" onclick="removeTR(this)">
+         <img src="/static/icons/trash.svg" alt="remove"  class="icon" width="20"/>
+        </button>
+       </td>
+
+    `;
+
+      // Update the permissions count
+      const permissionsCountInput = document.getElementById('permissionsCount');
+      permissionsCountInput.value = rowCount; // Set the count to the current number of rows
+
+  }
+
+  function removeTR(button) {
+    const row = button.parentNode.parentNode; // Get the parent row of the button
+    row.parentNode.removeChild(row); // Remove the row from the table
+
+    // Update the permissions count after removal
+    const tableBody = document.getElementById('permission-Table-Body');
+    const permissionsCountInput = document.getElementById('permissionsCount');
+    permissionsCountInput.value = tableBody.rows.length; // Update count to current number of rows
+  }
+</script>
+
+{{end}}

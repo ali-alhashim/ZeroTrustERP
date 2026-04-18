@@ -29,6 +29,8 @@ func UserListRoutes(mux *http.ServeMux) {
 
 	mux.Handle("GET /users/status/{id}/Active", core.AuthMiddleware(http.HandlerFunc(controllers.SetUserActive), "users:U"))
 	mux.Handle("GET /users/status/{id}/Inactive", core.AuthMiddleware(http.HandlerFunc(controllers.SetUserInactive), "users:U"))
+
+	mux.Handle("GET /role/details/{roleID}", core.AuthMiddleware(http.HandlerFunc(controllers.RoleDeatils), "roles:U"))
 }
 
 
