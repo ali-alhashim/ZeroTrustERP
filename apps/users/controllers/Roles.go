@@ -252,10 +252,57 @@ func RoleDeatils(w http.ResponseWriter, r *http.Request){
 func GetRoleByID(roleID string) models.Role{
     
     var role models.Role
-
+    var permissions []models.Permission
+     
+    fmt.Print("\n Get Role By ID ", roleID)
 
     // select role with related permissions 
-    // 
+    // we have roles table with id, name, description
+    // and we have permissions table with id, resource, action ,description
+    // roles_permissions table with role_id, permission_id
+    // Role struct has Permissions *[]Permission
+
+    query := `
+        SELECT 
+            r.id, r.name, r.description,
+            p.id, p.resource, p.action, p.description
+        FROM roles r
+        LEFT JOIN roles_permissions rp ON r.id = rp.role_id
+        LEFT JOIN permissions p ON rp.permission_id = p.id
+        WHERE r.id = $1`
+
+    rows, err := core.DB.Query(query, roleID)
+    if err != nil {
+        fmt.Print(err)
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var p models.Permission
+        // We use pointers/null types if permissions might be empty (LEFT JOIN)
+        var pID *int 
+        var pResource, pAction, pDesc *string
+
+        err := rows.Scan(
+            &role.ID, &role.Name, &role.Description,
+            &pID, &pResource, &pAction, &pDesc,
+        )
+        if err != nil {
+            fmt.Print(err)
+        }
+        
+        if pID != nil {
+            p.ID = *pID
+            p.Resource = *pResource
+            p.Action = *pAction
+            p.Description = *pDesc
+            permissions = append(permissions, p)
+        }
+    }
+
+    role.Permissions = &permissions
+
+    fmt.Print(" \n selected role name is: ", role.Name , "\n")
 
     return role
 

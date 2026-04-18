@@ -2,7 +2,7 @@
 
 <h4>Role Details</h4>
 
-<form method="post" action="/roles/update/{{.ID}}">
+<form method="post" action="/roles/update/{{.Role.ID}}">
 <table>
 
      <tr>
@@ -10,7 +10,7 @@
           Name
         </td>
         <td>
-          <input type="text" name="roleName" id="Name" value="{{.Name}}" placeholder="Enter Role Name" class="w-100"/>
+          <input type="text" name="roleName" id="Name" value="{{.Role.Name}}" placeholder="Enter Role Name" class="w-100"/>
         </td>
     </tr>
 
@@ -19,7 +19,7 @@
           Description
         </td>
         <td>
-          <input type="text" name="roleDescription" id="roleDescription" value="{{.Description}}" placeholder="Enter Description" class="w-100"/>
+          <input type="text" name="roleDescription" id="roleDescription" value="{{.Role.Description}}" placeholder="Enter Description" class="w-100"/>
         </td>
     </tr>
 
@@ -49,48 +49,35 @@
     </thead>
     <tbody id="permission-Table-Body">
 
-        
-    <tr>
+         {{range .Role.Permissions}} 
+        <tr>
+            <td>
+                {{.ID}}
+            </td>
         <td>
-            1
+                {{.Resource}} 
         </td>
-     <td>
-             <select name="Resource" id="Resource" class="w-100 select-search">
-                  <option value="">Select resource</option>
-                  {{range .Resources}}
-                      <option value="{{.}}">{{.}}</option>
-                  {{end}}
-              </select>
-     </td>
 
-     <td>
-                <select name="Action" id="Action" class="w-100 select-search">
-                 <option value="">Select action</option>
-                 
-                      <option value="R">Read</option>
-                      <option value="W">Write</option>
-                      <option value="U">Update</option>
-                      <option value="D">Delete</option>
-                      <option value="A">All</option>
-                
-                </select>
-     </td>
-     
-     <td>
-        <input type="text" name="description" id="description" value="Role Description" placeholder="Enter description" class="w-100"/>
+        <td>
+                  {{.Action}}
+        </td>
+        
+        <td>
+        
 
-      
+             {{.Description}}
 
-     </td>
+        </td>
 
-     <td>
-        <button type="button" class="btn btn-danger" onclick="removeTR(this)">
-         <img src="/static/icons/trash.svg" alt="remove"  class="icon" width="20"/>
-        </button>
-     </td>
+        <td>
+            <button type="button" class="btn btn-danger" onclick="removeTR(this)">
+            <img src="/static/icons/trash.svg" alt="remove"  class="icon" width="20"/>
+            </button>
+        </td>
 
-    </tr>
-    </tbody>
+        </tr>
+        {{end}}
+        </tbody>
 
     <tr>
       <td colspan="2">
