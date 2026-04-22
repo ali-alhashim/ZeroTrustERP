@@ -316,6 +316,42 @@ func DeletePermissionFromRole(w http.ResponseWriter, r *http.Request){
      permissionID := r.PathValue("permissionID")
 
      fmt.Print("Delete Permission " +permissionID +" From Role ID: ", roleID)
-     
+
+      if permissionID == "" || roleID == "" {
+        http.Error(w, "Missing permissionID or roleID", http.StatusBadRequest)
+        return
+    }
+
+
+     sqlStatement := `DELETE FROM roles_permissions WHERE role_id = $1 AND permission_id = $2`
+    result, err := core.DB.Exec(sqlStatement, roleID, permissionID)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+
+    rowsAffected, _ := result.RowsAffected()
+    if rowsAffected == 0 {
+        fmt.Println("No record found to delete.")
+    }
+
+
+     var CurrentUser *models.User
+
+		if user, ok := r.Context().Value(core.UserKey).(*models.User); ok {
+			CurrentUser = user
+		} else {
+			fmt.Println("No user in context")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+    InsertLog(CurrentUser, "Delete Permission From Role", fmt.Sprintf("Role ID : %s ,Permission ID %s: ",roleID, permissionID))
+
+    // 5. Respond to frontend
+    w.Header().Set("Content-Type", "application/json")
+    fmt.Fprintf(w, `{"status": "success", "message": "Role deleted"}`)
+
 
 }
