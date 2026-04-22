@@ -161,7 +161,24 @@
 
   function deletePermission(roleID, permissionID)
   {
-    
+    //send delete request to backend
+    const url = `/api/roles/delete-permission/${roleID}/${permissionID}`;
+
+     fetch(url, {
+      method: 'DELETE',
+      credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
+    .then(data => {
+        console.log("Deleted successfully:", data);
+      
+    })
+    .catch(error => console.error('Error deleting role:', error));
+
+
   }
 </script>
 

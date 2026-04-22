@@ -307,3 +307,15 @@ func GetRoleByID(roleID string) models.Role{
     return role
 
 }
+
+
+
+func DeletePermissionFromRole(w http.ResponseWriter, r *http.Request){
+
+     roleID       := r.PathValue("roleID")
+     permissionID := r.PathValue("permissionID")
+
+     fmt.Print("Delete Permission " +permissionID +" From Role ID: ", roleID)
+     
+
+}
