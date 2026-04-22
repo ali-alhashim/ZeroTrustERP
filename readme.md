@@ -1,4 +1,5 @@
 # 🛡️ Zero Trust ERP
+![App Logo](static/logo/logo-l.svg)
 
 A **high-performance Modular Monolithic ERP system** built in **Go**.
 Inspired by the extensibility of **Odoo** and the structured of **Django**, this project is designed with a **Security-First (Zero Trust)** architecture.
@@ -148,7 +149,7 @@ this project follows a **Minimal Dependency Architecture**:
   Every action requires explicit authentication * permissions
 
 * 🧩 **Modular Isolation**
-  Security policies are enforced per app
+  Security policies are enforced per app![App Logo](static/logo/logo-l.svg)
 
 * 🍪 **Secure Authentication**
   Uses  secure cookies [ HMAC instance using SHA256 and your secret key + email] so the validation required 2 factore token and the email for that token 
