@@ -211,15 +211,7 @@ func DeleteRoleFromUser(w http.ResponseWriter, r *http.Request){
         fmt.Println("No record found to delete.")
     }
 
-     var CurrentUser *models.User
-
-		if user, ok := r.Context().Value(core.UserKey).(*models.User); ok {
-			CurrentUser = user
-		} else {
-			fmt.Println("No user in context")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+     CurrentUser := core.GetCurrentUser(r)
 
     InsertLog(CurrentUser, "Delete Role From User", fmt.Sprintf("User ID : %s , Role ID: ",roleID))
 
@@ -337,15 +329,7 @@ func DeletePermissionFromRole(w http.ResponseWriter, r *http.Request){
     }
 
 
-     var CurrentUser *models.User
-
-		if user, ok := r.Context().Value(core.UserKey).(*models.User); ok {
-			CurrentUser = user
-		} else {
-			fmt.Println("No user in context")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+    CurrentUser := core.GetCurrentUser(r)
 
     InsertLog(CurrentUser, "Delete Permission From Role", fmt.Sprintf("Role ID : %s ,Permission ID %s: ",roleID, permissionID))
 

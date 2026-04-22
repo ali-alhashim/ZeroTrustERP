@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"zerotrusterp/core"
-    "zerotrusterp/apps/users/models"
+   
 )
 
 func CreateRole(w http.ResponseWriter, r *http.Request) {
@@ -87,18 +87,8 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 
 
 
-    var CurrentUser *models.User
-
-		if user, ok := r.Context().Value(core.UserKey).(*models.User); ok {
-			CurrentUser = user
-		} else {
-			fmt.Println("No user in context")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-
-		InsertLog(CurrentUser, "Roles", fmt.Sprintf("Created Role Name : %s ",roleName))
+    CurrentUser := core.GetCurrentUser(r)
+	InsertLog(CurrentUser, "Roles", fmt.Sprintf("Created Role Name : %s ",roleName))
 
 
 

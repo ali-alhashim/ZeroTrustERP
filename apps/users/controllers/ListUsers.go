@@ -125,15 +125,7 @@ func SetUserActive(w http.ResponseWriter, r *http.Request){
 	http.Redirect(w, r, "/users/list", http.StatusSeeOther)
 
 
-	  var CurrentUser *models.User
-
-		if user, ok := r.Context().Value(core.UserKey).(*models.User); ok {
-			CurrentUser = user
-		} else {
-			fmt.Println("No user in context")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+	 CurrentUser := core.GetCurrentUser(r)
 
 
 		InsertLog(CurrentUser, "users", fmt.Sprintf("Set User Active for User ID : %s ",userID))
@@ -151,15 +143,7 @@ func SetUserInactive(w http.ResponseWriter, r *http.Request){
 	core.DB.Exec(query, userID)
 
 
-	  var CurrentUser *models.User
-
-		if user, ok := r.Context().Value(core.UserKey).(*models.User); ok {
-			CurrentUser = user
-		} else {
-			fmt.Println("No user in context")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+	 CurrentUser := core.GetCurrentUser(r)
 
 
 		InsertLog(CurrentUser, "users", fmt.Sprintf("Set User Inactive for User ID : %s ",userID))

@@ -56,15 +56,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	Active := r.FormValue("Active") == "on"
 	selectedRoles := r.Form["Role"]
 
-	var CurrentUser *models.User
-
-	if user, ok := r.Context().Value(core.UserKey).(*models.User); ok {
-		CurrentUser = user
-	} else {
-		fmt.Println("No user in context")
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	CurrentUser := core.GetCurrentUser(r)
 
 	fmt.Print(CurrentUser.ID, " : ", CurrentUser.Username, "  sent the following ", Username, " : ", Email, " : ", Active, " to update the User ID : ", userID)
     fmt.Print("\n selectedRoles=", selectedRoles, "\n")

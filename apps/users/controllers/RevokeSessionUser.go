@@ -4,7 +4,7 @@ import(
 	"fmt"
 	"net/http"
 	"zerotrusterp/core"
-	"zerotrusterp/apps/users/models"
+	
 )
 
 func RevokeSession(w http.ResponseWriter, r *http.Request){
@@ -39,15 +39,7 @@ func RevokeSession(w http.ResponseWriter, r *http.Request){
 
 
 
-	  var CurrentUser *models.User
-
-		if user, ok := r.Context().Value(core.UserKey).(*models.User); ok {
-			CurrentUser = user
-		} else {
-			fmt.Println("No user in context")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+	  CurrentUser := core.GetCurrentUser(r)
 
 
 		InsertLog(CurrentUser, "users", fmt.Sprintf("RevokeSession for User ID : %s ",userID))

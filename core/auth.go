@@ -379,7 +379,10 @@ func AuthMiddleware(next http.Handler, resource...string) http.Handler {
 }
 
 
-
+func GetCurrentUser(r *http.Request) *models.User {
+    user, _ := r.Context().Value(UserKey).(*models.User)
+    return user
+}
 
 
 
