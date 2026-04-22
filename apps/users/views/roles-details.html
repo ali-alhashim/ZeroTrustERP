@@ -70,7 +70,7 @@
         </td>
 
         <td>
-            <button type="button" class="btn btn-danger" onclick="removeTR(this)">
+            <button type="button" class="btn btn-danger" onclick="removeTR(this)"  data-permissionid="{{.ID}}">
             <img src="/static/icons/trash.svg" alt="remove"  class="icon" width="20"/>
             </button>
         </td>
@@ -152,6 +152,16 @@
     const tableBody = document.getElementById('permission-Table-Body');
     const permissionsCountInput = document.getElementById('permissionsCount');
     permissionsCountInput.value = tableBody.rows.length; // Update count to current number of rows
+    const permissionID = button.dataset.permissionid;
+    const roleID = "{{.Role.ID}}";
+     if (!confirm(`Are you sure you want to delete permission ID ${permissionID} from Role ${roleID}  ?`)) return;
+
+    deletePermission(roleID, permissionID);
+  }
+
+  function deletePermission(roleID, permissionID)
+  {
+    
   }
 </script>
 
