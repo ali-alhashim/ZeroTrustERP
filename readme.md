@@ -152,7 +152,7 @@ this project follows a **Minimal Dependency Architecture**:
   Security policies are enforced per app![App Logo](static/logo/logo-l.svg)
 
 * 🍪 **Secure Authentication**
-  Uses  secure cookies [ HMAC instance using SHA256 and your secret key + email] so the validation required 2 factore token and the email for that token 
+  Uses  secure cookies [ Create a byte slice of 64 bytes (512 bits of entropy) random -> base64.URLEncoding each random token is for email and only valid for 24 hours ] so the validation required 2 factore token and the email for that token 
 
 ---
 

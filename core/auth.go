@@ -31,7 +31,7 @@ func generateSessionToken(email string) string {
     // 2. Fill the slice with random bytes from the OS's secure source
     _, err := rand.Read(b)
     if err != nil {
-        // In a real app, handle this error properly (e.g., return an error)
+        
         panic("Could not generate random bytes: " + err.Error())
     }
 
