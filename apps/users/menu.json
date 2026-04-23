@@ -11,7 +11,7 @@
   },
   {
     "name": "Audit trail",
-    "path": "/users/audit-trail",
+    "path": "/users/audit-trail?sort=id&order=desc",
     "icon": "documentText"
   }
 ]

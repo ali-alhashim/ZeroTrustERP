@@ -79,7 +79,7 @@ func GetLogsFromDB(search, sort, order, page, pageSize string) []models.Log {
 	allowedSort := map[string]string{
 		"id":        "id",
 		"email":     "email",
-		"userid":    "userid",
+		"userid":    "user_id",
 		"username":  "username",
 		"resource":  "resource",
 		"action":    "action",
@@ -93,7 +93,10 @@ func GetLogsFromDB(search, sort, order, page, pageSize string) []models.Log {
 		} else {
 			query += " ASC"
 		}
+
 	}
+
+	
 
 
 		// 📄 Pagination (page + pageSize)
