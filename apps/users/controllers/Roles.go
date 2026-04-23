@@ -345,5 +345,17 @@ func DeletePermissionFromRole(w http.ResponseWriter, r *http.Request){
 func UpdateRole(w http.ResponseWriter, r *http.Request){
     roleID:= r.PathValue("roleID")
 
-    fmt.Print("...........update Role ID:", roleID)
+    fmt.Print("...........update Role ID:", roleID, "\n")
+
+    roleDescription :=   r.FormValue("roleDescription")
+    permissionsCount:=   r.FormValue("permissionsCount")
+    pDescriptions   :=   r.Form["description"]
+    pResources      :=   r.Form["Resource"]
+    pActions        :=   r.Form["Action"]
+
+    fmt.Printf("..Ok.. we get the following Data total permissions count %s and role desc %s pDes %s pR %s pA %s", permissionsCount, roleDescription,pDescriptions,pResources, pActions )
+
+    //update role in database
+    
+    
 }

@@ -478,3 +478,8 @@ tr:hover {
     margin: 5px 0;
 
 }
+
+input:disabled {
+    background-color: #d7d3d3;
+    cursor: not-allowed; /* Optional: adds a 'prohibited' cursor for better UX */
+}
