@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	
+)
 
 
 
@@ -18,22 +22,22 @@ type Employee struct {
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments
 type OrgUnit struct {
-    ID        int        `f:"number, primary, auto"`
-    Name      string     `f:"text, unique, notnull"`
-    Code      string     `f:"text, unique, notnull"`
+    ID          int        `f:"number, primary, auto"`
+    Name        string     `f:"text, unique, notnull"`
+    Code        string     `f:"text, unique, notnull"`
     Departments []Department `v:"true"`
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
-    Manager  *Employee    `f:"one2one:employees"`
+    Manager     *Employee    `f:"one2one:employees"`
 }
 
 
 type Department struct {
-    ID        int        `f:"number, primary, auto"`
-    Name      string     `f:"text, unique, notnull"`
-    Code      string     `f:"text, unique, notnull"`
-    Employees []Employee `v:"true"`
-    Manager   *Employee  `f:"one2one:employees"` 
+    ID          int        `f:"number, primary, auto"`
+    Name        string     `f:"text, unique, notnull"`
+    Code        string     `f:"text, unique, notnull"`
+    Employees   []Employee `v:"true"`
+    Manager     *Employee  `f:"one2one:employees"` 
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
 }
@@ -44,16 +48,37 @@ type ExManagerDepartment struct {
     Employee   *Employee  `f:"many2one:employees"`
     Department *Department `f:"many2one:departments"`
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
-    From   time.Time `f:"timestamp,"`
-    To   time.Time `f:"timestamp,"`
+    From       time.Time `f:"timestamp,"`
+    To         time.Time `f:"timestamp,"`
 }
 
 type JobTitle struct {
     ID          int    `f:"number, primary, auto"`
     Name        string `f:"text, unique, notnull"`
+    LocalName   string     `f:"text"`
     Code        string `f:"text, unique, notnull"`
     Description string `f:"text"`
-    Employees []Employee `v:"true"`
+    Employees   []Employee `v:"true"`
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
+}
+
+
+type ShiftSchedule struct {
+    ID        int       `f:"number, primary, auto"`
+    Name      string    `f:"text, unique, notnull"`
+    CreatedAt time.Time `f:"timestamp, default:current_timestamp"`
+    UpdatedAt time.Time `f:"timestamp, default:current_timestamp"`
+    FromTime  time.Time `f:"timestamp"`
+    ToTime    time.Time `f:"timestamp"`
+    FromDate  time.Time `f:"timestamp"`
+    ToDate    time.Time `f:"timestamp"`
+
+    Monday      bool      `f:"bool, default:false"`
+    Tuesday     bool      `f:"bool, default:false"`
+    Wednesday   bool      `f:"bool, default:false"`
+    Thursday    bool      `f:"bool, default:false"`
+    Friday      bool      `f:"bool, default:false"`
+    Saturday    bool      `f:"bool, default:false"`
+    Sunday      bool      `f:"bool, default:false"`
 }
