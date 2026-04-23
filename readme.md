@@ -176,6 +176,7 @@ To build a **secure, scalable, and developer-friendly ERP framework** that combi
 * Login system -> Ok
 * Users CRUD -> OK
 * Roles & Permission -> OK
+* System Health -> Ok
 * Employees CRUD
 * IT Ticketing System
 * Simple dashboard
