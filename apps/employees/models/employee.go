@@ -81,4 +81,5 @@ type ShiftSchedule struct {
     Friday      bool      `f:"bool, default:false"`
     Saturday    bool      `f:"bool, default:false"`
     Sunday      bool      `f:"bool, default:false"`
+    Employees   []Employee `v:"true"`
 }
