@@ -10,7 +10,7 @@
           Name
         </td>
         <td>
-          <input type="text" name="roleName" id="Name" value="{{.Role.Name}}" placeholder="Enter Role Name" class="w-100"/>
+          <input type="text" name="roleName" id="Name" value="{{.Role.Name}}" placeholder="Enter Role Name" class="w-100" disabled/>
         </td>
     </tr>
 
@@ -141,6 +141,7 @@
       // Update the permissions count
       const permissionsCountInput = document.getElementById('permissionsCount');
       permissionsCountInput.value = rowCount; // Set the count to the current number of rows
+      selectSearch();
 
   }
 

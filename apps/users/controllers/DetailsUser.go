@@ -19,6 +19,7 @@ func UserDetails(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"Title": "User Details",
 		"User":  core.GetUserByID(userID),
+		
 	}
 
 	core.RenderPage(w, r, "apps/users/views/user-details.html", data)

@@ -27,6 +27,8 @@ func UserListRoutes(mux *http.ServeMux) {
 	mux.Handle("PATCH /users/update/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.UpdateUser), "users:U"))
     mux.Handle("DELETE /api/users/delete-role/{roleID}/{userID}", core.AuthMiddleware(http.HandlerFunc(controllers.DeleteRoleFromUser),"roles:D"))
 
+	mux.Handle("POST /roles/update/{roleID}", core.AuthMiddleware(http.HandlerFunc(controllers.UpdateRole), "roles:U"))
+
 	mux.Handle("DELETE /api/roles/delete-permission/{roleID}/{permissionID}", core.AuthMiddleware(http.HandlerFunc(controllers.DeletePermissionFromRole),"roles:D"))
 
 	mux.Handle("GET /users/status/{id}/Active", core.AuthMiddleware(http.HandlerFunc(controllers.SetUserActive), "users:U"))

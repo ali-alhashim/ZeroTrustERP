@@ -1,5 +1,17 @@
 document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll('.select-search').forEach(select => {
+    selectSearch();
+});
+
+
+function selectSearch()
+{
+document.querySelectorAll('.select-search').forEach(select => {
+
+    if (select.dataset.initialized === "true") {
+            return; // Skip this one
+        }
+
+
         select.style.display = 'none';
 
         const container = document.createElement('div');
@@ -97,5 +109,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
         renderTags();
+        select.dataset.initialized = "true";
     });
-});
+}

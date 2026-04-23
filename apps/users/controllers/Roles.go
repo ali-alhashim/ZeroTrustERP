@@ -234,6 +234,7 @@ func RoleDeatils(w http.ResponseWriter, r *http.Request){
     data := map[string]interface{}{
 		"Title": "Users",
 		"Role": Role,
+        "Resources": core.GetAllResources(),
 	}
 
 
@@ -338,4 +339,11 @@ func DeletePermissionFromRole(w http.ResponseWriter, r *http.Request){
     fmt.Fprintf(w, `{"status": "success", "message": "Role deleted"}`)
 
 
+}
+
+
+func UpdateRole(w http.ResponseWriter, r *http.Request){
+    roleID:= r.PathValue("roleID")
+
+    fmt.Print("...........update Role ID:", roleID)
 }
