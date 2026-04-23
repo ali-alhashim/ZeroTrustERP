@@ -9,7 +9,7 @@ import (
 
 
 
-func UserListRoutes(mux *http.ServeMux) {
+func UserRoutes(mux *http.ServeMux) {
 	
                //HTTP method + path, handler + auth middleware with resource name and the Permission to access  for permission checking
 	mux.Handle("GET /users/list", core.AuthMiddleware(http.HandlerFunc(controllers.ListUsers), "users:R"))

@@ -11,6 +11,7 @@ import (
 )
 
 var DB *sql.DB
+var DBNAME string
 
 // LoadEnv reads .env file and injects into system environment
 func LoadEnv(path string) error {
@@ -39,6 +40,11 @@ func LoadEnv(path string) error {
     return scanner.Err()
 }
 
+func GetDatabaseName() string{
+   
+    return DBNAME
+}
+
 func InitDB() (*sql.DB, error) {
     log.Printf("Initializing database connection...")
    
@@ -48,6 +54,8 @@ func InitDB() (*sql.DB, error) {
     user := os.Getenv("DB_USER")
     password := os.Getenv("DB_PASSWORD")
     dbname := os.Getenv("DB_NAME")
+
+    DBNAME = dbname
 
     dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 

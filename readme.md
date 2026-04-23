@@ -175,7 +175,7 @@ To build a **secure, scalable, and developer-friendly ERP framework** that combi
 ### Minimum Viable Product (MVP) ###
 * Login system -> Ok
 * Users CRUD -> OK
-* Roles & Permission
+* Roles & Permission -> OK
 * Employees CRUD
 * IT Ticketing System
 * Simple dashboard

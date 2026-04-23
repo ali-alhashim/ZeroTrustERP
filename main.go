@@ -9,6 +9,7 @@ import (
 	_ "zerotrusterp/apps/users"
 	_ "zerotrusterp/apps/employees"
 	_ "zerotrusterp/apps/dashboard"
+	_ "zerotrusterp/apps/system"
 )
 
 

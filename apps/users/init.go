@@ -9,7 +9,7 @@ import (
 func init() {
 
     // Register routes
-    core.Register(UserListRoutes)
+    core.Register(UserRoutes)
 
     // Register models for migrations
     core.RegisterModel(models.User{})
