@@ -349,6 +349,7 @@ func UpdateRole(w http.ResponseWriter, r *http.Request){
 
     roleDescription :=   r.FormValue("roleDescription")
     permissionsCount:=   r.FormValue("permissionsCount")
+    roleName        :=   r.FormValue("roleName")
     pDescriptions   :=   r.Form["description"]
     pResources      :=   r.Form["Resource"]
     pActions        :=   r.Form["Action"]
@@ -356,6 +357,49 @@ func UpdateRole(w http.ResponseWriter, r *http.Request){
     fmt.Printf("..Ok.. we get the following Data total permissions count %s and role desc %s pDes %s pR %s pA %s", permissionsCount, roleDescription,pDescriptions,pResources, pActions )
 
     //update role in database
+    
+    query :="update roles set description = $1 where id = $2"
+   
+     _, err := core.DB.Exec(query, roleDescription, roleID)
+    if err != nil {
+        fmt.Println("User update error:", err)
+        return
+    }
+
+    // ok we update role header now we need first insert the permissions 
+    // assign permission to role
+    for i := 0; i < len(pResources); i++ {
+        var permID int64
+        query = "insert into permissions (resource, action, description) values($1, $2, $3) RETURNING id"
+        err = core.DB.QueryRow(query, pResources[i], pActions[i], pDescriptions[i]).Scan(&permID)
+
+        if err != nil {
+            fmt.Printf("Failed to create permission: %v\n", err)
+            http.Error(w, "Failed to create permission", http.StatusInternalServerError)
+            return
+        }
+
+        fmt.Print("\n Permission Created .... \n")
+
+        query = "INSERT INTO roles_permissions (role_id, permission_id) VALUES ($1, $2)"
+        _, err = core.DB.Exec(query, roleID, permID)
+        if err != nil {
+            fmt.Print(err)
+            http.Error(w, "Failed to assign permission", http.StatusInternalServerError)
+            return
+        }
+
+        fmt.Printf("Assigned permission ID %d to role ID %s\n", permID, roleID)
+    }
+
+
+    CurrentUser := core.GetCurrentUser(r)
+	InsertLog(CurrentUser, "Roles", fmt.Sprintf("Update Role Name : %s ",roleName))
+
+
+
+
+    http.Redirect(w, r, "/role/details/"+roleID, http.StatusSeeOther)
     
     
 }
