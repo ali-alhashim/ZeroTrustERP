@@ -117,6 +117,7 @@ func Health(w http.ResponseWriter, r *http.Request){
 			"Storage":CheckStorage(),
 			"RAM": CheckRAM(),
 			"CPU":CheckCPU(),
+			"TotalUsers":core.GetCountRecords("users"),
 		}
 
 	core.RenderPage(w,r, "apps/system/views/health.html", data)

@@ -1,5 +1,7 @@
 console.log("Initializing WebSocket connection...");
 
+window.total_online_users = 0;
+
 class ZTERPWebSocket {
     constructor() {
         this.socket = null;
@@ -25,15 +27,21 @@ class ZTERPWebSocket {
         try {
             msg = JSON.parse(event.data);
         } catch (e) {
-            console.warn("Received non‑JSON message:", event.data);
+            console.warn("Received none JSON message:", event.data);
             return;
         }
 
         if (msg.type === "ONLINE_USERS_UPDATE") {
             console.log("✅ Presence update received:", msg.users);
+            window.total_online_users = msg.users.length;
+            console.log(window.total_online_users)
             if (this.onPresenceUpdate) {
                 this.onPresenceUpdate(msg.users);
             }
+
+
+            const event = new CustomEvent('ZTERP_PresenceUpdate', { detail: msg.users });
+            window.dispatchEvent(event);
         }
 };
 

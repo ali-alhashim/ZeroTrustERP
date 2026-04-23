@@ -15,6 +15,34 @@
         <tr>
             <th>RAM</th><th>{{.RAM}}</th>
         </tr>
+        <tr>
+            <th>Total Users</th><th class="row">{{.TotalUsers}} - Online Users : <div id="online_users">0</div></th>
+        </tr>
     </tbody>
 </table>
+
+
+<script>
+(function() {
+    const display = document.getElementById("online_users");
+
+    function render(users) {
+        if (!display) return;
+        // Handle if users is an array or just a number
+        const count = Array.isArray(users) ? users.length : users;
+        display.innerText = count;
+        console.log("Display updated to:", count);
+    }
+
+    // 1. Listen for the Global Event we created above
+    window.addEventListener('ZTERP_PresenceUpdate', (e) => {
+        render(e.detail);
+    });
+
+    // 2. Initial render (in case data is already there)
+    if (window.total_online_users !== undefined) {
+        render(window.total_online_users);
+    }
+})();
+</script>
 {{end}}
