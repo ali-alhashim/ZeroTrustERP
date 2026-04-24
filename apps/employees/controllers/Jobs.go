@@ -14,3 +14,6 @@ func ListJobs(w http.ResponseWriter, r *http.Request) {
 
 	core.RenderPage(w,r, "apps/employees/views/jobs-list.html", data)
 }
+
+
+
