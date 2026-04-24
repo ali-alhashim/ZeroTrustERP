@@ -89,7 +89,7 @@ func CreateDepartment(w http.ResponseWriter, r *http.Request){
 		CurrentUser := core.GetCurrentUser(r)
 
 
-		core.InsertLog(CurrentUser, "Departments", fmt.Sprintf("Created Department coade %s with name: %s",code, name))
+		core.InsertLog(CurrentUser, "Departments", fmt.Sprintf("Created Department code %s with name: %s",code, name))
 
 		http.Redirect(w, r, "/employees/departments", http.StatusSeeOther)
 
@@ -191,7 +191,10 @@ func DepartmentsDetails(w http.ResponseWriter, r *http.Request){
 	departmentID := r.PathValue("id")
 
 	fmt.Print(" \n Get Department Details ID = "+ departmentID +"\n")
-
+    var department models.Department
+	
+	query:="select code, name, local_name, manager_id, active from departments where id = $1"
+  
 
 	data := map[string]interface{}{
 		"Title": "Departments",
