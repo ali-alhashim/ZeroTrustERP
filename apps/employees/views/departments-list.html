@@ -11,10 +11,10 @@
 
 <form method="GET" style="margin-bottom: 15px;">
     <label for="status">Status:</label>
-    <select name="status" id="status" onchange="this.form.submit()">
+    <select name="Active" id="status" onchange="this.form.submit()">
         <option value="">All</option>
-        <option value="active" {{if eq .Status "active"}}selected{{end}}>Active</option>
-        <option value="inactive" {{if eq .Status "inactive"}}selected{{end}}>Inactive</option>
+        <option value="true" {{if eq .Active "active"}}selected{{end}}>Active</option>
+        <option value="false" {{if eq .Active "inactive"}}selected{{end}}>Inactive</option>
     </select>
 </form>
 
@@ -37,10 +37,11 @@
 <button type="button" class="btn" style="margin-bottom: 15px;" id="nextBtn">Next > </button>
 
 </div><!--toolbar-->
-       
+  Count Records: {{.TotalRecords}}     
         <table>
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Code</th>
                     <th>Name</th>
                     <th>Name (AR)</th>
@@ -51,16 +52,70 @@
                 </tr>
             </thead>
             <tbody>
+
+                {{range .Departments}}
+
                 <tr>
-                    <td>IT-001</td>
-                    <td>IT Department</td>
-                    <td>قسم تقنية المعلومات</td>
-                    <td>Ali Musa Alhashim</td>
-                    <td>5</td>
-                    <td>Active</td>
+                    <td>
+                        <a class="btn btn-id" href="/departments/details/{{.ID}}">
+                        {{.ID}}
+                        </a>
+                    </td>
+                    <td>{{.Code}}</td>
+                    <td>{{.Name}}</td>
+                    <td>{{.LocalName}}</td>
+                    <td>{{.Manager}}</td>
+                    <td>{{len .Employees}}</td>
+                    <td>{{.Active}}</td>
                     
                 </tr>
+
+                {{end}}
                
             </tbody>
         </table>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const backBtn = document.getElementById('backBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const selectPageSize = document.getElementById('selectPageSize');
+
+    // Get current URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Parse current page and pageSize (default to 1 and 10)
+    let currentPage = parseInt(urlParams.get('page')) || 1;
+    let currentPageSize = urlParams.get('pageSize') || "10";
+
+    // Set the dropdown to match the current URL state
+    selectPageSize.value = currentPageSize;
+
+    // Helper function to update URL and redirect
+    const updateLocation = (newPage, newSize) => {
+        urlParams.set('page', newPage);
+        urlParams.set('pageSize', newSize);
+        window.location.search = urlParams.toString();
+    };
+
+    // --- Event Listeners ---
+
+    backBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            updateLocation(currentPage - 1, selectPageSize.value);
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        updateLocation(currentPage + 1, selectPageSize.value);
+    });
+
+    selectPageSize.addEventListener('change', () => {
+        // When changing page size, usually best to reset to page 1
+        updateLocation(1, selectPageSize.value);
+    });
+});
+</script>
+
 {{end}}

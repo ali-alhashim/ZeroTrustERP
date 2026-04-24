@@ -3,12 +3,38 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"zerotrusterp/apps/employees/models"
 	"zerotrusterp/core"
+	"strconv"
 )
 
 func ListDepartments(w http.ResponseWriter, r *http.Request) {
+
+
+	query := r.URL.Query()
+
+	search     := query.Get("q")
+	sortBy     := query.Get("sort")
+	order      := query.Get("order")
+	page       := query.Get("page")
+	pageSize   := query.Get("pageSize")
+
+	fmt.Printf("list logs: search=%s, sort=%s, order=%s, page=%s, pageSize=%s\n", search, sortBy, order, page, pageSize)
+    
+    totalRecords := core.GetCountRecords("departments")
+
+	departments:= GetDepartmentsFromDB(search, sortBy, order, page, pageSize)
+
+
 	data := map[string]interface{}{
 		"Title": "Departments",
+		"Query": search,
+		"Sort":  sortBy,
+		"Order": order,
+		"Page":  page,
+		"PageSize": pageSize,
+		"TotalRecords":totalRecords,
+		"Departments": departments,
 		
 	}
 
@@ -68,4 +94,109 @@ func CreateDepartment(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, "/employees/departments", http.StatusSeeOther)
 
 	}
+}
+
+
+
+func GetDepartmentsFromDB(search, sort, order, page, pageSize string) []models.Department {
+
+	query := "SELECT id, name, local_name, code,  manager_id, active FROM departments WHERE 1=1"
+	args := []interface{}{}
+	argIndex := 1
+
+	if search != "" {
+		query += " AND (username ILIKE $" + strconv.Itoa(argIndex) +
+			     " OR email ILIKE $" + strconv.Itoa(argIndex+1) + ")"
+
+		args = append(args, "%"+search+"%", "%"+search+"%")
+		argIndex += 2
+	}
+
+
+	// 🔒 Safe sorting
+	allowedSort := map[string]string{
+		"ID":        "id",
+		"Code":     "code",
+		"Name":    "name",
+		"LocalName":  "local_name",
+		"Manager":  "manager_id",
+		"Active":    "active",
+		
+	}
+
+	if col, ok := allowedSort[sort]; ok {
+		query += " ORDER BY " + col
+		if order == "desc" {
+			query += " DESC"
+		} else {
+			query += " ASC"
+		}
+
+	}
+
+	
+
+
+		// 📄 Pagination (page + pageSize)
+	p, _ := strconv.Atoi(page)
+	ps, _ := strconv.Atoi(pageSize)
+
+	// defaults
+	if p <= 0 {
+		p = 1
+	}
+	if ps <= 0 || ps > 100 {
+		ps = 10
+	}
+
+	offset := (p - 1) * ps
+
+	query += " LIMIT $" + strconv.Itoa(argIndex) +
+		" OFFSET $" + strconv.Itoa(argIndex+1)
+
+	args = append(args, ps, offset)
+
+
+		// ✅ Execute
+	rows, err := core.DB.Query(query, args...)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+
+	
+
+
+
+	var departments []models.Department
+
+
+	for rows.Next() {
+		var l models.Department
+		err := rows.Scan(&l.ID, &l.Name, &l.LocalName, &l.Code, &l.Manager, &l.Active)
+		if err != nil {
+			panic(err)
+		}
+		departments = append(departments, l)
+	}
+
+	return departments
+}
+
+
+
+func DepartmentsDetails(w http.ResponseWriter, r *http.Request){
+
+	departmentID := r.PathValue("id")
+
+	fmt.Print(" \n Get Department Details ID = "+ departmentID +"\n")
+
+
+	data := map[string]interface{}{
+		"Title": "Departments",
+		
+	}
+
+	core.RenderPage(w,r, "apps/employees/views/departments-details.html", data)
 }
