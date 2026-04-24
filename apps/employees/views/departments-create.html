@@ -2,4 +2,42 @@
 
 <h4>Create Department</h4>
 
+<form method="post" action="/employees/departments/create">
+
+<table>
+    <tbody>
+        <tr>
+            <td>Code</td><td><input type="text" placeholder="Enter Department Code" name="code"></td>
+        </tr>
+
+        <tr>
+            <td>Name</td><td><input type="text" placeholder="Enter Department Name" name="name"></td>
+        </tr>
+
+        <tr>
+            <td>Name(AR)</td><td><input type="text" placeholder="Enter Department Name (AR)" name="nameAR"></td>
+        </tr>
+
+         <tr>
+            <td>Manager</td>
+            <td>
+                <select name="manager" class="select-search">
+                    <option>Select Department Manager</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Active</td><td><input type="checkbox"  name="active"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+<button type="submit" class="btn btn-primary m-5">Create Department</button>
+
+</form>
+
 {{end}}
