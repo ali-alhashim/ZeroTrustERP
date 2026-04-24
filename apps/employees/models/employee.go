@@ -40,6 +40,7 @@ type Department struct {
     Manager     *Employee  `f:"one2one:employees"` 
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
+    Active      bool       `f:"bool, default:true"`
 }
 
 // ExManagerDepartment is a join table to track historical manager assignments for departments

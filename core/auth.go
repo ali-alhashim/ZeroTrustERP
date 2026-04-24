@@ -12,7 +12,7 @@ import (
     "context"
 	"crypto/rand"
     "encoding/base64"
-
+    "net/url"
 
 	"regexp"
 	"strings"
@@ -332,15 +332,18 @@ func AuthMiddleware(next http.Handler, resource...string) http.Handler {
         emailCookie, errE := r.Cookie("email")
         sessionCookie, errS := r.Cookie("session")
 
-        // 2. If cookies are missing, they aren't logged in
-        if errE != nil || errS != nil {
-            http.Redirect(w, r, "/login", http.StatusSeeOther)
-            return
-        }
+		//before to redirect to login 
+		//store the request url after the login redirect to requested url
 
-        // 3. Use  function to check the database
-        if !IsValidSessionToken(emailCookie.Value, sessionCookie.Value) {
-            http.Redirect(w, r, "/login", http.StatusSeeOther)
+       // 1. Check if user is logged in
+        if errE != nil || errS != nil || !IsValidSessionToken(emailCookie.Value, sessionCookie.Value) {
+            // Get the current URL the user was trying to access
+            requestedPath := r.URL.RequestURI() 
+            
+            // Encode the path to make it safe for a URL parameter
+            redirectURL := fmt.Sprintf("/login?next=%s", url.QueryEscape(requestedPath))
+            
+            http.Redirect(w, r, redirectURL, http.StatusSeeOther)
             return
         }
 

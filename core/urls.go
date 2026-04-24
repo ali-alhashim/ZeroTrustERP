@@ -21,8 +21,7 @@ func GetMainHub() *Hub {
 func RegisterRoutes() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	// Health check endpoint
-	mux.HandleFunc("/health", handleHealth)
+	
 
 	// Static files
 	fs := http.FileServer(http.Dir("./static"))
@@ -58,14 +57,20 @@ func RegisterRoutes() *http.ServeMux {
 	// =========================
 	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 
+		nextTarget := r.URL.Query().Get("next")
+		fmt.Print("\n Login Page opened with nextTarget=", nextTarget ," \n")
+
 		if r.Method == http.MethodPost {
 			email := strings.ToLower(strings.TrimSpace(r.FormValue("email")))
+			nextTarget = r.FormValue("next")
+			fmt.Print("Login post with next = ", nextTarget)
 
 			// Validate email
 			if !isValidEmail(email) {
 				RenderPageNoLayout(w, "core/templates/login.html", map[string]interface{}{
 					"Error": "Invalid email",
 					"Email": email,
+					"Next":  nextTarget,
 				})
 				return
 			}
@@ -78,6 +83,7 @@ func RegisterRoutes() *http.ServeMux {
 					RenderPageNoLayout(w, "core/templates/login.html", map[string]interface{}{
 						"Error": "System initialization failed",
 						"Email": email,
+						"Next":  nextTarget,
 					})
 					return
 				}
@@ -88,6 +94,7 @@ func RegisterRoutes() *http.ServeMux {
 				RenderPageNoLayout(w, "core/templates/login.html", map[string]interface{}{
 					"Error": "Invalid login",
 					"Email": email,
+					"Next":  nextTarget,
 				})
 				return
 			}
@@ -110,6 +117,7 @@ func RegisterRoutes() *http.ServeMux {
 				RenderPageNoLayout(w, "core/templates/login.html", map[string]interface{}{
 					"Error": "Failed to send OTP",
 					"Email": email,
+					"Next":  nextTarget,
 				})
 				return
 			}
@@ -123,6 +131,7 @@ func RegisterRoutes() *http.ServeMux {
 				RenderPageNoLayout(w, "core/templates/login.html", map[string]interface{}{
 					"Error": "System error",
 					"Email": email,
+					"Next":  nextTarget,
 				})
 				return
 			}
@@ -130,13 +139,19 @@ func RegisterRoutes() *http.ServeMux {
 			// Do NOT log OTP in production
 			fmt.Printf("OTP generated for %s\n", email)
 
+			
+			fmt.Print("someone not login trying to open", nextTarget)
+
 			RenderPageNoLayout(w, "core/templates/login-otp.html", map[string]interface{}{
 				"Email": email,
+				"Next":  nextTarget,
 			})
 			return
 		}
 
-		RenderPageNoLayout(w, "core/templates/login.html", nil)
+		RenderPageNoLayout(w, "core/templates/login.html", map[string]interface{}{
+			"Next":  nextTarget,
+		})
 	})
 
 
@@ -147,11 +162,15 @@ func RegisterRoutes() *http.ServeMux {
 	// =========================
 	mux.HandleFunc("/login-otp", func(w http.ResponseWriter, r *http.Request) {
 
+        nextTarget := r.FormValue("next")
+		fmt.Print("login-otp opened with nextTarget=", nextTarget)
+
         email := strings.ToLower(strings.TrimSpace(r.FormValue("email")))
 
 		if r.Method == http.MethodPost {
 			
 			otp := r.FormValue("otp")
+			
 
             fmt.Printf("Received OTP login attempt for %s\n", email)
 
@@ -160,6 +179,7 @@ func RegisterRoutes() *http.ServeMux {
 				RenderPageNoLayout(w, "core/templates/login-otp.html", map[string]interface{}{
 					"Error": "Invalid login",
 					"Email": email,
+					"Next":  nextTarget,
 				})
 				return
 			}
@@ -192,6 +212,7 @@ func RegisterRoutes() *http.ServeMux {
 					RenderPageNoLayout(w, "core/templates/login-otp.html", map[string]interface{}{
 						"Error": "Check your email/spam. Ensure correct email.",
 						"Email": email,
+						"Next":  nextTarget,
 					})
 					return
 				}
@@ -205,6 +226,7 @@ func RegisterRoutes() *http.ServeMux {
 				RenderPageNoLayout(w, "core/templates/login-otp.html", map[string]interface{}{
 					"Error": "Invalid or expired OTP",
 					"Email": email,
+					"Next":  nextTarget,
 				})
 				return
 			}
@@ -241,7 +263,12 @@ func RegisterRoutes() *http.ServeMux {
 
 
 			// Redirect to dashboard
-			http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+			if nextTarget == "" || !strings.HasPrefix(nextTarget, "/") {
+                nextTarget = "/dashboard"
+            }
+
+
+			http.Redirect(w, r, nextTarget, http.StatusSeeOther)
 			return
 		}
 
@@ -257,14 +284,7 @@ func RegisterRoutes() *http.ServeMux {
 	return mux
 }
 
-// =========================
-// HEALTH
-// =========================
-func handleHealth(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status":"healthy"}`))
-}
+
 
 
 

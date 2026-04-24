@@ -1,5 +1,42 @@
 
  {{define "content"}}
+ <h3>Department</h3>
+
+ <div class="toolbar">
+<!-- 🔍 Search Bar -->
+<form method="GET" style="margin-bottom: 15px;">
+    <input type="text" name="q" value="{{.Query}}" placeholder="Search..." />
+    <button type="submit" class="btn btn-secondary">Search</button>
+</form>
+
+<form method="GET" style="margin-bottom: 15px;">
+    <label for="status">Status:</label>
+    <select name="status" id="status" onchange="this.form.submit()">
+        <option value="">All</option>
+        <option value="active" {{if eq .Status "active"}}selected{{end}}>Active</option>
+        <option value="inactive" {{if eq .Status "inactive"}}selected{{end}}>Inactive</option>
+    </select>
+</form>
+
+
+<form method="GET" style="margin-bottom: 15px;" action="/departments/create">
+   <button type="submit" class="btn btn-primery">
+     <img src="/static/icons/plus.svg" alt="Add New User +"  class="icon" width="20"/>
+   </button>
+</form>
+
+
+<button type="button" class="btn" style="margin-bottom: 15px;" id="backBtn"> < Back</button>
+<select name="pageSize" style="margin-bottom: 15px;" id="selectPageSize">
+    <option>10</option>
+    <option>20</option>
+    <option>50</option>
+    <option>100</option>
+    <option>200</option>
+</select>
+<button type="button" class="btn" style="margin-bottom: 15px;" id="nextBtn">Next > </button>
+
+</div><!--toolbar-->
        
         <table>
             <thead>
@@ -9,6 +46,7 @@
                     <th>Name (AR)</th>
                     <th>Manager</th>
                     <th>Employee Count</th>
+                    <th>Status</th>
                   
                 </tr>
             </thead>
@@ -19,6 +57,7 @@
                     <td>قسم تقنية المعلومات</td>
                     <td>Ali Musa Alhashim</td>
                     <td>5</td>
+                    <td>Active</td>
                     
                 </tr>
                
