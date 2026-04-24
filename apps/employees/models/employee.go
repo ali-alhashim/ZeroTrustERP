@@ -35,6 +35,7 @@ type OrgUnit struct {
 type Department struct {
     ID          int        `f:"number, primary, auto"`
     Name        string     `f:"text, unique, notnull"`
+    LocalName   string     `f:"text"`
     Code        string     `f:"text, unique, notnull"`
     Employees   []Employee `v:"true"`
     Manager     *Employee  `f:"one2one:employees"` 
