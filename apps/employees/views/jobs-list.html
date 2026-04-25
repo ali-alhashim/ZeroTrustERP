@@ -2,6 +2,42 @@
  {{define "content"}}
 
  <h3>Job Definitions</h3>
+
+ <div class="toolbar">
+<!-- 🔍 Search Bar -->
+<form method="GET" style="margin-bottom: 15px;">
+    <input type="text" name="q" value="{{.Query}}" placeholder="Search..." />
+    <button type="submit" class="btn btn-secondary">Search</button>
+</form>
+
+<form method="GET" style="margin-bottom: 15px;">
+    <label for="status">Status:</label>
+    <select name="Active" id="status" onchange="this.form.submit()">
+        <option value="">All</option>
+        <option value="true" {{if eq .Active "active"}}selected{{end}}>Active</option>
+        <option value="false" {{if eq .Active "inactive"}}selected{{end}}>Inactive</option>
+    </select>
+</form>
+
+
+<form method="GET" style="margin-bottom: 15px;" action="/employees/departments/create">
+   <button type="submit" class="btn btn-primery">
+     <img src="/static/icons/plus.svg" alt="Add New User +"  class="icon" width="20"/>
+   </button>
+</form>
+
+
+<button type="button" class="btn" style="margin-bottom: 15px;" id="backBtn"> < Back</button>
+<select name="pageSize" style="margin-bottom: 15px;" id="selectPageSize">
+    <option>10</option>
+    <option>20</option>
+    <option>50</option>
+    <option>100</option>
+    <option>200</option>
+</select>
+<button type="button" class="btn" style="margin-bottom: 15px;" id="nextBtn">Next > </button>
+
+</div><!--toolbar-->
        
         <table>
             <thead>
