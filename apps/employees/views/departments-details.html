@@ -1,5 +1,67 @@
 {{define "content"}}
 <h3>Department Details</h3>
 
+<table>
+    <tr>
+        <th>ID</th><th>{{.Department.ID}}</th>
+    </tr>
+    <tr>
+        <th>Code</th> <th><input type="text" name="code" value={{.Department.Code}}></th>
+    </tr>
+    <tr>
+        <th>Name</th><th><input type="text" name="name" value="{{.Department.Name}}"></th>
+    </tr>
+    <tr>
+        <th>Name(AR)</th><th><input type="text" name="local_name" value="{{.Department.LocalName}}"></th>
+    </tr>
+    <tr>
+        <th>Manager</th>
+        <th>
+            <select name="manager">
+                <option>{{.Department.Manager}}</option>
+            </select>
+        </th>
+    </tr>
+    <tr>
+        <th>Total Employees</th><th>{{len .Department.Employees}}</th>
+    </tr>
+    <tr>
+        <th>Active</th><th><input type="checkbox" name="active" {{if .Department.Active}}checked{{end}}></th>
+    </tr>
+</table>
+
+<hr>
+<h5>Department Employees</h5>
+
+  <table>
+            <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>Badge#</th>
+                    <th>Name</th>
+                    <th>Name(AR)</th>
+                    <th>Work Email</th>
+                    <th>Job Title</th>
+                    <th>Status</th>
+                  
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <img src="/static/icons/userCircle.svg" class="employee-photo" width="90">
+                    </td>
+                    <td>A1000</td>
+                    <td>Ali Musa Alhashim</td>
+                    <td>علي موسى الهاشم</td>
+                    <td>Ali@example.com</td>
+                    <td>IT Supervisor</td>
+                    <td>Active</td>
+                   
+                </tr>
+             
+            </tbody>
+        </table>
+
 
 {{end}}

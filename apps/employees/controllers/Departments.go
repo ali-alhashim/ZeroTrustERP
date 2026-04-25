@@ -191,15 +191,67 @@ func DepartmentsDetails(w http.ResponseWriter, r *http.Request){
 	departmentID := r.PathValue("id")
 
 	fmt.Print(" \n Get Department Details ID = "+ departmentID +"\n")
-    var department models.Department
+   
 	
-	query:="select code, name, local_name, manager_id, active from departments where id = $1"
+	
   
 
 	data := map[string]interface{}{
 		"Title": "Departments",
+		"Department":GetDepartmentById(departmentID),
 		
 	}
 
 	core.RenderPage(w,r, "apps/employees/views/departments-details.html", data)
+}
+
+
+
+func GetDepartmentById(id string) models.Department {
+    var dept models.Department
+    
+    // Ensure the SELECT statement is formatted correctly
+    query := `
+        SELECT 
+            d.id, d.code, d.name, d.local_name, d.manager_id, d.active,
+            e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id
+        FROM departments d 
+        LEFT JOIN employees e ON d.id = e.department_id
+        WHERE d.id = $1`
+
+    rows, err := core.DB.Query(query, id)
+    if err != nil {
+        fmt.Printf("Database error: %v\n", err)
+        return models.Department{}
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var emp models.Employee
+        // Using pointers for employee fields to handle LEFT JOIN NULLs
+        var empId *int
+        var empBadge, empName, empLocal, empJob *string
+        var empDeptId *int
+
+        err := rows.Scan(
+            &dept.ID, &dept.Code, &dept.Name, &dept.LocalName, &dept.Manager, &dept.Active,
+            &empId, &empBadge, &empName, &empDeptId, &empLocal, &empJob,
+        )
+        if err != nil {
+            fmt.Printf("Scan error: %v\n", err)
+            return models.Department{}
+        }
+
+        // If empId is not null, an employee exists for this row
+        if empId != nil {
+            emp.ID = *empId
+            if empName != nil { emp.Name = *empName }
+            if empBadge != nil { emp.BadgeID = *empBadge }
+            // ... map other fields ...
+            
+            dept.Employees = append(dept.Employees, emp)
+        }
+    }
+
+    return dept
 }
