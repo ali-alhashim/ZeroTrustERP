@@ -1,6 +1,7 @@
 {{define "content"}}
 <h3>Department Details</h3>
 
+<form method="POST" action="/department/update/{{.Department.ID}}">
 <table>
     <tr>
         <th>ID</th><th>{{.Department.ID}}</th>
@@ -29,6 +30,10 @@
         <th>Active</th><th><input type="checkbox" name="active" {{if .Department.Active}}checked{{end}}></th>
     </tr>
 </table>
+<br/>
+<button class="btn btn-primary">Update</button>
+
+</form>
 
 <hr>
 <h5>Department Employees</h5>
