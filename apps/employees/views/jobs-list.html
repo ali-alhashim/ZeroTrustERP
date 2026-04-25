@@ -42,21 +42,25 @@
         <table>
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Code</th>
                     <th>Name</th>
                     <th>Name (AR)</th>
-                    <th>-</th>
+                    <th>Description</th>
                   
                 </tr>
             </thead>
             <tbody>
+                {{range .Jobs}}
                 <tr>
-                    <td>A\C TCH</td>
-                    <td>AC Technician</td>
-                    <td>فني تركيب تكييف وتبريد</td>
-                    <td>-</td>
+                    <td>{{.ID}}</td>
+                    <td>{{.Code}}</td>
+                    <td>{{.Name}}</td>
+                    <td>{{.LocalName}}</td>
+                    <td>{{.Description}}</td>
                     
                 </tr>
+                {{end}}
                
             </tbody>
         </table>
