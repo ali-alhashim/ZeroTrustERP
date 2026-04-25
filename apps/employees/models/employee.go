@@ -55,6 +55,7 @@ type ExManagerDepartment struct {
     To         time.Time `f:"timestamp,"`
 }
 
+// is a join table to track historical jobtitle
 type ExJobTitle struct {
     ID         int         `f:"number, primary, auto"`
     Employee   *Employee   `f:"many2one:employees"`
