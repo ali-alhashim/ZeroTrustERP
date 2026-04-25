@@ -47,17 +47,23 @@
                     <th>Name</th>
                     <th>Name (AR)</th>
                     <th>Description</th>
+                    <th>Status</th>
                   
                 </tr>
             </thead>
             <tbody>
                 {{range .Jobs}}
                 <tr>
-                    <td>{{.ID}}</td>
+                    <td>
+                        <a class="btn btn-id" href="/job/details/{{.ID}}">
+                        {{.ID}}
+                        </a>
+                    </td>
                     <td>{{.Code}}</td>
                     <td>{{.Name}}</td>
                     <td>{{.LocalName}}</td>
                     <td>{{.Description}}</td>
+                    <td>-</td>
                     
                 </tr>
                 {{end}}

@@ -157,4 +157,28 @@ func GetJobsFromDB(search, sort, order, page, pageSize string) []models.JobTitle
 }
 
 
+func GetJobTitleById(id string) models.JobTitle {
+
+	var jobTitle models.JobTitle
+
+	query :="select id, name, local_name, code, description from job_titles where id = $1"
+    
+	err := core.DB.QueryRow(query, id).Scan(
+        &jobTitle.ID, 
+        &jobTitle.Name, 
+        &jobTitle.LocalName, 
+        &jobTitle.Code, 
+        &jobTitle.Description,
+    )
+
+	if err !=nil{
+		fmt.Print(err)
+	}
+
+
+
+	return jobTitle
+}
+
+
 

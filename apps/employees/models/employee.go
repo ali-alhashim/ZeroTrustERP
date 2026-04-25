@@ -22,6 +22,7 @@ type Employee struct {
     Active      bool      `f:"bool, default:true"`
     InsurancePolicies []InsurancePolicy `v:"true"`
     GovermentID string      `f:"text"` // Iqama/ID
+    Image       string      `f:"text"` 
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments
@@ -77,6 +78,7 @@ type JobTitle struct {
     Employees   []Employee `v:"true"`
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
+    Active      bool       `f:"bool, default:true"`
 }
 
 
