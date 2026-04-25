@@ -54,8 +54,8 @@ type ExManagerDepartment struct {
     Employee   *Employee  `f:"many2one:employees"`
     Department *Department `f:"many2one:departments"`
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
-    From       time.Time `f:"timestamp,"`
-    To         time.Time `f:"timestamp,"`
+    FromDate       time.Time `f:"timestamp,"`
+    ToDate         time.Time `f:"timestamp,"`
 }
 
 // is a join table to track historical jobtitle
@@ -64,8 +64,8 @@ type ExJobTitle struct {
     Employee   *Employee   `f:"many2one:employees"`
     JobTitle   *JobTitle   `f:"many2one:job_titles"`
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
-    From       time.Time   `f:"timestamp,"`
-    To         time.Time   `f:"timestamp,"`
+    FromDate       time.Time   `f:"timestamp,"`
+    ToDate         time.Time   `f:"timestamp,"`
 }
 
 type JobTitle struct {

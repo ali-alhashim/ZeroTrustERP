@@ -255,3 +255,52 @@ func GetDepartmentById(id string) models.Department {
 
     return dept
 }
+
+
+func isDepartmentManagerChanged(departmentID string, managerID string) bool {
+    var currentManagerID string
+
+    // 1. Fetch the CURRENT manager assigned to this department
+    query := "SELECT manager_id FROM departments WHERE id = $1"
+    
+    // Assuming 'db' is your database connection (sql.DB)
+    err := core.DB.QueryRow(query, departmentID).Scan(&currentManagerID)
+    if err != nil {
+        // If the department doesn't exist, technically it's a "change" or an error
+        return true 
+    }
+
+    // 2. Compare. If the IDs are different, the manager has changed.
+    return currentManagerID != managerID
+}
+
+
+func UpdateDepartment(w http.ResponseWriter, r *http.Request){
+
+	departmentID := r.PathValue("id")
+
+	code := r.FormValue("code")
+	name := r.FormValue("name")
+	local_name:= r.FormValue("local_name")
+	manager:= r.FormValue("manager")
+	active := r.FormValue("active") == "on"
+
+	fmt.Printf("Update Department %s Code:%s, Name:%s, LocalName:%s, Manager:%s, active:%t",departmentID, code, name, local_name, manager, active)
+
+	if isDepartmentManagerChanged(departmentID, manager){
+	 
+		exManagerDepartment(departmentID, manager)
+
+	}
+
+
+}
+
+
+func exManagerDepartment(departmentID string, manager string){
+
+	// get the exist employee and set 
+
+}
+
+
