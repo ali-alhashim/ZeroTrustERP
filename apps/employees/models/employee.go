@@ -13,12 +13,15 @@ type Employee struct {
     BadgeID    string     `f:"text, unique, notnull"`
     Name       string     `f:"text, notnull"`
     Department *Department `f:"many2one:"`   
-    LocalName  string     `f:"text"`
-    JobTitle   *JobTitle   `f:"many2one:"`   
-    Grade      string      `f:"text"` // to distinguish the level of employees like C level or Manager ...Supervisor or just use numbers
+    LocalName   string     `f:"text"`
+    JobTitle    *JobTitle   `f:"many2one:"`   
+    Grade       string      `f:"text"` // to distinguish the level of employees like C level or Manager ...Supervisor or just use numbers
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     BirthDate   time.Time `f:"timestamp,"`
+    Active      bool      `f:"bool, default:true"`
+    InsurancePolicies []InsurancePolicy `v:"true"`
+    GovermentID string      `f:"text"` // Iqama/ID
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments
@@ -95,4 +98,77 @@ type ShiftSchedule struct {
     Saturday    bool      `f:"bool, default:false"`
     Sunday      bool      `f:"bool, default:false"`
     Employees   []Employee `v:"true"`
+}
+
+
+// Contract represents the legal employment agreement for an employee.
+type Contract struct {
+    ID          int        `f:"number, primary, auto"`
+    Employee    *Employee  `f:"many2one:employees, notnull"`
+    Name        string     `f:"text"` // e.g., "Employment Agreement - Ali"
+    StartDate   time.Time  `f:"timestamp, notnull"`
+    EndDate     *time.Time `f:"timestamp"` // Nullable for open-ended contracts
+    
+    // Virtual field to see all salary updates linked to this contract
+    SalaryLines []ContractSalaryLine `v:"true"`
+    
+    Active      bool       `f:"bool, default:true"`
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+}
+
+// SalaryComponentType defines what the money is for (Housing, Transport, etc.)
+type SalaryComponentType struct {
+    ID          int    `f:"number, primary, auto"`
+    Name        string `f:"text, unique, notnull"` // "Housing", "Transportation", "Telecom"
+    Code        string `f:"text, unique, notnull"` // "HOU", "TRA", "TEL"
+}
+
+// ContractSalaryLine (Updated to support multiple allowances)
+type ContractSalaryLine struct {
+    ID            int       `f:"number, primary, auto"`
+    Contract      *Contract `f:"many2one:contracts, notnull"`
+    
+    BaseSalary    float64   `f:"number, notnull"`
+    
+    // This connects to the individual allowances for this specific salary update
+    Components    []SalaryComponentValue `v:"true"` 
+    
+    EffectiveDate time.Time `f:"timestamp, notnull"`
+    CreatedAt     time.Time `f:"timestamp, default:current_timestamp"`
+}
+
+// SalaryComponentValue stores the actual amount for a specific employee
+type SalaryComponentValue struct {
+    ID          int                  `f:"number, primary, auto"`
+    SalaryLine  *ContractSalaryLine  `f:"many2one:contract_salary_lines"`
+    Type        *SalaryComponentType `f:"many2one:salary_component_types"`
+    Amount      float64              `f:"number, notnull"`
+}
+
+
+
+// InsuranceGrade defines the levels like Class A, Class B, Class C
+type InsuranceGrade struct {
+    ID          int    `f:"number, primary, auto"`
+    Grade       string `f:"text, unique, notnull"` // "A", "B", "C"
+    Description string `f:"text"`                   // "Full coverage", "Standard", etc.
+    CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
+}
+
+// InsurancePolicy links an employee to their specific insurance details
+type InsurancePolicy struct {
+    ID              int             `f:"number, primary, auto"`
+    Employee        *Employee       `f:"many2one:employees, notnull"`
+    Grade           *InsuranceGrade `f:"many2one:insurance_grades, notnull"`
+    PolicyNumber    string          `f:"text, unique"`
+    Provider        string          `f:"text"` // e.g., "Bupa", "Tawuniya"
+    
+    // Dates are critical for renewals
+    StartDate       time.Time       `f:"timestamp"`
+    ExpiryDate      time.Time       `f:"timestamp"`
+    
+    Active          bool            `f:"bool, default:true"`
+    CreatedAt       time.Time       `f:"timestamp, default:current_timestamp"`
+    UpdatedAt       time.Time       `f:"timestamp, default:current_timestamp"`
 }
