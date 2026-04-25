@@ -167,3 +167,6 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request){
 	}
 	
 }
+
+func GenerateBadgeID(){
+}
