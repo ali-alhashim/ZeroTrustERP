@@ -15,9 +15,10 @@ type Employee struct {
     Department *Department `f:"many2one:"`   
     LocalName  string     `f:"text"`
     JobTitle   *JobTitle   `f:"many2one:"`   
-
+    Grade      string      `f:"text"` // to distinguish the level of employees like C level or Manager ...Supervisor or just use numbers
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
+    BirthDate   time.Time `f:"timestamp,"`
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments
@@ -52,6 +53,15 @@ type ExManagerDepartment struct {
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     From       time.Time `f:"timestamp,"`
     To         time.Time `f:"timestamp,"`
+}
+
+type ExJobTitle struct {
+    ID         int         `f:"number, primary, auto"`
+    Employee   *Employee   `f:"many2one:employees"`
+    JobTitle   *JobTitle   `f:"many2one:job_titles"`
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    From       time.Time   `f:"timestamp,"`
+    To         time.Time   `f:"timestamp,"`
 }
 
 type JobTitle struct {
