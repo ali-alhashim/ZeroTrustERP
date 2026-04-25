@@ -1,0 +1,61 @@
+{{define "content"}}
+<h3>Create Employee</h3>
+
+<form method="post" action="/employees/create" enctype="multipart/form-data">
+    
+<table>
+    <tbody>
+        <tr>
+            <th>Badge ID</th>
+            <th>
+                <input type="text" name="badgeId" id="badgeID"> <button type="button" class="btn btn-secondary">Generate Badge ID</button>
+            </th>
+        </tr>
+
+        <tr>
+            <th>Name</th>
+            <th><input type="text" name="name"></th>
+        </tr>
+
+        <tr>
+            <th>Name(AR)</th>
+            <th>
+                <input type="text" name="local_name">
+            </th>
+        </tr>
+        <tr>
+            <th>Work Email</th>
+            <th><input type="email" name="email"></th>
+        </tr>
+
+        <tr>
+            <th>Department</th>
+            <th>
+                <select name="department">
+                    <option></option>
+                </select>
+            </th>
+        </tr>
+
+         <tr>
+            <th>Job Title</th>
+            <th>
+                <select name="jobTitle">
+                    <option></option>
+                </select>
+            </th>
+        </tr>
+
+        <tr>
+            <th>Image</th>
+            <th>
+                <input type="file" name="image" class="btn btn-secondary">
+            </th>
+        </tr>
+    </tbody>
+</table>    
+
+<button type="submit" class="btn btn-primary m-5">Create Employee</button>
+</form>
+
+{{end}}

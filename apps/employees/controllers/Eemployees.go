@@ -154,3 +154,16 @@ func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Empl
 	return employees
 
 }
+
+
+func CreateEmployee(w http.ResponseWriter, r *http.Request){
+
+	if r.Method == http.MethodGet{
+		data := map[string]interface{}{
+				"Title": "Employees",
+			}
+
+		core.RenderPage(w,r, "apps/employees/views/employees-create.html", data)
+	}
+	
+}
