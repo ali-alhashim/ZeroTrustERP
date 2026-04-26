@@ -489,3 +489,9 @@ input:disabled {
     cursor: not-allowed; /* Optional: adds a 'prohibited' cursor for better UX */
 }
 
+.search-menu{
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+}
+
