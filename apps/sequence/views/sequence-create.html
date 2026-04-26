@@ -1,0 +1,55 @@
+ {{define "content"}}
+
+ <h3>Create Prefix Sequence</h3>
+
+ <form method="post">
+ <table>
+    <tr>
+        <th>Name</th>
+        <th>
+            <select name="name">
+                <option value="badge_id">Badge ID</option>
+                <option value="PO">Purchase Order</option>
+                <option value="SO">Sales Order</option>
+                <option value="sales_invoice">Sales Invoice</option>
+            </select>
+
+        </th>
+    </tr>
+
+    <tr>
+        <th>Prefix</th>
+        <th>
+            <input type="text" name="prefix" placeholder="EMP-">
+        </th>
+    </tr>
+
+     <tr>
+        <th>Digits</th>
+        <th>
+            <input type="text" name="digits" placeholder="4">
+        </th>
+    </tr>
+
+      <tr>
+        <th>Step</th>
+        <th>
+            <input type="text" name="step" placeholder="1">
+        </th>
+    </tr>
+
+
+    <tr>
+        <th>Example Results</th>
+        <th>
+            <input type="text" name="results"> <button type="button" class="btn">Next</button>
+        </th>
+    </tr>
+
+ </table>
+
+
+<button type="submit" class="btn btn-primary m-5">Create Prefix Sequence</button>
+ </form>
+
+ {{end}}
