@@ -20,29 +20,32 @@
     <tr>
         <th>Prefix</th>
         <th>
-            <input type="text" name="prefix" placeholder="EMP-">
+            <input type="text" name="prefix" placeholder="EMP-" id="prefix">
         </th>
     </tr>
 
      <tr>
         <th>Digits</th>
         <th>
-            <input type="text" name="digits" placeholder="4">
+            <input type="text" name="digits" placeholder="4" id="digits">
         </th>
     </tr>
 
       <tr>
         <th>Step</th>
         <th>
-            <input type="text" name="step" placeholder="1">
+            <input type="text" name="step" placeholder="1" id="step">
         </th>
     </tr>
 
 
+
+
     <tr>
-        <th>Example Results</th>
+        <th>Next Value</th>
         <th>
-            <input type="text" name="results"> <button type="button" class="btn">Next</button>
+            <input type="text" name="next_value" id="next_value" onclick="nextValue()"> <button type="button" class="btn" onclick="nextValue()">Next</button>
+            <button type="button" class="btn" onclick="document.getElementById('next_value').value=''">Reset</button>
         </th>
     </tr>
 
@@ -51,5 +54,39 @@
 
 <button type="submit" class="btn btn-primary m-5">Create Prefix Sequence</button>
  </form>
+
+<script>
+ function nextValue() {
+    const prefix = document.getElementById('prefix').value;
+    const digits = parseInt(document.getElementById('digits').value) || 0;
+    const step = parseInt(document.getElementById('step').value) || 1; // Default step to 1
+    const nextValueInput = document.getElementById('next_value');
+
+    if (!prefix) {
+        alert('Please enter a prefix.');
+        return;
+    }
+
+    if (nextValueInput.value) {
+        // --- LOGIC FOR INCREMENTING ---
+        // 1. Remove the prefix to get the number part
+        let currentString = nextValueInput.value;
+        let numberPart = currentString.substring(prefix.length);
+        
+        // 2. Convert to number and add step
+        let nextNumber = (parseInt(numberPart) || 0) + step;
+        
+        // 3. Format back with padding (using the 'digits' field)
+        let formattedNumber = nextNumber.toString().padStart(digits, '0');
+        nextValueInput.value = prefix + formattedNumber;
+
+    } else {
+        // --- LOGIC FOR INITIALIZING (First Click) ---
+        // Start at the step value (e.g., EMP-0001 if step is 1)
+        let initialValue = step.toString().padStart(digits, '0');
+        nextValueInput.value = prefix + initialValue;
+    }
+}
+</script>
 
  {{end}}

@@ -23,6 +23,7 @@ type Employee struct {
     InsurancePolicies []InsurancePolicy `v:"true"`
     GovermentID string      `f:"text"` // Iqama/ID
     Image       string      `f:"text"` 
+    Email       string      `f:"text, unique"`
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments

@@ -8,7 +8,7 @@
         <tr>
             <th>Badge ID</th>
             <th>
-                <input type="text" name="badgeId" id="badgeID"> <button type="button" class="btn btn-secondary">Generate Badge ID</button>
+                <input type="text" name="badgeId" id="badgeID"> <button type="button" class="btn btn-secondary" onclick="GenerateID()">Generate Badge ID</button>
             </th>
         </tr>
 
@@ -28,11 +28,21 @@
             <th><input type="email" name="email"></th>
         </tr>
 
+         <tr>
+            <th>Goverment ID</th>
+            <th><input type="text" name="govermentId"></th>
+        </tr>
+
+         <tr>
+            <th>Birth Date</th>
+            <th><input type="date" name="birthDate"></th>
+        </tr>
+
         <tr>
             <th>Department</th>
             <th>
-                <select name="department">
-                    <option></option>
+                <select name="departmentId">
+                    <option value="0">Select Department</option>
                 </select>
             </th>
         </tr>
@@ -40,10 +50,15 @@
          <tr>
             <th>Job Title</th>
             <th>
-                <select name="jobTitle">
-                    <option></option>
+                <select name="jobTitleId">
+                    <option value="0">Select Job Title</option>
                 </select>
             </th>
+        </tr>
+
+        <tr>
+            <th>Grade</th>
+            <th><input type="text" name="grade"></th>
         </tr>
 
         <tr>
@@ -57,5 +72,16 @@
 
 <button type="submit" class="btn btn-primary m-5">Create Employee</button>
 </form>
+
+<script>
+function GenerateID() {
+    fetch('/employees/generate-badge-id')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('badgeID').value = data.badge_id;
+        })
+        .catch(error => console.error('Error generating badge ID:', error));
+}
+</script>
 
 {{end}}

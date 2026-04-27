@@ -140,4 +140,21 @@ func CreateSequence(w http.ResponseWriter, r *http.Request){
 
 	}
 
+	if r.Method == http.MethodPost {
+
+		name := r.FormValue("name")
+		prefix := r.FormValue("prefix")
+		nextValue := r.FormValue("next_value")
+		digits := r.FormValue("digits")
+		step := r.FormValue("step")
+
+		query := "INSERT INTO prefix_sequences (name, prefix, next_value, digits, step) VALUES ($1, $2, $3, $4, $5)"
+		_, err := core.DB.Exec(query, name, prefix, nextValue, digits, step)
+		if err != nil {
+			panic(err)
+		}
+
+		http.Redirect(w, r, "/sequence/list", http.StatusSeeOther)
+	}
+
 }
