@@ -52,7 +52,7 @@ func ListEmployees(w http.ResponseWriter, r *http.Request) {
 func GetEmployeeById(id string) models.Employee{
 	var employee models.Employee
     
-	query:=`SELECT e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at,
+	query:=`SELECT e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at,e.image,
 	       d.id, d.name, d.local_name, d.code, d.manager_id, d.created_at, d.updated_at, d.active,
 		   j.id, j.name, j.local_name, j.code, j.description, j.crearted_at, j.updated_at  
 	       FROM employees e
@@ -75,7 +75,7 @@ func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Empl
 
 	var employees []models.Employee
 
-	query :="select id, badge_id, name, department_id, local_name, job_title_id, grade, created_at, updated_at, birth_date, active, goverment_id FROM employees WHERE 1=1"
+	query :="select id, badge_id, name, department_id, local_name, job_title_id, grade, created_at, updated_at, birth_date, active, goverment_id, image FROM employees WHERE 1=1"
     args := []interface{}{}
 	argIndex := 1
 
@@ -92,7 +92,7 @@ func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Empl
 		"Name":       "name",
 		"LocalName":  "local_name",
 		"Active":     "active",
-		
+		"Image":      "image",
 	}
 
 	if col, ok := allowedSort[sort]; ok {
@@ -142,7 +142,7 @@ func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Empl
     err := rows.Scan(
         &e.ID, &e.BadgeID, &e.Name, &deptID, &e.LocalName, 
         &jobID, &e.Grade, &e.CreatedAt, &e.UpdatedAt, 
-        &e.BirthDate, &e.Active, &e.GovermentID,
+        &e.BirthDate, &e.Active, &e.GovermentID, &e.Image,
     )
     if err != nil {
         fmt.Printf("Scan Error: %v\n", err)
@@ -416,4 +416,18 @@ func UpdateSequenceNextValue(currentValue string, sequenceName string) {
     }
 
     fmt.Printf("Sequence '%s' locked, updated, and released: %s\n", sequenceName, nextValue)
+}
+
+
+func EmployeeImageGET(w http.ResponseWriter, r *http.Request) {
+
+
+    imageName := r.PathValue("imageName")
+
+   
+   fmt.Printf("Requested image: %s\n", imageName)
+  
+
+    // Serve the image file
+    http.ServeFile(w, r, "./media/employees/images/" + imageName)
 }
