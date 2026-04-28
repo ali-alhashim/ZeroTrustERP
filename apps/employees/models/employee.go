@@ -25,6 +25,7 @@ type Employee struct {
     Image       string      `f:"text"` 
     Email       string      `f:"text, unique"`
     Nationality string      `f:"text"`
+    Gender       string      `f:"text"` // "Male", "Female"
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments
@@ -175,5 +176,38 @@ type InsurancePolicy struct {
     Active          bool            `f:"bool, default:true"`
     CreatedAt       time.Time       `f:"timestamp, default:current_timestamp"`
     UpdatedAt       time.Time       `f:"timestamp, default:current_timestamp"`
+}
+
+
+type Certification struct {
+    ID          int        `f:"number, primary, auto"`
+    Employee    *Employee  `f:"many2one:employees, notnull"`
+    Name        string     `f:"text, notnull"` // e.g., "PMP", "AWS Certified Solutions Architect"
+    Issuer      string     `f:"text"`         // e.g., "PMI", "Amazon"
+    IssueDate   time.Time  `f:"timestamp"`
+    ExpiryDate  time.Time  `f:"timestamp"`
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+}
+
+
+type EmergencyContact struct {
+    ID          int        `f:"number, primary, auto"`
+    Employee    *Employee  `f:"many2one:employees, notnull"`
+    Name        string     `f:"text, notnull"`
+    Relationship string     `f:"text"` // e.g., "Spouse", "Parent", "Sibling"
+    Phone       string     `f:"text"`
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+}
+
+type FamilyMember struct {
+    ID          int        `f:"number, primary, auto"`
+    Employee    *Employee  `f:"many2one:employees, notnull"`
+    Name        string     `f:"text, notnull"`
+    Relationship string     `f:"text"` // e.g., "Spouse", "Child", "Parent"
+    BirthDate   time.Time  `f:"timestamp"`
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
 }
 
