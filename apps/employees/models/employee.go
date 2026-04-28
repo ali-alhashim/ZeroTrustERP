@@ -24,6 +24,7 @@ type Employee struct {
     GovermentID string      `f:"text"` // Iqama/ID
     Image       string      `f:"text"` 
     Email       string      `f:"text, unique"`
+    Nationality string      `f:"text"`
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments

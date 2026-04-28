@@ -1,5 +1,5 @@
 {{define "content"}}
-<h3>Create Employee</h3>
+<h3>Employee Information</h3>
 
 <form method="post" action="/employees/create" enctype="multipart/form-data">
     
@@ -56,6 +56,27 @@
             </th>
         </tr>
 
+        
+         <tr>
+            <th>Nationality</th>
+            <th>
+                <select name="nationality" class="select-search">
+                    <option value="0">Select Nationality</option>
+                    <option value="Saudi">Saudi</option>
+                    <option value="Egyptian">Egyptian</option>
+                    <option value="Jordanian">Jordanian</option>
+                    <option value="Syrian">Syrian</option>
+                    <option value="Lebanese">Lebanese</option>
+                    <option value="Iraqi">Iraqi</option>
+                    <option value="Indian">Indian</option>
+                    <option value="Pakistani">Pakistani</option>
+                    <option value="Filipino">Filipino</option>
+                    <option value="Bangladeshi">Bangladeshi</option>
+                    <option value="Sudanese">Sudanese</option>
+                </select>
+            </th>
+        </tr>
+
         <tr>
             <th>Grade</th>
             <th><input type="text" name="grade"></th>
@@ -69,6 +90,43 @@
         </tr>
     </tbody>
 </table>    
+<br>
+<hr>
+<h3>Certifcations</h3>
+<table> 
+<thead>
+    <tr>
+        <th>Certification Name</th>
+        <th>Issuing Organization</th>
+        <th>Issue Date</th>
+        <th>Expiration Date</th>
+        <th>Attachment</th>
+    </tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+
+
+<br>
+<hr>
+<h3>Family Members</h3>
+<table>
+<thead>
+    <tr>
+        <th>Name</th>
+        <th>Relationship</th>
+        <th>Contact Number</th>
+        <th>Gender</th>
+        <th>Government ID</th>
+        <th>Birth Date</th>
+        <th>Attachment</th>
+    </tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+
 
 <button type="submit" class="btn btn-primary m-5">Create Employee</button>
 </form>

@@ -45,14 +45,15 @@
         <table>
             <thead>
                 <tr>
-                    <th>Photo</th>
                     <th>ID</th>
+                    <th>Photo</th>
                     <th>Badge#</th>
                     <th>Name</th>
                     <th>Name(AR)</th>
                     <th>Work Email</th>
                     <th>Department</th>
                     <th>Job Title</th>
+                    <th>Nationality</th>
                     <th>Status</th>
                   
                 </tr>
@@ -60,12 +61,18 @@
             <tbody>
                 {{range .Employees}}
                 <tr>
+                     <td>{{.ID}}</td>
                     <td>
                         <img {{if .Image}}src="{{.Image}}" {{else}} src="/static/icons/userCircle.svg"  {{end}} class="employee-photo" width="90">
                        
                     </td>
-                    <td>{{.ID}}</td>
-                    <td>{{.BadgeID}}</td>
+                   
+
+                    <td>
+                        <a href="/employees/details/{{.BadgeID}}" class="btn btn-id">{{.BadgeID}}</a>
+                       
+                    </td>
+
                     <td>{{.Name}}</td>
                     <td>  {{.LocalName}}</td>
                     <td>{{.Email}}</td>
@@ -83,8 +90,9 @@
                             <span class="text-muted">N/A</span>
                         {{end}}
                     </td>
+                    <td>{{.Nationality}}</td>
                     <td>{{.Active}}</td>
-                   
+                    
                 </tr>
                 {{end}}
              

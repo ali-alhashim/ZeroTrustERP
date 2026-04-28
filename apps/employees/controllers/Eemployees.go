@@ -426,8 +426,12 @@ func EmployeeImageGET(w http.ResponseWriter, r *http.Request) {
 
    
    fmt.Printf("Requested image: %s\n", imageName)
+
+   safeName := filepath.Base(imageName)
+
+   path := filepath.Join("media", "employees", "images", safeName)
   
 
     // Serve the image file
-    http.ServeFile(w, r, "./media/employees/images/" + imageName)
+   http.ServeFile(w, r, path)
 }
