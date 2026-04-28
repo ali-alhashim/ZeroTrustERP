@@ -50,7 +50,10 @@
         {{range .Records}}
         <tr>
 
-            <td>{{.ID}}</td>
+            <td>
+                <a href="/sequence/{{.ID}}/edit" class="btn btn-id">{{.ID}}</a>
+               
+            </td>
             <td>{{.Name}}</td>
             <td>{{.Prefix}}</td>
 
