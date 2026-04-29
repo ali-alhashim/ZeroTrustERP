@@ -196,6 +196,8 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
         govermentId  := r.PostFormValue("govermentId")
         badgeId      := r.PostFormValue("badgeId")
         grade        := r.PostFormValue("grade")
+        email        := r.PostFormValue("email")
+        nationality  := r.PostFormValue("nationality")
 
         // 3. Handle Image
         var img image.Image
@@ -249,6 +251,8 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
             BadgeID:     badgeId,
             Grade:       grade,
             Active:      true, // Usually true for new employees
+            Email:       email,
+            Nationality: nationality,
         }
 
         // 7. Insert
@@ -337,8 +341,8 @@ func InsertEmployeeToDB(employee models.Employee, img image.Image) error {
         INSERT INTO employees (
             badge_id, name, department_id, local_name, 
             job_title_id, grade, birth_date, active, 
-            goverment_id, image
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+            goverment_id, image, email, nationality
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
 
     _, err := core.DB.Exec(query, 
         employee.BadgeID, 
@@ -351,6 +355,8 @@ func InsertEmployeeToDB(employee models.Employee, img image.Image) error {
         employee.Active,
         employee.GovermentID, 
         employee.Image,
+        employee.Email,
+        employee.Nationality,
     )
 
     if err != nil {

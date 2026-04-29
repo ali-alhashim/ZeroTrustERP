@@ -26,6 +26,7 @@ type Employee struct {
     Email       string      `f:"text, unique"`
     Nationality string      `f:"text"`
     Gender       string      `f:"text"` // "Male", "Female"
+    MaritalStatus string      `f:"text"` // "Single", "Married", "Divorced", "Widowed"
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments

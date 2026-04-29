@@ -63,6 +63,7 @@ func GenerateSQLFromStruct(model interface{}) (tableSQL []string, joinSQL []stri
 	tableName := pluralize(t.Name())
 
 	var cols []string
+	var syncSQL []string
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
@@ -77,12 +78,15 @@ func GenerateSQLFromStruct(model interface{}) (tableSQL []string, joinSQL []stri
 			continue
 		}
 
+		var colName string
+		var colType string
+		var colConstraints []string
+
 		// --- RELATIONSHIP HANDLING ---
 
-		// 1. Many2Many / One2Many (Join Tables)
 		if strings.HasPrefix(tag, "many2many:") || strings.HasPrefix(tag, "one2many:") {
+			// (Many2Many uses join tables, so it doesn't need to add columns to the main table)
 			parts := strings.Split(tag, ":")
-			// Clean table name: split by comma in case of properties
 			relTable := strings.TrimSpace(strings.Split(parts[1], ",")[0])
 			leftTable := tableName
 
@@ -105,7 +109,6 @@ func GenerateSQLFromStruct(model interface{}) (tableSQL []string, joinSQL []stri
 				joinTableName, leftName, rightName, leftName, rightName)
 			joinSQL = append(joinSQL, join)
 
-			// Deferred FKs with existence checks
 			deferredSQL = append(deferredSQL, fmt.Sprintf(`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_%s_%s_id') THEN ALTER TABLE %s ADD CONSTRAINT fk_%s_%s_id FOREIGN KEY (%s_id) REFERENCES %s(id) ON DELETE CASCADE; END IF; END $$;`,
 				joinTableName, leftName, joinTableName, joinTableName, leftName, leftName, leftTable))
 			deferredSQL = append(deferredSQL, fmt.Sprintf(`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_%s_%s_id') THEN ALTER TABLE %s ADD CONSTRAINT fk_%s_%s_id FOREIGN KEY (%s_id) REFERENCES %s(id) ON DELETE CASCADE; END IF; END $$;`,
@@ -113,87 +116,94 @@ func GenerateSQLFromStruct(model interface{}) (tableSQL []string, joinSQL []stri
 			continue
 		}
 
-		// 2. Many2One
 		if strings.HasPrefix(tag, "many2one:") {
 			parts := strings.Split(tag, ":")
-			refTable := strings.TrimSpace(strings.Split(parts[1], ",")[0]) // Clean from properties
+			refTable := strings.TrimSpace(strings.Split(parts[1], ",")[0])
 			if refTable == "" {
 				refTable = pluralize(derefType(field.Type).Name())
 			}
-			colName := toSnakeCase(field.Name) + "_id"
-
-			// Check if 'notnull' is present in the properties string
-			colConstraints := ""
+			colName = toSnakeCase(field.Name) + "_id"
+			colType = "INT"
 			if strings.Contains(tag, "notnull") {
-				colConstraints = "NOT NULL"
+				colConstraints = append(colConstraints, "NOT NULL")
 			}
 
-			cols = append(cols, fmt.Sprintf("%s INT %s", colName, colConstraints))
 			deferredSQL = append(deferredSQL, fmt.Sprintf(`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_%s_%s') THEN ALTER TABLE %s ADD CONSTRAINT fk_%s_%s FOREIGN KEY (%s) REFERENCES %s(id) ON DELETE CASCADE; END IF; END $$;`,
 				tableName, colName, tableName, tableName, colName, colName, refTable))
-			continue
-		}
 
-		// 3. One2One
-		if strings.HasPrefix(tag, "one2one:") {
+		} else if strings.HasPrefix(tag, "one2one:") {
 			parts := strings.Split(tag, ":")
-			refTable := strings.TrimSpace(strings.Split(parts[1], ",")[0]) // Clean from properties
+			refTable := strings.TrimSpace(strings.Split(parts[1], ",")[0])
 			if refTable == "" {
 				refTable = pluralize(derefType(field.Type).Name())
 			}
-			colName := toSnakeCase(field.Name) + "_id"
-			cols = append(cols, fmt.Sprintf("%s INT UNIQUE", colName))
+			colName = toSnakeCase(field.Name) + "_id"
+			colType = "INT"
+			colConstraints = append(colConstraints, "UNIQUE")
 
 			deferredSQL = append(deferredSQL, fmt.Sprintf(`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_%s_%s') THEN ALTER TABLE %s ADD CONSTRAINT fk_%s_%s FOREIGN KEY (%s) REFERENCES %s(id) ON DELETE CASCADE; END IF; END $$;`,
 				tableName, colName, tableName, tableName, colName, colName, refTable))
-			continue
-		}
 
-		// --- NORMAL COLUMN HANDLING ---
-		colName := toSnakeCase(field.Name)
-		colType := ""
-		var colConstraints []string
-
-		tagParts := strings.Split(tag, ",")
-		for _, p := range tagParts {
-			p = strings.TrimSpace(p)
-			switch p {
-			case "number":
-				colType = "INTEGER"
-			case "text":
-				colType = "TEXT"
-			case "bool":
-				colType = "BOOLEAN"
-			case "timestamp":
-				colType = "TIMESTAMP"
-			case "primary":
-				colConstraints = append(colConstraints, "PRIMARY KEY")
-			case "auto":
-				if colType == "INTEGER" || colType == "" {
-					colType = "SERIAL"
+		} else {
+			// --- NORMAL COLUMN HANDLING ---
+			colName = toSnakeCase(field.Name)
+			tagParts := strings.Split(tag, ",")
+			for _, p := range tagParts {
+				p = strings.TrimSpace(p)
+				switch p {
+				case "number":
+					colType = "INTEGER"
+				case "text":
+					colType = "TEXT"
+				case "bool":
+					colType = "BOOLEAN"
+				case "timestamp":
+					colType = "TIMESTAMP"
+				case "primary":
+					colConstraints = append(colConstraints, "PRIMARY KEY")
+				case "auto":
+					if colType == "INTEGER" || colType == "" {
+						colType = "SERIAL"
+					}
+				case "unique":
+					colConstraints = append(colConstraints, "UNIQUE")
+				case "notnull":
+					colConstraints = append(colConstraints, "NOT NULL")
+				case "default:true":
+					colConstraints = append(colConstraints, "DEFAULT TRUE")
+				case "default:false":
+					colConstraints = append(colConstraints, "DEFAULT FALSE")
+				case "default:current_timestamp":
+					colConstraints = append(colConstraints, "DEFAULT CURRENT_TIMESTAMP")
 				}
-			case "unique":
-				colConstraints = append(colConstraints, "UNIQUE")
-			case "notnull":
-				colConstraints = append(colConstraints, "NOT NULL")
-			case "default:true":
-				colConstraints = append(colConstraints, "DEFAULT TRUE")
-			case "default:false":
-				colConstraints = append(colConstraints, "DEFAULT FALSE")
-			case "default:current_timestamp":
-				colConstraints = append(colConstraints, "DEFAULT CURRENT_TIMESTAMP")
+			}
+			if colType == "" {
+				colType = "TEXT"
 			}
 		}
 
-		if colType == "" {
-			colType = "TEXT"
+		// Add column to the initial list for CREATE TABLE
+		cols = append(cols, fmt.Sprintf("%s %s %s", colName, colType, strings.Join(colConstraints, " ")))
+
+		// THE ODOO-STYLE SYNC: Generate ALTER TABLE if the column is missing
+		// SERIAL types in ALTER TABLE are tricky, so we use INTEGER for adding columns 
+		// (Assuming IDs are handled as primary SERIAL during initial creation)
+		alterType := colType
+		if alterType == "SERIAL" {
+			alterType = "INTEGER"
 		}
 
-		cols = append(cols, fmt.Sprintf("%s %s %s", colName, colType, strings.Join(colConstraints, " ")))
+		sync := fmt.Sprintf(`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='%s' AND column_name='%s') THEN ALTER TABLE %s ADD COLUMN %s %s %s; END IF; END $$;`,
+			tableName, colName, tableName, colName, alterType, strings.Join(colConstraints, " "))
+		syncSQL = append(syncSQL, sync)
 	}
 
+	// First execute the Table Creation (if not exists)
 	mainSQL := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (\n\t%s\n);", tableName, strings.Join(cols, ",\n\t"))
+	
 	tableSQL = append(tableSQL, mainSQL)
+	// Then execute all the column syncs
+	tableSQL = append(tableSQL, syncSQL...)
 
 	return tableSQL, joinSQL, deferredSQL
 }
