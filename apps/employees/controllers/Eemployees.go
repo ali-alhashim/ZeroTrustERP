@@ -398,6 +398,39 @@ func InsertEmployeeCertificateToDB(certificate models.Certification) error {
     return nil
 }
 
+func InsertEmployeeDocumentToDB(document models.EmployeeDocument) error {
+    query := `INSERT INTO employee_documents (employee_id, name, type, file_path, expiry_date) VALUES ($1, $2, $3, $4, $5)`
+    _, err := core.DB.Exec(query, document.Employee.ID, document.Name, document.Type, document.FilePath, document.ExpiryDate)
+    if err != nil {
+        fmt.Printf("Database insert error for employee document: %v\n", err)
+        return err
+    }
+    fmt.Printf("Document for Employee ID %s inserted successfully\n", document.Employee.ID)
+    return nil
+}
+
+func InsertEmployeeFamilyMemberToDB(familyMember models.FamilyMember) error {
+    query := `INSERT INTO employee_family_members (employee_id, name, relationship, birth_date, file_path) VALUES ($1, $2, $3, $4, $5)`
+    _, err := core.DB.Exec(query, familyMember.Employee.ID, familyMember.Name, familyMember.Relationship, familyMember.BirthDate, familyMember.FilePath)
+    if err != nil {
+        fmt.Printf("Database insert error for family member: %v\n", err)
+        return err
+    }
+    fmt.Printf("Family member for Employee ID %s inserted successfully\n", familyMember.Employee.ID)
+    return nil
+}
+
+func InsertEmployeeEmergencyContactToDB(contact models.EmergencyContact) error {
+    query := `INSERT INTO employee_emergency_contacts (employee_id, name, relationship, phone) VALUES ($1, $2, $3, $4)`
+    _, err := core.DB.Exec(query, contact.Employee.ID, contact.Name, contact.Relationship, contact.Phone)
+    if err != nil {
+        fmt.Printf("Database insert error for emergency contact: %v\n", err)
+        return err
+    }
+    fmt.Printf("Emergency contact for Employee ID %s inserted successfully\n", contact.Employee.ID)
+    return nil
+}
+
 
 func UpdateSequenceNextValue(currentValue string, sequenceName string) {
     // 1. Start the transaction
