@@ -1,28 +1,30 @@
 [
-  {
-    "name": "Employees",
-    "path": "/employees/list",
-    "icon": "users"
-  },
-  {
-    "name": "Jobs",
-    "path": "/employees/Jobs",
-    "icon": "briefcase"
-  },
-  {
-    "name": "Departments",
-    "path": "/employees/departments",
-    "icon": "identification"
-  },
-    {
-    "name": "Shift Schedule",
-    "path": "/employees/ShiftSchedule",
-    "icon": "clock"
-  },
-     {
-    "name": "Contract",
-    "path": "/employees/contract",
-    "icon": "contract"
-  }
+
+              {
+                "name": "Employees",
+                "path": "/employees/list",
+                "icon": "users"
+              },
+              {
+                "name": "Jobs",
+                "path": "/employees/Jobs",
+                "icon": "briefcase"
+              },
+              {
+                "name": "Departments",
+                "path": "/employees/departments",
+                "icon": "identification"
+              },
+                {
+                "name": "Shift Schedule",
+                "path": "/employees/ShiftSchedule",
+                "icon": "clock"
+              },
+                {
+                "name": "Contract",
+                "path": "/employees/contract",
+                "icon": "contract"
+              }
+              
   
 ]

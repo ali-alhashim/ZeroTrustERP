@@ -15,7 +15,7 @@ func RenderPage(w http.ResponseWriter,r *http.Request, tmpl string, data interfa
 
 	dataMap, ok := data.(map[string]interface{})
 		if ok {
-			dataMap["Menus"] = Menus
+			dataMap["MenuGroups"] = MenuGroups
 		}
 
 	wd, _ := os.Getwd()

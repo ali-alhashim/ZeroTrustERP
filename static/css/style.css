@@ -495,3 +495,38 @@ input:disabled {
     justify-items: center;
 }
 
+
+fieldset {
+    border: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+legend {
+    font-weight: bold;
+    padding: 0 10px;
+    color: #666;
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+.menu-group {
+    border: none;
+    border-top: 1px solid #eee; /* Optional: adds a subtle divider line */
+    margin: 15px 0;
+    padding: 10px 0 0 0;
+}
+
+.menu-legend {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0 15px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}

@@ -211,3 +211,14 @@ type FamilyMember struct {
     UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
 }
 
+type EmployeeDocument struct {
+    ID          int        `f:"number, primary, auto"`
+    Employee    *Employee  `f:"many2one:employees, notnull"`
+    Name        string     `f:"text, notnull"` // e.g., "Passport", "Iqama"
+    Type        string     `f:"text"`         // e.g., "Identification", "Work Permit"
+    FilePath    string     `f:"text"`         // Path to the stored document
+    ExpiryDate  time.Time  `f:"timestamp"`    // Important for documents like Iqama
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+}
+

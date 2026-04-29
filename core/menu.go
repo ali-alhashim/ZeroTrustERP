@@ -6,8 +6,17 @@ type MenuItem struct {
 	Icon string `json:"icon"`
 }
 
-var Menus []MenuItem
+type MenuGroup struct {
+    GroupName string     `json:"group_name"`
+    Items     []MenuItem `json:"items"`
+}
 
-func RegisterMenus(items []MenuItem) {
-	Menus = append(Menus, items...)
+var MenuGroups []MenuGroup
+
+func RegisterAppMenu(groupName string, items []MenuItem) {
+    newGroup := MenuGroup{
+        GroupName: groupName,
+        Items:     items,
+    }
+    MenuGroups = append(MenuGroups, newGroup)
 }

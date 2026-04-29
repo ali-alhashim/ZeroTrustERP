@@ -19,5 +19,5 @@ func init() {
 		panic(err)
 	}
 
-	core.RegisterMenus(items)
+	core.RegisterAppMenu("Users", items)
 }
