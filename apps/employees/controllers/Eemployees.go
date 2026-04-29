@@ -198,6 +198,11 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
         grade        := r.PostFormValue("grade")
         email        := r.PostFormValue("email")
         nationality  := r.PostFormValue("nationality")
+        gender      := r.PostFormValue("gender")
+        active      := r.PostFormValue("active") == "on" // Checkbox handling
+        maritalStatus := r.PostFormValue("maritalStatus")
+        phoneNumber  := r.PostFormValue("phoneNumber")
+        address      := r.PostFormValue("address")
 
         // 3. Handle Image
         var img image.Image
@@ -250,9 +255,14 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
             GovermentID: govermentId,
             BadgeID:     badgeId,
             Grade:       grade,
-            Active:      true, // Usually true for new employees
+            Active:      active,
             Email:       email,
             Nationality: nationality,
+            PhoneNumber: phoneNumber,
+            Address:       address,
+            MaritalStatus: maritalStatus,
+            Gender:          gender,
+
         }
 
         // 7. Insert
@@ -341,8 +351,8 @@ func InsertEmployeeToDB(employee models.Employee, img image.Image) error {
         INSERT INTO employees (
             badge_id, name, department_id, local_name, 
             job_title_id, grade, birth_date, active, 
-            goverment_id, image, email, nationality
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
+            goverment_id, image, email, nationality, gender, marital_status, phone_number, address
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`
 
     _, err := core.DB.Exec(query, 
         employee.BadgeID, 
@@ -357,6 +367,10 @@ func InsertEmployeeToDB(employee models.Employee, img image.Image) error {
         employee.Image,
         employee.Email,
         employee.Nationality,
+        employee.Gender,
+        employee.MaritalStatus,
+        employee.PhoneNumber,
+        employee.Address,
     )
 
     if err != nil {
@@ -368,6 +382,19 @@ func InsertEmployeeToDB(employee models.Employee, img image.Image) error {
     fmt.Printf("Employee %s inserted successfully\n", employee.Name)
     UpdateSequenceNextValue(employee.BadgeID, "badge_id")
 
+    return nil
+}
+
+
+
+func InsertEmployeeCertificateToDB(certificate models.Certification) error {
+    query := `INSERT INTO certificates (employee_id,name,issuer,issue_date, file_path) VALUES ($1, $2, $3, $4, $5)`
+    _, err := core.DB.Exec(query, certificate.Employee.ID, certificate.Name, certificate.Issuer,certificate.IssueDate, certificate.FilePath)
+    if err != nil {
+        fmt.Printf("Database insert error for certificate: %v\n", err)
+        return err
+    }
+    fmt.Printf("Certificate for Employee ID %s inserted successfully\n", certificate.Employee.ID)
     return nil
 }
 

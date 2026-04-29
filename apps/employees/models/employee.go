@@ -27,6 +27,8 @@ type Employee struct {
     Nationality string      `f:"text"`
     Gender       string      `f:"text"` // "Male", "Female"
     MaritalStatus string      `f:"text"` // "Single", "Married", "Divorced", "Widowed"
+    PhoneNumber  string      `f:"text"`
+    Address      string      `f:"text"`
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments
@@ -189,6 +191,7 @@ type Certification struct {
     ExpiryDate  time.Time  `f:"timestamp"`
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    FilePath    string     `f:"text"`  // Path to the stored certificate document
 }
 
 
@@ -210,6 +213,7 @@ type FamilyMember struct {
     BirthDate   time.Time  `f:"timestamp"`
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    FilePath    string     `f:"text"`  // Path to the stored document (e.g., birth certificate for a child)
 }
 
 type EmployeeDocument struct {
