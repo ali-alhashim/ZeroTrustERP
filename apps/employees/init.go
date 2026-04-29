@@ -29,5 +29,10 @@ func init() {
 	core.RegisterModel(models.InsurancePolicy{})
 
 	core.RegisterModel(models.ShiftSchedule{})
-	
+
+	core.RegisterModel(models.Certification{})
+	core.RegisterModel(models.FamilyMember{})
+	core.RegisterModel(models.EmergencyContact{})
+	core.RegisterModel(models.EmployeeDocument{})
+
 }

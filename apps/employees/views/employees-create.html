@@ -101,11 +101,14 @@
         <th>Issue Date</th>
         <th>Expiration Date</th>
         <th>Attachment</th>
+        <th>-</th>
     </tr>
 </thead>
-<tbody>
+<tbody id="CertifcationsTableBody">
+
 </tbody>
 </table>
+<button type="button" class="btn btn-secondary m-3" onclick="addCertification()">Add Certification</button>
 
 
 <br>
@@ -121,11 +124,13 @@
         <th>Government ID</th>
         <th>Birth Date</th>
         <th>Attachment</th>
+        <th>-</th>
     </tr>
 </thead>
-<tbody>
+<tbody id="FamilyMembersTableBody">
 </tbody>
 </table>
+<button type="button" class="btn btn-secondary m-3" onclick="addFamilyMember()">Add Family Member</button>
 
 <br>
 <hr>
@@ -136,12 +141,13 @@
         <th>Name</th>
         <th>Relationship</th>
         <th>Contact Number</th> 
+        <th>-</th>
       </tr>
 </thead>
-<tbody>
+<tbody id="EmergencyContactsTableBody">
 </tbody>
 </table>
-
+<button type="button" class="btn btn-secondary m-3" onclick="addEmergencyContact()">Add Emergency Contact</button>
 <br>
 <hr>
 <h3>Documents</h3>
@@ -152,13 +158,16 @@
         <th>Type</th>
         <th>Expiry Date</th>
         <th>Attachment</th>
+        <th>-</th>
     </tr>
 </thead>
-<tbody>
+<tbody id="DocumentsTableBody">
 </tbody>
 </table>
+<button type="button" class="btn btn-secondary m-3" onclick="addDocument()">Add Document</button>
 
-
+<br/>
+<hr/>
 <button type="submit" class="btn btn-primary m-5">Create Employee</button>
 </form>
 
@@ -171,6 +180,77 @@ function GenerateID() {
         })
         .catch(error => console.error('Error generating badge ID:', error));
 }
+</script>
+
+
+
+<script>
+    function addCertification() {
+        const tableBody = document.getElementById('CertifcationsTableBody');
+        const newRow = document.createElement('tr');
+
+        newRow.innerHTML = `
+            <td><input type="text" name="certificationName[]"></td>
+            <td><input type="text" name="issuingOrganization[]"></td>
+            <td><input type="date" name="issueDate[]"></td>
+            <td><input type="date" name="expirationDate[]"></td>
+            <td><input type="file" name="certificationAttachment[]" class="btn btn-secondary"></td>
+            <td><button type="button" class="btn btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
+        `;
+
+        tableBody.appendChild(newRow);
+    }
+
+
+    function addFamilyMember() {
+        const tableBody = document.getElementById('FamilyMembersTableBody');
+        const newRow = document.createElement('tr');
+
+        newRow.innerHTML = `
+            <td><input type="text" name="familyMemberName[]"></td>
+            <td><input type="text" name="familyMemberRelationship[]"></td>
+            <td><input type="text" name="familyMemberContactNumber[]"></td>
+            <td>
+                <select name="familyMemberGender[]">
+                    <option value="Male">Male</option>      
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </td>
+            <td><input type="text" name="familyMemberGovernmentId[]"></td>
+            <td><input type="date" name="familyMemberBirthDate[]"></td>
+            <td><input type="file" name="familyMemberAttachment[]" class="btn btn-secondary"></td>
+            <td><button type="button" class="btn btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
+        `;
+        tableBody.appendChild(newRow);
+    }
+
+    function addEmergencyContact() {
+        const tableBody = document.getElementById('EmergencyContactsTableBody');
+        const newRow = document.createElement('tr');
+
+        newRow.innerHTML = `
+            <td><input type="text" name="emergencyContactName[]"></td>
+            <td><input type="text" name="emergencyContactRelationship[]"></td>
+            <td><input type="text" name="emergencyContactNumber[]"></td>
+            <td><button type="button" class="btn btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
+        `;
+        tableBody.appendChild(newRow);
+    }
+
+    function addDocument() {
+        const tableBody = document.getElementById('DocumentsTableBody');
+        const newRow = document.createElement('tr');
+
+        newRow.innerHTML = `
+            <td><input type="text" name="documentName[]"></td>
+            <td><input type="text" name="documentType[]"></td>
+            <td><input type="date" name="documentExpiryDate[]"></td>
+            <td><input type="file" name="documentAttachment[]" class="btn btn-secondary"></td>
+            <td><button type="button" class="btn btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
+        `;
+        tableBody.appendChild(newRow);
+    }
 </script>
 
 {{end}}

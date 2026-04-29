@@ -77,14 +77,18 @@ func GenerateSQLFromStruct(model interface{}) (tableSQL []string, joinSQL []stri
 			continue
 		}
 
-		// Handle many2many / one2many relationships (join tables)
+		// --- RELATIONSHIP HANDLING ---
+
+		// 1. Many2Many / One2Many (Join Tables)
 		if strings.HasPrefix(tag, "many2many:") || strings.HasPrefix(tag, "one2many:") {
-			relTable := strings.Split(tag, ":")[1]
+			parts := strings.Split(tag, ":")
+			// Clean table name: split by comma in case of properties
+			relTable := strings.TrimSpace(strings.Split(parts[1], ",")[0])
 			leftTable := tableName
 
 			elemType := derefType(field.Type)
 			if elemType.Name() == "" {
-				log.Printf("⚠️  Could not resolve element type for field '%s' in struct '%s' — skipping join table", field.Name, t.Name())
+				log.Printf("⚠️  Could not resolve element type for field '%s' in struct '%s'", field.Name, t.Name())
 				continue
 			}
 
@@ -97,60 +101,61 @@ func GenerateSQLFromStruct(model interface{}) (tableSQL []string, joinSQL []stri
 				joinTableName = fmt.Sprintf("%s_%s", leftTable, rightTable)
 			}
 
-			// Join table with plain INT columns — NO inline REFERENCES
 			join := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (\n    %s_id INT,\n    %s_id INT,\n    PRIMARY KEY (%s_id, %s_id)\n);",
 				joinTableName, leftName, rightName, leftName, rightName)
 			joinSQL = append(joinSQL, join)
 
-			// Deferred FKs for both sides
-			deferredSQL = append(deferredSQL, fmt.Sprintf(
-				"ALTER TABLE %s ADD CONSTRAINT fk_%s_%s_id FOREIGN KEY (%s_id) REFERENCES %s(id) ON DELETE CASCADE;",
-				joinTableName, joinTableName, leftName, leftName, leftTable,
-			))
-			deferredSQL = append(deferredSQL, fmt.Sprintf(
-				"ALTER TABLE %s ADD CONSTRAINT fk_%s_%s_id FOREIGN KEY (%s_id) REFERENCES %s(id) ON DELETE CASCADE;",
-				joinTableName, joinTableName, rightName, rightName, rightTable,
-			))
+			// Deferred FKs with existence checks
+			deferredSQL = append(deferredSQL, fmt.Sprintf(`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_%s_%s_id') THEN ALTER TABLE %s ADD CONSTRAINT fk_%s_%s_id FOREIGN KEY (%s_id) REFERENCES %s(id) ON DELETE CASCADE; END IF; END $$;`,
+				joinTableName, leftName, joinTableName, joinTableName, leftName, leftName, leftTable))
+			deferredSQL = append(deferredSQL, fmt.Sprintf(`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_%s_%s_id') THEN ALTER TABLE %s ADD CONSTRAINT fk_%s_%s_id FOREIGN KEY (%s_id) REFERENCES %s(id) ON DELETE CASCADE; END IF; END $$;`,
+				joinTableName, rightName, joinTableName, joinTableName, rightName, rightName, rightTable))
 			continue
 		}
 
-		// Handle many2one relationship
+		// 2. Many2One
 		if strings.HasPrefix(tag, "many2one:") {
-			refTable := strings.Split(tag, ":")[1]
+			parts := strings.Split(tag, ":")
+			refTable := strings.TrimSpace(strings.Split(parts[1], ",")[0]) // Clean from properties
 			if refTable == "" {
 				refTable = pluralize(derefType(field.Type).Name())
 			}
 			colName := toSnakeCase(field.Name) + "_id"
-			cols = append(cols, fmt.Sprintf("%s INT", colName))
-			deferredSQL = append(deferredSQL, fmt.Sprintf(
-				"ALTER TABLE %s ADD CONSTRAINT fk_%s_%s FOREIGN KEY (%s) REFERENCES %s(id) ON DELETE CASCADE;",
-				tableName, tableName, colName, colName, refTable,
-			))
+
+			// Check if 'notnull' is present in the properties string
+			colConstraints := ""
+			if strings.Contains(tag, "notnull") {
+				colConstraints = "NOT NULL"
+			}
+
+			cols = append(cols, fmt.Sprintf("%s INT %s", colName, colConstraints))
+			deferredSQL = append(deferredSQL, fmt.Sprintf(`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_%s_%s') THEN ALTER TABLE %s ADD CONSTRAINT fk_%s_%s FOREIGN KEY (%s) REFERENCES %s(id) ON DELETE CASCADE; END IF; END $$;`,
+				tableName, colName, tableName, tableName, colName, colName, refTable))
 			continue
 		}
 
-		// Handle one2one relationship
+		// 3. One2One
 		if strings.HasPrefix(tag, "one2one:") {
-			refTable := strings.Split(tag, ":")[1]
+			parts := strings.Split(tag, ":")
+			refTable := strings.TrimSpace(strings.Split(parts[1], ",")[0]) // Clean from properties
 			if refTable == "" {
 				refTable = pluralize(derefType(field.Type).Name())
 			}
 			colName := toSnakeCase(field.Name) + "_id"
 			cols = append(cols, fmt.Sprintf("%s INT UNIQUE", colName))
-			deferredSQL = append(deferredSQL, fmt.Sprintf(
-				"ALTER TABLE %s ADD CONSTRAINT fk_%s_%s FOREIGN KEY (%s) REFERENCES %s(id) ON DELETE CASCADE;",
-				tableName, tableName, colName, colName, refTable,
-			))
+
+			deferredSQL = append(deferredSQL, fmt.Sprintf(`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_%s_%s') THEN ALTER TABLE %s ADD CONSTRAINT fk_%s_%s FOREIGN KEY (%s) REFERENCES %s(id) ON DELETE CASCADE; END IF; END $$;`,
+				tableName, colName, tableName, tableName, colName, colName, refTable))
 			continue
 		}
 
-		// Normal column
+		// --- NORMAL COLUMN HANDLING ---
 		colName := toSnakeCase(field.Name)
 		colType := ""
-		colConstraints := []string{}
+		var colConstraints []string
 
-		parts := strings.Split(tag, ",")
-		for _, p := range parts {
+		tagParts := strings.Split(tag, ",")
+		for _, p := range tagParts {
 			p = strings.TrimSpace(p)
 			switch p {
 			case "number":
@@ -164,7 +169,7 @@ func GenerateSQLFromStruct(model interface{}) (tableSQL []string, joinSQL []stri
 			case "primary":
 				colConstraints = append(colConstraints, "PRIMARY KEY")
 			case "auto":
-				if colType == "INTEGER" {
+				if colType == "INTEGER" || colType == "" {
 					colType = "SERIAL"
 				}
 			case "unique":
