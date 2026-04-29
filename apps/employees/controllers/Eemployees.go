@@ -204,6 +204,17 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
         phoneNumber  := r.PostFormValue("phoneNumber")
         address      := r.PostFormValue("address")
 
+        //Certifcations maybe there are multiple certification maybe empty
+        certifications := r.PostForm["certifications[]"]
+        if len(certifications) > 0 {
+            fmt.Printf("Received certifications: %v\n", certifications)
+        } else {
+            fmt.Println("No certifications received")
+        }
+
+
+        
+
         // 3. Handle Image
         var img image.Image
         file, _, err := r.FormFile("image")
@@ -388,13 +399,13 @@ func InsertEmployeeToDB(employee models.Employee, img image.Image) error {
 
 
 func InsertEmployeeCertificateToDB(certificate models.Certification) error {
-    query := `INSERT INTO certificates (employee_id,name,issuer,issue_date, file_path) VALUES ($1, $2, $3, $4, $5)`
-    _, err := core.DB.Exec(query, certificate.Employee.ID, certificate.Name, certificate.Issuer,certificate.IssueDate, certificate.FilePath)
+    query := `INSERT INTO certificates (employee_id,name,issuer,issue_date,expiry_date,file_path) VALUES ($1, $2, $3, $4, $5, $6)`
+    _, err := core.DB.Exec(query, certificate.Employee.ID, certificate.Name, certificate.Issuer,certificate.IssueDate, certificate.ExpiryDate, certificate.FilePath)
     if err != nil {
         fmt.Printf("Database insert error for certificate: %v\n", err)
         return err
     }
-    fmt.Printf("Certificate for Employee ID %s inserted successfully\n", certificate.Employee.ID)
+    fmt.Printf("Certificate for Employee ID %d inserted successfully\n", certificate.Employee.ID)
     return nil
 }
 
@@ -405,29 +416,29 @@ func InsertEmployeeDocumentToDB(document models.EmployeeDocument) error {
         fmt.Printf("Database insert error for employee document: %v\n", err)
         return err
     }
-    fmt.Printf("Document for Employee ID %s inserted successfully\n", document.Employee.ID)
+    fmt.Printf("Document for Employee ID %d inserted successfully\n", document.Employee.ID)
     return nil
 }
 
 func InsertEmployeeFamilyMemberToDB(familyMember models.FamilyMember) error {
-    query := `INSERT INTO employee_family_members (employee_id, name, relationship, birth_date, file_path) VALUES ($1, $2, $3, $4, $5)`
+    query := `INSERT INTO family_members (employee_id, name, relationship, birth_date, file_path) VALUES ($1, $2, $3, $4, $5)`
     _, err := core.DB.Exec(query, familyMember.Employee.ID, familyMember.Name, familyMember.Relationship, familyMember.BirthDate, familyMember.FilePath)
     if err != nil {
         fmt.Printf("Database insert error for family member: %v\n", err)
         return err
     }
-    fmt.Printf("Family member for Employee ID %s inserted successfully\n", familyMember.Employee.ID)
+    fmt.Printf("Family member for Employee ID %d inserted successfully\n", familyMember.Employee.ID)
     return nil
 }
 
 func InsertEmployeeEmergencyContactToDB(contact models.EmergencyContact) error {
-    query := `INSERT INTO employee_emergency_contacts (employee_id, name, relationship, phone) VALUES ($1, $2, $3, $4)`
+    query := `INSERT INTO emergency_contacts (employee_id, name, relationship, phone) VALUES ($1, $2, $3, $4)`
     _, err := core.DB.Exec(query, contact.Employee.ID, contact.Name, contact.Relationship, contact.Phone)
     if err != nil {
         fmt.Printf("Database insert error for emergency contact: %v\n", err)
         return err
     }
-    fmt.Printf("Emergency contact for Employee ID %s inserted successfully\n", contact.Employee.ID)
+    fmt.Printf("Emergency contact for Employee ID %d inserted successfully\n", contact.Employee.ID)
     return nil
 }
 
