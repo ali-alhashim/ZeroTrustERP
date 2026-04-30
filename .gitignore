@@ -18,6 +18,7 @@ build/
 # Go specific
 /bin/
 /vendor/
+/media/
 
 # IDE
 .vscode/

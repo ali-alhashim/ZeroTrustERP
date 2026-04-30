@@ -214,6 +214,8 @@ type FamilyMember struct {
     ID          int        `f:"number, primary, auto"`
     Employee    *Employee  `f:"many2one:employees, notnull"`
     Name        string     `f:"text, notnull"`
+    GovernmentId string     `f:"text"`  // Iqama/ID for the family member, if applicable
+    ContactNumber string     `f:"text"`  // Phone number for the family member
     Relationship string     `f:"text"` // e.g., "Spouse", "Child", "Parent"
     BirthDate   time.Time  `f:"timestamp"`
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`

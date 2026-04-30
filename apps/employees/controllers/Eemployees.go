@@ -251,7 +251,7 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
                 if i < len(certificationAttachments) {
                     fileHeader := certificationAttachments[i]
                     // Process the file as needed (e.g., save to disk, get path, etc.)
-                   filePath = UploadEmployeeCertificationAttachment(fileHeader, badgeId)
+                   filePath = UploadEmployeeAttachment(fileHeader, badgeId, "certifications") // Reusing the same function for simplicity
                     fmt.Printf("Received certification attachment: %s\n", fileHeader.Filename)
                     // You would typically save the file and get its path to store in the database
                 } else {
@@ -269,28 +269,105 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
                     // You would also extract other fields like Issuer, IssueDate, ExpiryDate, and FilePath similarly
                 }
                 Certifications = append(Certifications, cert)
-            }
+            } //end of loop for certifications
         } else {
             fmt.Println("No certifications received")
         }
 
-        if len(FamilyMembers) > 0 {
-            fmt.Printf("Received family members: %v\n", FamilyMembers)
+
+        familyMemberName         := r.PostForm["familyMemberName[]"]
+        familyMemberRelationship := r.PostForm["familyMemberRelationship[]"]
+        familyMemberContactNumber := r.PostForm["familyMemberContactNumber[]"]
+        familyMemberGender        := r.PostForm["familyMemberGender[]"]
+        familyMemberGovernmentId := r.PostForm["familyMemberGovernmentId[]"]
+        familyMemberBirthDate    := r.PostForm["familyMemberBirthDate[]"]
+        familyMemberAttachment := r.MultipartForm.File["familyMemberAttachment[]"]
+        
+        if len(familyMemberName) > 0 {
+            fmt.Printf("Received family members: %v , relationships: %v , contact numbers: %v , genders: %v ID: %v birthDate: %v files: %v\n", 
+                      familyMemberName, familyMemberRelationship, familyMemberContactNumber, familyMemberGender, familyMemberGovernmentId, familyMemberBirthDate, familyMemberAttachment)
             // Similar loop for family members
+                for i := range familyMemberName {   
+                    var familyFilePath string
+                    if i < len(familyMemberAttachment) {
+                        fileHeader := familyMemberAttachment[i]
+                        familyFilePath = UploadEmployeeAttachment(fileHeader, badgeId, "familyMembers") // Reusing the same function for simplicity
+                        fmt.Printf("Received family member attachment: %s\n", fileHeader.Filename)
+                    } else {
+                        fmt.Printf("No attachment for family member: %s\n", familyMemberName[i])
+                        familyFilePath = ""
+                    }
+
+                    birthDateParsed, err := time.Parse("2006-01-02", familyMemberBirthDate[i])
+                    if err != nil {
+                        fmt.Printf("Invalid birth date format for family member: %v\n", err)
+                        birthDateParsed = time.Time{} // Zero value if parsing fails
+                    }
+
+                    familyMember := models.FamilyMember{
+                        Name:          familyMemberName[i],
+                        Relationship:  familyMemberRelationship[i],
+                        ContactNumber: familyMemberContactNumber[i],
+                        GovernmentId:  familyMemberGovernmentId[i],
+                        BirthDate:     birthDateParsed,
+                        FilePath:      familyFilePath,
+                    }
+                    FamilyMembers = append(FamilyMembers, familyMember)
+                } //end of loop for family members
         } else {
             fmt.Println("No family members received")
         }
 
-        if len(EmergencyContacts) > 0 {
-            fmt.Printf("Received emergency contacts: %v\n", EmergencyContacts)
+         emergencyContactName := r.PostForm["emergencyContactName[]"]
+         emergencyContactRelationship := r.PostForm["emergencyContactRelationship[]"]
+         emergencyContactNumber := r.PostForm["emergencyContactNumber[]"]
+        if len(emergencyContactName) > 0 {
+            fmt.Printf("Received emergency contacts: %v relationships: %v numbers: %v\n", emergencyContactName, emergencyContactRelationship, emergencyContactNumber)
             // Similar loop for emergency contacts
+                for i := range emergencyContactName {
+                        contact:= models.EmergencyContact{
+                        Name:         emergencyContactName[i],
+                        Relationship: emergencyContactRelationship[i],
+                        Phone:        emergencyContactNumber[i],
+                    }
+                    EmergencyContacts = append(EmergencyContacts, contact)
+                } //end of loop for emergency contacts
         } else {
             fmt.Println("No emergency contacts received")
         }
 
-        if len(EmployeeDocuments) > 0 {
+        documentName        := r.PostForm["documentName[]"]
+        documentType        := r.PostForm["documentType[]"]
+        documentExpiryDate  := r.PostForm["documentExpiryDate[]"]
+        documentAttachments := r.MultipartForm.File["documentAttachment[]"]
+        if len(documentName) > 0 {
             fmt.Printf("Received employee documents: %v\n", EmployeeDocuments)
             // Similar loop for employee documents
+                for i := range documentName {
+                    var documentFilePath string
+                    if i < len(documentAttachments) {
+                        fileHeader := documentAttachments[i]
+                        documentFilePath = UploadEmployeeAttachment(fileHeader, badgeId, "employeeDocuments") // Reusing the same function for simplicity
+                        fmt.Printf("Received employee document attachment: %s\n", fileHeader.Filename)
+                    } else {
+                        fmt.Printf("No attachment for employee document: %s\n", documentName[i])
+                        documentFilePath = ""
+                    }
+
+                    expiryDateParsed, err := time.Parse("2006-01-02", documentExpiryDate[i])
+                    if err != nil {
+                        fmt.Printf("Invalid expiry date format for employee document: %v\n", err)
+                        expiryDateParsed = time.Time{} // Zero value if parsing fails
+                    }
+
+                    doc := models.EmployeeDocument{
+                        Name:       documentName[i],
+                        Type:       documentType[i],
+                        ExpiryDate: expiryDateParsed,
+                        FilePath:  documentFilePath,
+                    }
+                    EmployeeDocuments = append(EmployeeDocuments, doc)
+                } //end of loop for employee documents
         } else {
             fmt.Println("No employee documents received")
         }
@@ -357,6 +434,9 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
             MaritalStatus: maritalStatus,
             Gender:          gender,
             Certifications: Certifications,
+            FamilyMembers: FamilyMembers,
+            EmergencyContacts: EmergencyContacts,
+            EmployeeDocuments: EmployeeDocuments,
 
         }
 
@@ -371,7 +451,7 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func UploadEmployeeCertificationAttachment(fileHeader *multipart.FileHeader, badgeId string) string {
+func UploadEmployeeAttachment(fileHeader *multipart.FileHeader, badgeId string, documentType string) string {
     // 1. Use multipart.FileHeader instead of http.File for the parameter
     file, err := fileHeader.Open()
     if err != nil {
@@ -381,7 +461,7 @@ func UploadEmployeeCertificationAttachment(fileHeader *multipart.FileHeader, bad
     defer file.Close()
 
     // 2. Ensure directory exists
-    dirPath := fmt.Sprintf("./media/employees/certifications/%s", badgeId)
+    dirPath := fmt.Sprintf("./media/employees/%s/%s", documentType, badgeId)
     if err := os.MkdirAll(dirPath, 0755); err != nil {
         fmt.Printf("Error creating directory: %v\n", err)
         return ""
@@ -523,6 +603,33 @@ func InsertEmployeeToDB(employee models.Employee, img image.Image) error {
         cert.Employee = &models.Employee{ID: newID} // Set the employee ID for the certification
         if err := InsertEmployeeCertificateToDB(cert); err != nil {
             fmt.Printf("Error inserting certification: %v\n", err)
+            // Handle error (e.g., continue, rollback, etc.)
+        }
+    }
+
+    for _, familyM:= range employee.FamilyMembers {
+        fmt.Print("\n Inserting family member: ", familyM.Name, " for employee: ", employee.Name, "\n")
+        familyM.Employee = &models.Employee{ID: newID} // Set the employee ID for the family member
+        if err := InsertEmployeeFamilyMemberToDB(familyM); err != nil {
+            fmt.Printf("Error inserting family member: %v\n", err)
+            // Handle error (e.g., continue, rollback, etc.)
+        }
+    }
+
+    for _, contact := range employee.EmergencyContacts {
+        fmt.Print("\n Inserting emergency contact: ", contact.Name, " for employee: ", employee.Name, "\n")
+        contact.Employee = &models.Employee{ID: newID} // Set the employee ID for the emergency contact
+        if err := InsertEmployeeEmergencyContactToDB(contact); err != nil {
+            fmt.Printf("Error inserting emergency contact: %v\n", err)
+            // Handle error (e.g., continue, rollback, etc.)
+        }
+    }
+
+    for _, doc := range employee.EmployeeDocuments {
+        fmt.Print("\n Inserting employee document: ", doc.Name, " for employee: ", employee.Name, "\n")
+        doc.Employee = &models.Employee{ID: newID} // Set the employee ID for the document
+        if err := InsertEmployeeDocumentToDB(doc); err != nil {
+            fmt.Printf("Error inserting employee document: %v\n", err)
             // Handle error (e.g., continue, rollback, etc.)
         }
     }
