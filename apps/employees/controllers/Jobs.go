@@ -6,6 +6,7 @@ import (
     "strconv"
 	"zerotrusterp/apps/employees/models"
 	"zerotrusterp/core"
+	"encoding/json"
 )
 
 func ListJobs(w http.ResponseWriter, r *http.Request) {
@@ -178,6 +179,15 @@ func GetJobTitleById(id string) models.JobTitle {
 
 
 	return jobTitle
+}
+
+func GetJobTitleListApi(w http.ResponseWriter, r *http.Request) {
+
+	totalRecords := core.GetCountRecords("job_titles")
+	jobs := GetJobsFromDB("", "ID", "asc", "1", strconv.Itoa(totalRecords))
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(jobs)
 }
 
 

@@ -50,7 +50,7 @@
          <tr>
             <th>Job Title</th>
             <th>
-                <select name="jobTitleId">
+                <select name="jobTitleId" class="select-search">
                     <option value="0">Select Job Title</option>
                 </select>
             </th>
@@ -317,9 +317,10 @@ function GenerateID() {
             .then(response => response.json())
             .then(data => {
                 data.forEach(jobTitle => {
+                    console.log('Job Title:', jobTitle); // Debugging log
                     const option = document.createElement('option');
-                    option.value = jobTitle.id;
-                    option.textContent = jobTitle.name;
+                    option.value = jobTitle.ID;
+                    option.textContent = jobTitle.Name + " (" + jobTitle.LocalName + ") - " + jobTitle.ID;
                     jobTitleSelect.appendChild(option);
                 });
             })
