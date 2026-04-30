@@ -6,6 +6,7 @@ import (
 	"zerotrusterp/apps/employees/models"
 	"zerotrusterp/core"
 	"strconv"
+	"encoding/json"
 )
 
 func ListDepartments(w http.ResponseWriter, r *http.Request) {
@@ -302,5 +303,16 @@ func exManagerDepartment(departmentID string, manager string){
 	// get the exist employee and set 
 
 }
+
+
+func GetDepartmentListApi(w http.ResponseWriter, r *http.Request) {
+
+	 totalRecords := core.GetCountRecords("departments")
+	 
+	departments := GetDepartmentsFromDB("", "ID", "asc", "1", strconv.Itoa(totalRecords))
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(departments)
+	}
 
 

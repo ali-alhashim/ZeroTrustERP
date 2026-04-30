@@ -41,7 +41,7 @@
         <tr>
             <th>Department</th>
             <th>
-                <select name="departmentId">
+                <select name="departmentId" class="select-search">
                     <option value="0">Select Department</option>
                 </select>
             </th>
@@ -290,6 +290,41 @@ function GenerateID() {
         `;
         tableBody.appendChild(newRow);
     }
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const departmentSelect = document.querySelector('select[name="departmentId"]');
+        const jobTitleSelect = document.querySelector('select[name="jobTitleId"]');
+
+        // Fetch departments and populate the select
+        fetch('/api/departments/list')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Departments data:', data); // Debugging log
+                data.forEach(department => {
+                    const option = document.createElement('option');
+                    option.value = department.ID;
+                    option.textContent ="(" + department.Code + ") " + department.Name + " (" + department.LocalName + ") - " + department.ID;
+                    departmentSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching departments:', error));
+
+        // Fetch job titles and populate the select
+        fetch('/api/job-titles/list')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(jobTitle => {
+                    const option = document.createElement('option');
+                    option.value = jobTitle.id;
+                    option.textContent = jobTitle.name;
+                    jobTitleSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching job titles:', error));
+    });
 </script>
 
 {{end}}
