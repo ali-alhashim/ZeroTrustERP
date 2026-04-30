@@ -33,6 +33,7 @@ type Employee struct {
     MaritalStatus string      `f:"text"` // "Single", "Married", "Divorced", "Widowed"
     PhoneNumber  string      `f:"text"`
     Address      string      `f:"text"`
+    Status       string      `f:"text"` // "Active", "On Leave", "Terminated"
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments

@@ -177,7 +177,21 @@ To build a **secure, scalable, and developer-friendly ERP framework** that combi
 * Users CRUD -> OK
 * Roles & Permission -> OK
 * System Health -> Ok
-* Employees CRUD
+* Employees CRUD <br/>
+      -Information<br/>
+      -OrgUnit<br/>
+      -Department<br/>
+      -ExManagerDepartment<br/>
+      -ExJobTitle<br/>
+      -JobTitle<br/>
+      -ShiftSchedule<br/>
+      -Contract<br/>
+      -Salary<br/>
+      -InsuranceGrade<br/>
+      -Certification<br/>
+      -EmergencyContact<br/>
+      -FamilyMember<br/>
+      -EmployeeDocument<br/>
 * IT Ticketing System
 * Simple dashboard
 ### Phase 2 ###
