@@ -13,6 +13,8 @@ import (
 	"time"
 	"zerotrusterp/apps/employees/models"
 	"zerotrusterp/core"
+    "io"
+    "mime/multipart"
 )
 
 func ListEmployees(w http.ResponseWriter, r *http.Request) {
@@ -204,12 +206,93 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
         phoneNumber  := r.PostFormValue("phoneNumber")
         address      := r.PostFormValue("address")
 
+
+        var Certifications    []models.Certification
+        var FamilyMembers     []models.FamilyMember
+        var EmergencyContacts []models.EmergencyContact
+        var EmployeeDocuments []models.EmployeeDocument
+
+        var filePath string
+        var CertName string
+        var issuingOrgan string
+
         //Certifcations maybe there are multiple certification maybe empty
-        certifications := r.PostForm["certifications[]"]
+        certifications       := r.PostForm["certificationName[]"]
+        issuingOrganizations := r.PostForm["issuingOrganization[]"]
+        issuingDate:= r.PostForm["issueDate[]"]
+        expirationDate := r.PostForm["expirationDate[]"]
+
+        certificationAttachments := r.MultipartForm.File["certificationAttachment[]"]  
+
         if len(certifications) > 0 {
             fmt.Printf("Received certifications: %v\n", certifications)
+            //loop through certifications and build the slice of Certification models
+            for i := range certifications {
+
+                    CertName = certifications[i]
+                    
+
+                issuingDate_parsedDate, err := time.Parse("2006-01-02", issuingDate[i])
+                if err != nil {
+                     fmt.Printf("invalid date format: %v", err)
+                }
+                expirationDate_parsedDate, err := time.Parse("2006-01-02", expirationDate[i])
+                if err != nil {
+                     fmt.Printf("invalid date format: %v", err)
+                }
+
+                if i < len(issuingOrganizations) {
+                    issuingOrgan = issuingOrganizations[i]
+                } else {
+                    fmt.Printf("No issuing organization for certification: %s\n", certifications[i])
+                    issuingOrgan = ""
+                }
+
+                if i < len(certificationAttachments) {
+                    fileHeader := certificationAttachments[i]
+                    // Process the file as needed (e.g., save to disk, get path, etc.)
+                   filePath = UploadEmployeeCertificationAttachment(fileHeader, badgeId)
+                    fmt.Printf("Received certification attachment: %s\n", fileHeader.Filename)
+                    // You would typically save the file and get its path to store in the database
+                } else {
+                    fmt.Printf("No attachment for certification: %s\n", certifications[i])
+                    filePath =""
+                }
+
+                fmt.Printf("Certification details - Name: %s, Issuer: %s, Issue Date: %s, Expiry Date: %s, File Path: %s\n", CertName, issuingOrgan, issuingDate_parsedDate.Format("2006-01-02"), expirationDate_parsedDate.Format("2006-01-02"), filePath)
+                cert := models.Certification{
+                    Name  : CertName,
+                    Issuer: issuingOrgan,
+                    IssueDate: issuingDate_parsedDate,
+                    ExpiryDate: expirationDate_parsedDate,
+                    FilePath: filePath,
+                    // You would also extract other fields like Issuer, IssueDate, ExpiryDate, and FilePath similarly
+                }
+                Certifications = append(Certifications, cert)
+            }
         } else {
             fmt.Println("No certifications received")
+        }
+
+        if len(FamilyMembers) > 0 {
+            fmt.Printf("Received family members: %v\n", FamilyMembers)
+            // Similar loop for family members
+        } else {
+            fmt.Println("No family members received")
+        }
+
+        if len(EmergencyContacts) > 0 {
+            fmt.Printf("Received emergency contacts: %v\n", EmergencyContacts)
+            // Similar loop for emergency contacts
+        } else {
+            fmt.Println("No emergency contacts received")
+        }
+
+        if len(EmployeeDocuments) > 0 {
+            fmt.Printf("Received employee documents: %v\n", EmployeeDocuments)
+            // Similar loop for employee documents
+        } else {
+            fmt.Println("No employee documents received")
         }
 
 
@@ -273,6 +356,7 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
             Address:       address,
             MaritalStatus: maritalStatus,
             Gender:          gender,
+            Certifications: Certifications,
 
         }
 
@@ -285,6 +369,43 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
 
         http.Redirect(w, r, "/employees/list", http.StatusSeeOther)
     }
+}
+
+func UploadEmployeeCertificationAttachment(fileHeader *multipart.FileHeader, badgeId string) string {
+    // 1. Use multipart.FileHeader instead of http.File for the parameter
+    file, err := fileHeader.Open()
+    if err != nil {
+        fmt.Printf("Error opening file: %v\n", err)
+        return ""
+    }
+    defer file.Close()
+
+    // 2. Ensure directory exists
+    dirPath := fmt.Sprintf("./media/employees/certifications/%s", badgeId)
+    if err := os.MkdirAll(dirPath, 0755); err != nil {
+        fmt.Printf("Error creating directory: %v\n", err)
+        return ""
+    }
+
+    // 3. CRITICAL: Prevent filename collisions
+    // If two employees upload "cert.pdf", the second will overwrite the first.
+    // We'll prefix the filename with a timestamp or UUID.
+    uniqueName := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileHeader.Filename)
+    savedFilePath := filepath.Join(dirPath, uniqueName)
+
+    out, err := os.Create(savedFilePath)
+    if err != nil {
+        fmt.Printf("Error creating file: %v\n", err)
+        return ""
+    }
+    defer out.Close()
+
+    if _, err := io.Copy(out, file); err != nil {
+        fmt.Printf("Error saving file: %v\n", err)
+        return ""
+    }
+
+    return savedFilePath
 }
 
 func GenerateBadgeIdApi(w http.ResponseWriter, r *http.Request) {
@@ -357,15 +478,16 @@ func InsertEmployeeToDB(employee models.Employee, img image.Image) error {
         jobID = nil // Database will see this as NULL
     }
 
-    // 3. Database Insert (Using $ placeholders for Postgres)
+    // 3. Database Insert (Using $ placeholders for Postgres) we need the ID for the employee after insert to link certificates and documents, so we will use RETURNING id
     query := `
         INSERT INTO employees (
             badge_id, name, department_id, local_name, 
             job_title_id, grade, birth_date, active, 
             goverment_id, image, email, nationality, gender, marital_status, phone_number, address
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING id`
 
-    _, err := core.DB.Exec(query, 
+    var newID int
+    err := core.DB.QueryRow(query, 
         employee.BadgeID, 
         employee.Name, 
         deptID,             // Safe interface (could be nil)
@@ -382,7 +504,7 @@ func InsertEmployeeToDB(employee models.Employee, img image.Image) error {
         employee.MaritalStatus,
         employee.PhoneNumber,
         employee.Address,
-    )
+    ).Scan(&newID)
 
     if err != nil {
         fmt.Printf("Database insert error: %v\n", err)
@@ -393,13 +515,25 @@ func InsertEmployeeToDB(employee models.Employee, img image.Image) error {
     fmt.Printf("Employee %s inserted successfully\n", employee.Name)
     UpdateSequenceNextValue(employee.BadgeID, "badge_id")
 
+    // 5. Insert related certifications, documents, family members, and emergency contacts if needed
+    // This is where you would loop through any certifications, documents, family members, and emergency contacts associated with the employee and call their respective insert functions, passing the new employee ID.
+    
+    for _, cert := range employee.Certifications {
+        fmt.Print("\n Inserting certification: ", cert.Name, " for employee: ", employee.Name, "\n")
+        cert.Employee = &models.Employee{ID: newID} // Set the employee ID for the certification
+        if err := InsertEmployeeCertificateToDB(cert); err != nil {
+            fmt.Printf("Error inserting certification: %v\n", err)
+            // Handle error (e.g., continue, rollback, etc.)
+        }
+    }
+
     return nil
 }
 
 
 
 func InsertEmployeeCertificateToDB(certificate models.Certification) error {
-    query := `INSERT INTO certificates (employee_id,name,issuer,issue_date,expiry_date,file_path) VALUES ($1, $2, $3, $4, $5, $6)`
+    query := `INSERT INTO certifications (employee_id,name,issuer,issue_date,expiry_date,file_path) VALUES ($1, $2, $3, $4, $5, $6)`
     _, err := core.DB.Exec(query, certificate.Employee.ID, certificate.Name, certificate.Issuer,certificate.IssueDate, certificate.ExpiryDate, certificate.FilePath)
     if err != nil {
         fmt.Printf("Database insert error for certificate: %v\n", err)

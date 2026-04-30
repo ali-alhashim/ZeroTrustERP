@@ -21,6 +21,10 @@ type Employee struct {
     BirthDate   time.Time `f:"timestamp,"`
     Active      bool      `f:"bool, default:true"`
     InsurancePolicies []InsurancePolicy `v:"true"`
+    Certifications    []Certification `v:"true"`
+    EmergencyContacts []EmergencyContact `v:"true"`
+    FamilyMembers     []FamilyMember `v:"true"`
+    EmployeeDocuments []EmployeeDocument `v:"true"`
     GovermentID string      `f:"text"` // Iqama/ID
     Image       string      `f:"text"` 
     Email       string      `f:"text, unique"`

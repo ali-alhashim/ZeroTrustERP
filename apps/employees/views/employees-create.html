@@ -229,10 +229,10 @@ function GenerateID() {
         const newRow = document.createElement('tr');
 
         newRow.innerHTML = `
-            <td><input type="text" name="certificationName[]"></td>
-            <td><input type="text" name="issuingOrganization[]"></td>
-            <td><input type="date" name="issueDate[]"></td>
-            <td><input type="date" name="expirationDate[]"></td>
+            <td><input type="text" name="certificationName[]" required></td>
+            <td><input type="text" name="issuingOrganization[]" required></td>
+            <td><input type="date" name="issueDate[]" required></td>
+            <td><input type="date" name="expirationDate[]" ></td>
             <td><input type="file" name="certificationAttachment[]" class="btn btn-secondary"></td>
             <td><button type="button" class="btn btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
         `;
