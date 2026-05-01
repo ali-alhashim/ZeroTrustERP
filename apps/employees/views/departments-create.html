@@ -21,7 +21,7 @@
          <tr>
             <td>Manager</td>
             <td>
-                <select name="manager" class="select-search">
+                <select name="manager" class="select-search" id="ManagerSelect">
                     <option>Select Department Manager</option>
                 </select>
             </td>
@@ -39,5 +39,31 @@
 <button type="submit" class="btn btn-primary m-5">Create Department</button>
 
 </form>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        const ManagerSelect = document.getElementById('ManagerSelect');
+
+        // Fetch employees and populate the select
+        fetch('/api/employees/list')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Employees data:', data); // Debugging log
+                data.forEach(employee => {
+                    const option = document.createElement('option');
+                    option.value = employee.ID;
+                    option.textContent ="(" + employee.BadgeID + ") " + employee.Name + " (" + employee.LocalName + ") - " + employee.ID;
+                    ManagerSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching employees:', error));
+
+
+             selectSearch();
+          });
+</script>
 
 {{end}}

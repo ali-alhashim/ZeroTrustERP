@@ -64,7 +64,10 @@
                     <td>{{.Code}}</td>
                     <td>{{.Name}}</td>
                     <td>{{.LocalName}}</td>
-                    <td>{{.Manager}}</td>
+
+                    <td>{{if .Manager}}{{.Manager.Name}}{{end}}</td>
+
+
                     <td>{{len .Employees}}</td>
                     <td>{{.Active}}</td>
                     

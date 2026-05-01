@@ -171,15 +171,22 @@ func GetDepartmentsFromDB(search, sort, order, page, pageSize string) []models.D
 
 
 	var departments []models.Department
-
+    var ManagerID *string
 
 	for rows.Next() {
 		var l models.Department
-		err := rows.Scan(&l.ID, &l.Name, &l.LocalName, &l.Code, &l.Manager, &l.Active)
+		err := rows.Scan(&l.ID, &l.Name, &l.LocalName, &l.Code, &ManagerID, &l.Active)
 		if err != nil {
 			panic(err)
 		}
+		if ManagerID != nil {
+			Manager := GetEmployeeById(*ManagerID)
+			l.Manager = &Manager
+		} else {
+			l.Manager = nil
+		}
 		departments = append(departments, l)
+
 	}
 
 	return departments
@@ -261,6 +268,8 @@ func GetDepartmentById(id string) models.Department {
 func isDepartmentManagerChanged(departmentID string, managerID string) bool {
     var currentManagerID string
 
+	fmt.Printf("Check is Department Manager is Updated for %s with Manager ID %s", departmentID, managerID)
+
     // 1. Fetch the CURRENT manager assigned to this department
     query := "SELECT manager_id FROM departments WHERE id = $1"
     
@@ -293,6 +302,22 @@ func UpdateDepartment(w http.ResponseWriter, r *http.Request){
 		exManagerDepartment(departmentID, manager)
 
 	}
+
+	query := "UPDATE departments SET code=$1, name=$2, local_name=$3, manager_id=$4, active=$5 WHERE id=$6"
+
+	_, err := core.DB.Exec(query, code, name, local_name, manager, active, departmentID)
+	if err != nil {
+		fmt.Printf("Error updating department: %v\n", err)
+		http.Error(w, "Error updating department", http.StatusInternalServerError)
+		return
+	}
+
+	CurrentUser := core.GetCurrentUser(r)
+
+	core.InsertLog(CurrentUser, "Departments", fmt.Sprintf("Updated Department ID %s with code: %s and name: %s",departmentID, code, name))
+
+
+	http.Redirect(w, r, "/employees/departments", http.StatusSeeOther)
 
 
 }
