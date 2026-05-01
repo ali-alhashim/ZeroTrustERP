@@ -65,7 +65,15 @@
                     <td>{{.Name}}</td>
                     <td>{{.LocalName}}</td>
 
-                    <td>{{if .Manager}}{{.Manager.Name}}{{end}}</td>
+                    <td>
+                        {{if .Manager}}
+                       {{.Manager.ID}} {{.Manager.Name}} - {{.Manager.BadgeID}}
+                        {{else}}
+                        N/A
+                        {{end}}
+
+                     
+                    </td>
 
 
                     <td>{{len .Employees}}</td>

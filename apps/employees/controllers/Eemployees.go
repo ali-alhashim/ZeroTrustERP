@@ -15,6 +15,7 @@ import (
 	"zerotrusterp/core"
     "io"
     "mime/multipart"
+    
 )
 
 func ListEmployees(w http.ResponseWriter, r *http.Request) {
@@ -51,27 +52,90 @@ func ListEmployees(w http.ResponseWriter, r *http.Request) {
 
 
 
-func GetEmployeeById(id string) models.Employee{
-	var employee models.Employee
+func GetEmployeeById(id string) models.Employee {
+    fmt.Printf("............Fetching employee with ID: %s\n", id)
+
+    var employee models.Employee
+
     
-	query:=`SELECT e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at,e.image,
-	       d.id, d.name, d.local_name, d.code, d.manager_id, d.created_at, d.updated_at, d.active,
-		   j.id, j.name, j.local_name, j.code, j.description, j.crearted_at, j.updated_at  
-	       FROM employees e
-	       LEFT JOIN departments d ON e.department_id = d.id
-		   LEFT JOIN job_titles j  ON e.job_title_id = j.id
-		   WHERE e.id = $1
-	       `
-	rows, err := core.DB.Query(query, id)
+    // Null types for the LEFT JOINed tables
+    var dID, dManager sql.NullInt64
+    var dName, dLocal, dCode sql.NullString
+    var dActive sql.NullBool
+    var dCreated, dUpdated sql.NullTime
+    
+    var jID sql.NullInt64
+    var jName, jLocal, jCode, jDesc sql.NullString
+    var jCreated, jUpdated sql.NullTime
+
+    query := `
+        SELECT 
+            e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at, e.image,
+            d.id, d.name, d.local_name, d.code, d.manager_id, d.created_at, d.updated_at, d.active,
+            j.id, j.name, j.local_name, j.code, j.description, j.created_at, j.updated_at  
+        FROM employees e
+        LEFT JOIN departments d ON e.department_id = d.id
+        LEFT JOIN job_titles j  ON e.job_title_id = j.id
+        WHERE e.id = $1`
+
+    err := core.DB.QueryRow(query, id).Scan(
+        // IMPORTANT: Scan into the ID fields, NOT the struct fields
+        &employee.ID, &employee.BadgeID, &employee.Name, &employee.Department, &employee.LocalName, 
+        &employee.JobTitle, &employee.CreatedAt, &employee.UpdatedAt, &employee.Image,
+        // Department scan
+        &dID, &dName, &dLocal, &dCode, &dManager, &dCreated, &dUpdated, &dActive,
+        // Job Title scan
+        &jID, &jName, &jLocal, &jCode, &jDesc, &jCreated, &jUpdated,
+    )
+
     if err != nil {
-        fmt.Printf("Database error: %v\n", err)
+        if err == sql.ErrNoRows {
+            fmt.Printf("❌ No employee found in database with ID: %s\n", id)
+        } else {
+            fmt.Printf("❌ Database error during Scan: %v\n", err)
+        }
         return models.Employee{}
     }
-    defer rows.Close()
 
+    // Map Department if JOIN found a record
+    if dID.Valid {
+        dept := models.Department{
+            ID:        int(dID.Int64),
+            Name:      dName.String,
+            LocalName: dLocal.String,
+            Code:      dCode.String,
+            Active:    dActive.Bool,
+            CreatedAt: dCreated.Time,
+            UpdatedAt: dUpdated.Time,
+        }
+        if dManager.Valid {
+            // Check if your Employee.ID is string or int. 
+            // If ID is string: strconv.Itoa(int(dManager.Int64))
+            // If ID is int: int(dManager.Int64)
+            dept.Manager = &models.Employee{
+                ID: int(dManager.Int64), 
+            }
+        }
+        employee.Department = &dept
+    }
 
-	return employee
+    // Map JobTitle if JOIN found a record
+    if jID.Valid {
+        employee.JobTitle = &models.JobTitle{
+            ID:   int(jID.Int64),
+            Name: jName.String,
+            // ... add other job fields here
+        }
+    }
+
+    return employee
 }
+
+
+
+
+
+
 
 func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Employee{
 

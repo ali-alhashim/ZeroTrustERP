@@ -316,6 +316,15 @@ func IsValidSessionToken(email string, sessionToken string) bool {
 		return false
 	}
 
+	// even we have a valid session we need to check when was the last login and is this the same device 
+	// and if he is in another country from last login to that country how many travels hours by airplane from the last login country 
+	// to the current country and if the time between the last login and the current login is less than the travel hours then we can 
+	// consider this session as valid otherwise we need to invalidate the session and ask the user to login again 
+	// because this could be a session hijacking attack
+
+	//Todo also we need to have a settings ask user to select what is the allowed countries [ Geo restriction ]
+	
+
 	return valid
 }
 

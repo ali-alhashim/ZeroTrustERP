@@ -179,8 +179,11 @@ func GetDepartmentsFromDB(search, sort, order, page, pageSize string) []models.D
 		if err != nil {
 			panic(err)
 		}
+
 		if ManagerID != nil {
+			fmt.Print(" \n Get Department Manager ID = "+ *ManagerID +"\n")
 			Manager := GetEmployeeById(*ManagerID)
+			fmt.Print(" \n Get Department Manager  = "+ Manager.Name +"\n")
 			l.Manager = &Manager
 		} else {
 			l.Manager = nil
