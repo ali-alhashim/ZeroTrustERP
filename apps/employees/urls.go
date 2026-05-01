@@ -14,6 +14,7 @@ func EmployeeListRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /employees/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateEmployee), "employees:W"))
 	mux.Handle("POST /employees/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateEmployee), "employees:W"))
 	mux.Handle("GET /employees/generate-badge-id", core.AuthMiddleware(http.HandlerFunc(controllers.GenerateBadgeIdApi), "employees:W"))
+	mux.Handle("GET /api/employees/list", core.AuthMiddleware(http.HandlerFunc(controllers.GetEmployeesListApi), "employees:R"))
 
 	mux.Handle("GET /employees/Jobs", core.AuthMiddleware(http.HandlerFunc(controllers.ListJobs), "jobs:R"))
 	mux.Handle("GET /employees/jobs/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateJob), "jobs:R"))

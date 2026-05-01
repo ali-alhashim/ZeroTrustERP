@@ -753,3 +753,15 @@ func EmployeeImageGET(w http.ResponseWriter, r *http.Request) {
     // Serve the image file
    http.ServeFile(w, r, path)
 }
+
+
+//TODO we need only ID, Name, LocalName, BadgeID to show in the select in user create form, we can create a new struct with only these fields and use it in the query to optimize the performance instead of scanning all fields of employee struct
+func GetEmployeesListApi(w http.ResponseWriter, r *http.Request) {
+
+	 totalRecords := core.GetCountRecords("employees")
+	 
+	employees := GetEmployeesFromDB("", "ID", "asc", "1", strconv.Itoa(totalRecords))
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(employees)
+}

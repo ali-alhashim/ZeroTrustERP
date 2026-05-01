@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"zerotrusterp/apps/users/models"
+	"zerotrusterp/apps/employees/empapi"
 	"zerotrusterp/core"
 )
 
@@ -39,7 +40,7 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 
 func GetUsersFromDB(search, sort, order, page, pageSize string) []models.User {
 
-	query := "SELECT id, username, email, active, online, last_login FROM users WHERE 1=1"
+	query := "SELECT id, username, email, active, online, last_login, related_employee_id FROM users WHERE 1=1"
 	args := []interface{}{}
 	argIndex := 1
 
@@ -97,18 +98,32 @@ func GetUsersFromDB(search, sort, order, page, pageSize string) []models.User {
 	defer rows.Close()
 
 	var users []models.User
+	
+
+
 
 	for rows.Next() {
 		var u models.User
-		err := rows.Scan(&u.ID, &u.Username, &u.Email, &u.Active, &u.Online, &u.LastLogin)
+		var relatedEmployeeID *int
+		err := rows.Scan(&u.ID, &u.Username, &u.Email, &u.Active, &u.Online, &u.LastLogin, &relatedEmployeeID)
 		if err != nil {
 			panic(err)
 		}
+		
+
+		if relatedEmployeeID != nil {
+			employee := empapi.GetEmployeeByID(*relatedEmployeeID)
+			u.RelatedEmployee = &employee // Use the ampersand to get the pointer
+      }
+
+
 		users = append(users, u)
 	}
 
 	return users
 }
+
+
 
 
 

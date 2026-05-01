@@ -55,6 +55,7 @@ Count Records: {{.TotalRecords}}
                 </a>
             </th>
             <th>Email</th>
+            <th>Related Employee</th>
             <th>Online</th>
             <th>Active</th>
             <th>Last Login</th>
@@ -73,6 +74,16 @@ Count Records: {{.TotalRecords}}
 
             <td>{{.Username}}</td>
             <td>{{.Email}}</td>
+
+            <td>
+                {{if .RelatedEmployee}}
+                
+               {{.RelatedEmployee.BadgeID}} - {{.RelatedEmployee.Name}} - {{.RelatedEmployee.LocalName}}
+                {{else}}
+                None
+                {{end}}
+            </td>
+
 
             <td>
                 <!-- Online Status Indicator  add .online or .offline-->
