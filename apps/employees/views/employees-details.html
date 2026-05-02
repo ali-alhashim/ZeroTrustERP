@@ -1,0 +1,137 @@
+{{define "content"}}
+<div class="employee-card">
+    <div class="card-header">
+        <div class="profile-image">
+            {{if .Employee.Image}}
+                <img src="../{{.Employee.Image}}" alt="{{.Employee.Name}}">
+            {{else}}
+                <div class="image-placeholder">{{slice .Employee.Name 0 1}}</div>
+            {{end}}
+        </div>
+        <div class="header-text">
+            <h2>{{.Employee.Name}}</h2>
+            <h2>{{.Employee.LocalName}}</h2>
+
+             <span class="job-badge">
+                {{if .Employee.Department}}
+                    {{.Employee.Department.Name}}
+                    
+                {{end}}
+            </span>
+
+
+            <span class="job-badge">
+                {{if .Employee.JobTitle}}
+                    {{.Employee.JobTitle.Name}}
+                {{end}}
+            </span>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="info-grid">
+           
+            <div class="info-item">
+                <label>Email</label>
+                <span><a href="mailto:{{.Employee.Email}}">{{.Employee.Email}}</a></span>
+            </div>
+            <div class="info-item">
+                <label>Phone Number</label>
+                <span>{{.Employee.PhoneNumber}}</span>
+            </div>
+            <div class="info-item">
+                <label>Education</label>
+                <span>{{if .Employee.Education}}{{.Employee.Education}}{{else}}-{{end}}</span>
+            </div>
+
+
+              <div class="info-item">
+                <label>Major</label>
+                <span>{{if .Employee.Major}}{{.Employee.Major}}{{else}}-{{end}}</span>
+            </div>
+
+
+              <div class="info-item">
+                <label>Badge ID</label>
+                <span>{{if .Employee.BadgeID}}{{.Employee.BadgeID}}{{else}}-{{end}}</span>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .employee-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        max-width: 600px;
+        margin: 20px auto;
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #5e5e5e, #4c524c);
+        color: white;
+        padding: 30px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .profile-image img, .image-placeholder {
+        width: 100px;
+        
+        object-fit: cover;
+        border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .image-placeholder {
+        background: #95a5a6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        font-weight: bold;
+    }
+
+    .header-text h2 { margin: 0; font-size: 1.5rem; }
+    
+    .job-badge {
+        background: #3498db;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        display: inline-block;
+        margin-top: 8px;
+    }
+
+    .card-body { padding: 30px; }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .info-item label {
+        display: block;
+        color: #7f8c8d;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+
+    .info-item span {
+        color: #2c3e50;
+        font-weight: 600;
+        display: block;
+    }
+
+    .info-item a { color: #3498db; text-decoration: none; }
+</style>
+{{end}}

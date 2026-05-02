@@ -70,7 +70,7 @@ func GetEmployeeById(id string) models.Employee {
 
     query := `
         SELECT 
-            e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at, e.image,e.education, e.major, e.religion,
+            e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at, e.image,e.education, e.major, e.religion,e.goverment_id, e.email, e.nationality, e.gender, e.marital_status, e.phone_number, e.address,
             d.id, d.name, d.local_name, d.code, d.manager_id, d.created_at, d.updated_at, d.active,
             j.id, j.name, j.local_name, j.code, j.description, j.created_at, j.updated_at  
         FROM employees e
@@ -80,8 +80,8 @@ func GetEmployeeById(id string) models.Employee {
 
     err := core.DB.QueryRow(query, id).Scan(
         // IMPORTANT: Scan into the ID fields, NOT the struct fields
-        &employee.ID, &employee.BadgeID, &employee.Name, &employee.Department, &employee.LocalName, 
-        &employee.JobTitle, &employee.CreatedAt, &employee.UpdatedAt, &employee.Image, &employee.Education, &employee.Major, &employee.Religion,
+        &employee.ID, &employee.BadgeID, &employee.Name, &dID, &employee.LocalName, 
+        &jID, &employee.CreatedAt, &employee.UpdatedAt, &employee.Image, &employee.Education, &employee.Major, &employee.Religion,&employee.GovermentID, &employee.Email, &employee.Nationality, &employee.Gender, &employee.MaritalStatus, &employee.PhoneNumber, &employee.Address,
         // Department scan
         &dID, &dName, &dLocal, &dCode, &dManager, &dCreated, &dUpdated, &dActive,
         // Job Title scan
@@ -141,7 +141,7 @@ func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Empl
 
 	var employees []models.Employee
 
-	query :="select id, badge_id, name, department_id, local_name, job_title_id, grade, created_at, updated_at, birth_date, active, goverment_id, image, education, major, religion FROM employees WHERE 1=1"
+	query :="select id, badge_id, name, department_id, local_name, job_title_id, grade, created_at, updated_at, birth_date, active, goverment_id, image, education, major, religion, email, nationality, gender, marital_status, phone_number, address FROM employees WHERE 1=1"
     args := []interface{}{}
 	argIndex := 1
 
@@ -205,12 +205,30 @@ func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Empl
     var deptID, jobID sql.NullString 
 
     // 2. Scan into these NullString variables
-    err := rows.Scan(
-        &e.ID, &e.BadgeID, &e.Name, &deptID, &e.LocalName, 
-        &jobID, &e.Grade, &e.CreatedAt, &e.UpdatedAt, 
-        &e.BirthDate, &e.Active, &e.GovermentID, &e.Image,
-        &e.Education, &e.Major, &e.Religion,
-    )
+   err := rows.Scan(
+    &e.ID,            // 1
+    &e.BadgeID,       // 2
+    &e.Name,          // 3
+    &deptID,          // 4
+    &e.LocalName,     // 5
+    &jobID,           // 6
+    &e.Grade,         // 7
+    &e.CreatedAt,     // 8
+    &e.UpdatedAt,     // 9
+    &e.BirthDate,     // 10
+    &e.Active,        // 11
+    &e.GovermentID,   // 12
+    &e.Image,         // 13
+    &e.Education,     // 14
+    &e.Major,         // 15
+    &e.Religion,      // 16
+    &e.Email,         // 17 (Fixed duplicate scan here)
+    &e.Nationality,   // 18
+    &e.Gender,        // 19
+    &e.MaritalStatus, // 20
+    &e.PhoneNumber,   // 21
+    &e.Address,       // 22
+)
     if err != nil {
         fmt.Printf("Scan Error: %v\n", err)
         continue
@@ -343,13 +361,13 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
         }
 
 
-        familyMemberName         := r.PostForm["familyMemberName[]"]
-        familyMemberRelationship := r.PostForm["familyMemberRelationship[]"]
+        familyMemberName          := r.PostForm["familyMemberName[]"]
+        familyMemberRelationship  := r.PostForm["familyMemberRelationship[]"]
         familyMemberContactNumber := r.PostForm["familyMemberContactNumber[]"]
         familyMemberGender        := r.PostForm["familyMemberGender[]"]
-        familyMemberGovernmentId := r.PostForm["familyMemberGovernmentId[]"]
-        familyMemberBirthDate    := r.PostForm["familyMemberBirthDate[]"]
-        familyMemberAttachment := r.MultipartForm.File["familyMemberAttachment[]"]
+        familyMemberGovernmentId  := r.PostForm["familyMemberGovernmentId[]"]
+        familyMemberBirthDate     := r.PostForm["familyMemberBirthDate[]"]
+        familyMemberAttachment    := r.MultipartForm.File["familyMemberAttachment[]"]
         
         if len(familyMemberName) > 0 {
             fmt.Printf("Received family members: %v , relationships: %v , contact numbers: %v , genders: %v ID: %v birthDate: %v files: %v\n", 
@@ -495,19 +513,19 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
             BadgeID:     badgeId,
             Grade:       grade,
             Active:      active,
-            Email:       email,
-            Nationality: nationality,
-            PhoneNumber: phoneNumber,
-            Address:       address,
-            MaritalStatus: maritalStatus,
-            Gender:          gender,
+            Email:       &email,
+            Nationality: &nationality,
+            PhoneNumber: &phoneNumber,
+            Address:       &address,
+            MaritalStatus: &maritalStatus,
+            Gender:          &gender,
             Certifications: Certifications,
             FamilyMembers: FamilyMembers,
             EmergencyContacts: EmergencyContacts,
             EmployeeDocuments: EmployeeDocuments,
-            Education: education,
-            Major: major,
-            Religion: religion,
+            Education: &education,
+            Major: &major,
+            Religion: &religion,
 
         }
 
@@ -838,4 +856,25 @@ func GetEmployeesListApi(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(employees)
+}
+
+
+
+
+func GetEmployeeDetails(w http.ResponseWriter, r *http.Request) {
+    id := r.PathValue("id")
+    fmt.Printf("Fetching details for employee ID: %s\n", id)
+
+    employee := GetEmployeeById(id)
+    if employee.ID == 0 {
+        http.Error(w, "Employee not found", http.StatusNotFound)
+        return
+    }
+
+    data := map[string]interface{}{
+        "Title": "Employee Details",
+        "Employee": employee,
+    }
+
+    core.RenderPage(w, r, "apps/employees/views/employees-details.html", data)
 }

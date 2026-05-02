@@ -27,16 +27,16 @@ type Employee struct {
     EmployeeDocuments []EmployeeDocument `v:"true"`
     GovermentID string      `f:"text"` // Iqama/ID
     Image       string      `f:"text"` 
-    Email       string      `f:"text, unique"`
-    Nationality string      `f:"text"`
-    Gender       string      `f:"text"` // "Male", "Female"
-    MaritalStatus string      `f:"text"` // "Single", "Married", "Divorced", "Widowed"
-    PhoneNumber  string      `f:"text"`
-    Address      string      `f:"text"`
-    Status       string      `f:"text"` // "Active", "On Leave", "Terminated"
-    Education    string      `f:"text"` // e.g., "Bachelor's in Computer Science"
-    Major        string      `f:"text"` // e.g., "Computer Science", "Business Administration"
-    Religion      string      `f:"text"` // e.g., "Islam", "Christianity", "Hinduism"
+    Email       *string      `f:"text, unique"`
+    Nationality *string      `f:"text"`
+    Gender       *string      `f:"text"` // "Male", "Female"
+    MaritalStatus *string      `f:"text"` // "Single", "Married", "Divorced", "Widowed"
+    PhoneNumber  *string      `f:"text"`
+    Address      *string      `f:"text"`
+    Status       *string      `f:"text"` // "Active", "On Leave", "Terminated"
+    Education    *string      `f:"text"` // e.g., "Bachelor's in Computer Science"
+    Major        *string      `f:"text"` // e.g., "Computer Science", "Business Administration"
+    Religion     *string      `f:"text"` // e.g., "Islam", "Christianity", "Hinduism"
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments
