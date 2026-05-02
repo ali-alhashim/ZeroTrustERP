@@ -131,6 +131,8 @@ type Contract struct {
     Active      bool       `f:"bool, default:true"`
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    IBAN        *string    `f:"text"` // Bank account number for salary payments
+    BankName    *string    `f:"text"` // Bank name for salary payments
 }
 
 // SalaryComponentType defines what the money is for (Housing, Transport, etc.)
@@ -217,8 +219,8 @@ type FamilyMember struct {
     ID          int        `f:"number, primary, auto"`
     Employee    *Employee  `f:"many2one:employees, notnull"`
     Name        string     `f:"text, notnull"`
-    GovernmentId string     `f:"text"`  // Iqama/ID for the family member, if applicable
-    ContactNumber string     `f:"text"`  // Phone number for the family member
+    GovernmentId *string     `f:"text"`  // Iqama/ID for the family member, if applicable
+    ContactNumber *string     `f:"text"`  // Phone number for the family member
     Relationship string     `f:"text"` // e.g., "Spouse", "Child", "Parent"
     BirthDate   time.Time  `f:"timestamp"`
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`

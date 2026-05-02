@@ -70,7 +70,7 @@ func GetEmployeeById(id string) models.Employee {
 
     query := `
         SELECT 
-            e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at, e.image,e.education, e.major, e.religion,e.goverment_id, e.email, e.nationality, e.gender, e.marital_status, e.phone_number, e.address,
+            e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at, e.image,e.education, e.major, e.religion,e.goverment_id, e.email, e.nationality, e.gender, e.marital_status, e.phone_number, e.address,e.birth_date,
             d.id, d.name, d.local_name, d.code, d.manager_id, d.created_at, d.updated_at, d.active,
             j.id, j.name, j.local_name, j.code, j.description, j.created_at, j.updated_at  
         FROM employees e
@@ -81,7 +81,7 @@ func GetEmployeeById(id string) models.Employee {
     err := core.DB.QueryRow(query, id).Scan(
         // IMPORTANT: Scan into the ID fields, NOT the struct fields
         &employee.ID, &employee.BadgeID, &employee.Name, &dID, &employee.LocalName, 
-        &jID, &employee.CreatedAt, &employee.UpdatedAt, &employee.Image, &employee.Education, &employee.Major, &employee.Religion,&employee.GovermentID, &employee.Email, &employee.Nationality, &employee.Gender, &employee.MaritalStatus, &employee.PhoneNumber, &employee.Address,
+        &jID, &employee.CreatedAt, &employee.UpdatedAt, &employee.Image, &employee.Education, &employee.Major, &employee.Religion,&employee.GovermentID, &employee.Email, &employee.Nationality, &employee.Gender, &employee.MaritalStatus, &employee.PhoneNumber, &employee.Address, &employee.BirthDate,
         // Department scan
         &dID, &dName, &dLocal, &dCode, &dManager, &dCreated, &dUpdated, &dActive,
         // Job Title scan
@@ -128,7 +128,47 @@ func GetEmployeeById(id string) models.Employee {
         }
     }
 
+    var familyMembers []models.FamilyMember
+    familyMembers = GetEmployeeFamilyMembers(id)
+    employee.FamilyMembers = familyMembers
     return employee
+}
+
+
+func GetEmployeeFamilyMembers(employeeId string) []models.FamilyMember {
+
+    var familyMembers []models.FamilyMember
+    query := `SELECT id, employee_id, name, relationship, contact_number, government_id, birth_date, file_path FROM family_members WHERE employee_id = $1`
+
+    rows, err := core.DB.Query(query, employeeId)
+    if err != nil {
+        fmt.Printf("Database error: %v\n", err)
+        return familyMembers
+    }
+    defer rows.Close()
+
+    var EmployeeID int
+
+    for rows.Next() {
+        var fm models.FamilyMember
+        err := rows.Scan(
+            &fm.ID,
+            &EmployeeID,
+            &fm.Name,
+            &fm.Relationship,
+            &fm.ContactNumber,
+            &fm.GovernmentId,
+            &fm.BirthDate,
+            &fm.FilePath,
+        )
+        if err != nil {
+            fmt.Printf("Scan error: %v\n", err)
+            continue
+        }
+        familyMembers = append(familyMembers, fm)
+    }
+
+    return familyMembers
 }
 
 
@@ -393,8 +433,8 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
                     familyMember := models.FamilyMember{
                         Name:          familyMemberName[i],
                         Relationship:  familyMemberRelationship[i],
-                        ContactNumber: familyMemberContactNumber[i],
-                        GovernmentId:  familyMemberGovernmentId[i],
+                        ContactNumber: &familyMemberContactNumber[i],
+                        GovernmentId:  &familyMemberGovernmentId[i],
                         BirthDate:     birthDateParsed,
                         FilePath:      familyFilePath,
                     }
