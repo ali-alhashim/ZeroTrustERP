@@ -77,8 +77,9 @@ Count Records: {{.TotalRecords}}
 
             <td>
                 {{if .RelatedEmployee}}
-                
+                 <a href="/employees/details/{{.RelatedEmployee.ID}}" class="btn ">
                {{.RelatedEmployee.BadgeID}} - {{.RelatedEmployee.Name}} - {{.RelatedEmployee.LocalName}}
+                </a>
                 {{else}}
                 None
                 {{end}}

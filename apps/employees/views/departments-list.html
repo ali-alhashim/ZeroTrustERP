@@ -67,7 +67,9 @@
 
                     <td>
                         {{if .Manager}}
-                       {{.Manager.ID}} {{.Manager.Name}} - {{.Manager.BadgeID}}
+                        <a href="/employees/details/{{.Manager.ID}}" class="btn ">
+                        {{.Manager.ID}} {{.Manager.Name}} - {{.Manager.BadgeID}}
+                        </a>
                         {{else}}
                         N/A
                         {{end}}

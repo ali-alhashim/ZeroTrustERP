@@ -70,7 +70,7 @@ func GetEmployeeById(id string) models.Employee {
 
     query := `
         SELECT 
-            e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at, e.image,
+            e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at, e.image,e.education, e.major, e.religion,
             d.id, d.name, d.local_name, d.code, d.manager_id, d.created_at, d.updated_at, d.active,
             j.id, j.name, j.local_name, j.code, j.description, j.created_at, j.updated_at  
         FROM employees e
@@ -81,7 +81,7 @@ func GetEmployeeById(id string) models.Employee {
     err := core.DB.QueryRow(query, id).Scan(
         // IMPORTANT: Scan into the ID fields, NOT the struct fields
         &employee.ID, &employee.BadgeID, &employee.Name, &employee.Department, &employee.LocalName, 
-        &employee.JobTitle, &employee.CreatedAt, &employee.UpdatedAt, &employee.Image,
+        &employee.JobTitle, &employee.CreatedAt, &employee.UpdatedAt, &employee.Image, &employee.Education, &employee.Major, &employee.Religion,
         // Department scan
         &dID, &dName, &dLocal, &dCode, &dManager, &dCreated, &dUpdated, &dActive,
         // Job Title scan
@@ -141,7 +141,7 @@ func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Empl
 
 	var employees []models.Employee
 
-	query :="select id, badge_id, name, department_id, local_name, job_title_id, grade, created_at, updated_at, birth_date, active, goverment_id, image FROM employees WHERE 1=1"
+	query :="select id, badge_id, name, department_id, local_name, job_title_id, grade, created_at, updated_at, birth_date, active, goverment_id, image, education, major, religion FROM employees WHERE 1=1"
     args := []interface{}{}
 	argIndex := 1
 
@@ -209,6 +209,7 @@ func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Empl
         &e.ID, &e.BadgeID, &e.Name, &deptID, &e.LocalName, 
         &jobID, &e.Grade, &e.CreatedAt, &e.UpdatedAt, 
         &e.BirthDate, &e.Active, &e.GovermentID, &e.Image,
+        &e.Education, &e.Major, &e.Religion,
     )
     if err != nil {
         fmt.Printf("Scan Error: %v\n", err)
@@ -269,6 +270,9 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
         maritalStatus := r.PostFormValue("maritalStatus")
         phoneNumber  := r.PostFormValue("phoneNumber")
         address      := r.PostFormValue("address")
+        education     := r.PostFormValue("education")
+        religion      := r.PostFormValue("religion")
+        major         := r.PostFormValue("major")
 
 
         var Certifications    []models.Certification
@@ -501,6 +505,9 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
             FamilyMembers: FamilyMembers,
             EmergencyContacts: EmergencyContacts,
             EmployeeDocuments: EmployeeDocuments,
+            Education: education,
+            Major: major,
+            Religion: religion,
 
         }
 
@@ -627,8 +634,8 @@ func InsertEmployeeToDB(employee models.Employee, img image.Image) error {
         INSERT INTO employees (
             badge_id, name, department_id, local_name, 
             job_title_id, grade, birth_date, active, 
-            goverment_id, image, email, nationality, gender, marital_status, phone_number, address
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING id`
+            goverment_id, image, email, nationality, gender, marital_status, phone_number, address, education, major, religion
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) RETURNING id`
 
     var newID int
     err := core.DB.QueryRow(query, 
@@ -648,6 +655,9 @@ func InsertEmployeeToDB(employee models.Employee, img image.Image) error {
         employee.MaritalStatus,
         employee.PhoneNumber,
         employee.Address,
+        employee.Education,
+        employee.Major,
+        employee.Religion,
     ).Scan(&newID)
 
     if err != nil {

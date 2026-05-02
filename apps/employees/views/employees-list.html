@@ -61,7 +61,11 @@
             <tbody>
                 {{range .Employees}}
                 <tr>
-                     <td>{{.ID}}</td>
+                     <td>
+                        <a href="/employees/details/{{.ID}}" class="btn btn-id">
+                        {{.ID}}
+                        </a>
+                      </td>
                     <td>
                         <img {{if .Image}}src="{{.Image}}" {{else}} src="/static/icons/userCircle.svg"  {{end}} class="employee-photo" width="90">
                        
@@ -69,7 +73,7 @@
                    
 
                     <td>
-                        <a href="/employees/details/{{.BadgeID}}" class="btn btn-id">{{.BadgeID}}</a>
+                        {{.BadgeID}}
                        
                     </td>
 
