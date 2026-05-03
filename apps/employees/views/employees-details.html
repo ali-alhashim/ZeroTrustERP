@@ -1,150 +1,302 @@
 {{define "content"}}
-<div class="employee-card">
-    <div class="card-header">
-        <div class="profile-image">
-            {{if .Employee.Image}}
-                <img src="../{{.Employee.Image}}" alt="{{.Employee.Name}}">
+<form method="POST" action="/employees/update/{{.Employee.ID}}" enctype="multipart/form-data">
+
+<table>
+    <tr>
+        <td>Image</td>
+        <td>
+             {{if .Employee.Image}}
+                <img src="../{{.Employee.Image}}" alt="{{.Employee.Name}}" width="150">
+                <input type="file" name="img" style="display: none;" id="imgInput">
             {{else}}
-                <div class="image-placeholder">{{slice .Employee.Name 0 1}}</div>
+                {{slice .Employee.Name 0 1}}
             {{end}}
-        </div>
-        <div class="header-text">
-            <h2>{{.Employee.Name}}</h2>
-            <div class="sub-header">{{.Employee.LocalName}}</div>
-            <div class="badges">
-                {{if .Employee.Department}}<span class="badge">{{.Employee.Department.Name}}</span>{{end}}
-                {{if .Employee.JobTitle}}<span class="badge">{{.Employee.JobTitle.Name}}</span>{{end}}
-            </div>
-        </div>
-    </div>
+        </td>
+    </tr>
 
-    <div class="card-body">
-        <div class="section-title">Personal Information</div>
-        <div class="info-grid">
-            {{/* Grouping logical fields */}}
-            <div class="info-item"><label>Email</label><span><a href="mailto:{{.Employee.Email}}">{{.Employee.Email}}</a></span></div>
-            <div class="info-item"><label>Phone</label><span>{{.Employee.PhoneNumber}}</span></div>
-            <div class="info-item"><label>Birth Date</label><span>{{.Employee.BirthDate.Format "2006-01-02"}}</span></div>
-            <div class="info-item"><label>Nationality</label><span>{{.Employee.Nationality}}</span></div>
-            <div class="info-item"><label>Gender</label><span>{{.Employee.Gender}}</span></div>
-            <div class="info-item"><label>Marital Status</label><span>{{.Employee.MaritalStatus}}</span></div>
-        </div>
+    <tr>
+        <td>Name</td>
+        <td><input type="text" name="name" value="{{.Employee.Name}}"></td>
+    </tr>
 
-        <div class="section-title">Professional Details</div>
-        <div class="info-grid">
-            <div class="info-item"><label>Badge ID</label><span>{{if .Employee.BadgeID}}{{.Employee.BadgeID}}{{else}}-{{end}}</span></div>
-            <div class="info-item"><label>System ID</label><span>{{.Employee.ID}}</span></div>
-            <div class="info-item"><label>Status</label><span>{{.Employee.Status}}</span></div>
-            <div class="info-item"><label>Education</label><span>{{if .Employee.Education}}{{.Employee.Education}}{{else}}-{{end}}</span></div>
-            <div class="info-item"><label>Major</label><span>{{if .Employee.Major}}{{.Employee.Major}}{{else}}-{{end}}</span></div>
-        </div>
+        <tr>
+            <td>Local Name</td>
+            <td><input type="text" name="localName" value="{{.Employee.LocalName}}"></td>   
+        </tr>
 
-        <div class="section-title">Family Members</div>
+
+        <tr>
+            <td>Education</td>
+            <td><input type="text" name="education" value="{{.Employee.Education}}"></td>
+        </tr>
+
+        <tr>
+            <td>Major</td>
+            <td><input type="text" name="major" value="{{.Employee.Major}}"></td>
+        </tr>
+
+            <tr>
+                <td>Department</td>
+                <td>
+                    <select name="department" id="department">
+                    {{if .Employee.Department}}
+                    <option value="{{.Employee.Department.ID}}" selected>{{.Employee.Department.Name}}</option>
+                    {{end}}
+                    </select>
+                </td>
+            </tr>
+
+                <tr>
+                    <td>Job Title</td>
+                    <td>
+                        <select name="jobTitle" id="jobTitle">
+                        {{if .Employee.JobTitle}}
+                       <option value="{{.Employee.JobTitle.ID}}" selected>{{.Employee.JobTitle.Name}}</option>
+                        {{end}}
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Badge ID</td>
+                    <td>{{.Employee.BadgeID}}</td>
+                </tr>
+
+                <tr>
+                    <td>System ID</td>
+                    <td>{{.Employee.ID}}</td>
+                </tr>
+
+                <tr>
+                    <td>Status</td>
+                    <td><input type="text" name="status" value="{{.Employee.Status}}"></td>
+                </tr>
+
+                <tr>
+                    <td>Email</td>
+                    <td><input type="email" name="email" value="{{.Employee.Email}}"></td>
+                </tr>
+                    <tr>
+                        <td>Phone</td>
+                        <td><input type="text" name="phone" value="{{.Employee.PhoneNumber}}"></td> 
+                    </tr>
+                        <tr>
+                            <td>Birth Date</td>
+                            <td><input type="date" name="birthDate" value="{{.Employee.BirthDate.Format "2006-01-02"}}"></td>
+                        </tr>
+                            <tr>
+                                <td>Nationality</td>
+                                <td>
+                                    <select name="nationality" id="nationality">
+                                    <option value="{{.Employee.Nationality}}">{{.Employee.Nationality}}</option>    
+                                </select>
+                                </td>
+                            </tr>
+                                <tr>
+                                    <td>
+                                        Gender
+                                    </td>
+                                    <td>
+                                        <select name="gender">
+                                             <option value="{{.Employee.Gender}}">{{.Employee.Gender}}</option>
+                                          <option value="Male">Male       </option>   
+                                            <option value="Female">Female     </option>
+                                            <option value="Other">Other       </option>
+                                            </select>
+
+                                    </td>
+                                </tr>
+
+                                    <tr>
+                                        <td>Marital Status</td>
+                                        <td>
+                                        <select name="maritalStatus">
+                                            <option value="{{.Employee.MaritalStatus}}">{{.Employee.MaritalStatus}}</option>
+
+                                             <option value="Single">Single     </option>   
+                                            <option value="Married">Married   </option>
+                                            <option value="Divorced">Divorced </option>
+                                            <option value="Widowed">Widowed   </option>
+
+                                        </select>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Created Date</td>
+                                        <td>{{.Employee.CreatedAt.Format "2006-01-02"}}</td>
+                                    </tr>
+
+
+
+</table>       
+           
+      
+
+  
+
+        
+
+
+
+
+
+
+
+
+
+         <h4>Certifications</h4>
+        {{if .Employee.Certifications}}
+          
+                {{range .Employee.Certifications}}
+                   <table>
+                       <thead>
+                           <tr>
+                               <th>ID</th>
+                               <th >Name</th>
+                               <th >Issuer</th>
+                               <th >IssueDate</th>
+                               <th >ExpiryDate</th>
+                               <th >Attachment</th>
+                           </tr>    
+                          </thead>
+                          <tbody id="tbody_Certifications">
+                            <tr>
+                                 <td >{{.ID}}</td>
+                                 <td >{{.Name}}</td>
+                                 <td >{{.Issuer}}</td>
+                                 <td >{{.IssueDate.Format "2006-01-02"}}</td>
+                                 <td >{{.ExpiryDate.Format "2006-01-02"}}</td>
+                                 <td >{{if .FilePath}}<a href="../{{.FilePath}}" target="_blank">View</a>{{else}}-{{end}}</td>
+                            </tr>
+                    </table>
+                {{end}}
+            
+        {{else}}
+            <p>No Certifications listed.</p>
+        {{end}}
+
+        <hr>
+        <button type="button" class="btn">Add</button>
+
+
+
+
+
+
+
+        <h4>Family Members</h4>
         {{if .Employee.FamilyMembers}}
-            <div>
+           
                 {{range .Employee.FamilyMembers}}
                    <table style="width: 100%; border-collapse: collapse;">
                        <thead>
                            <tr>
-                               <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Name</th>
-                               <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Relationship</th>
-                               <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Birth Date</th>
-                               <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Contact Number</th>
-                               <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Government ID</th>
-                               <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Attachment</th>
+                               <th >Name</th>
+                               <th >Relationship</th>
+                               <th >Birth Date</th>
+                               <th >Contact Number</th>
+                               <th >Government ID</th>
+                               <th >Attachment</th>
                            </tr>    
                           </thead>
                           <tbody>
                             <tr>
-                                 <td style="border: 1px solid #ddd; padding: 8px;">{{.Name}}</td>
-                                 <td style="border: 1px solid #ddd; padding: 8px;">{{.Relationship}}</td>
-                                 <td style="border: 1px solid #ddd; padding: 8px;">{{.BirthDate.Format "2006-01-02"}}</td>
-                                 <td style="border: 1px solid #ddd; padding: 8px;">{{.ContactNumber}}</td>
-                                 <td style="border: 1px solid #ddd; padding: 8px;">{{.GovernmentId}}</td>
-                                 <td style="border: 1px solid #ddd; padding: 8px;">{{if .FilePath}}<a href="../{{.FilePath}}" target="_blank">View</a>{{else}}-{{end}}</td>
+                                 <td >{{.Name}}</td>
+                                 <td >{{.Relationship}}</td>
+                                 <td >{{.BirthDate.Format "2006-01-02"}}</td>
+                                 <td >{{.ContactNumber}}</td>
+                                 <td >{{.GovernmentId}}</td>
+                                 <td >{{if .FilePath}}<a href="../{{.FilePath}}" target="_blank">View</a>{{else}}-{{end}}</td>
                             </tr>
                     </table>
                 {{end}}
-            </div>
+          
         {{else}}
             <p>No family members listed.</p>
         {{end}}
 
+        <hr>
+        <button type="button" class="btn">Add</button>
 
-    </div><!-- /.card-body -->
-</div>
 
-<style>
-    .employee-card {
-        background: #fff;
-        border: 1px solid #dcdcdc;
-        max-width: 700px;
-        margin: 40px auto;
-       
-    }
 
-    .card-header {
-        background-color: #f8f9fa;
-        border-bottom: 3px solid #006037; /* Signature professional green */
-        padding: 20px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
 
-    .profile-image img, .image-placeholder {
-        width: 150px;
-       
-        border-radius: 4px;
-        background: #e0e0e0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 32px;
-    }
 
-    .header-text h2 { margin: 0; color: #333; font-size: 1.4rem; }
-    .sub-header { color: #666; font-size: 1rem; margin-bottom: 8px; }
 
-    .badge {
-        background: #e9ecef;
-        color: #495057;
-        padding: 2px 10px;
-        font-size: 0.75rem;
-        border: 1px solid #ced4da;
-        margin-right: 5px;
-    }
+          <h4>Emergency Contacts</h4>
+        {{if .Employee.EmergencyContacts}}
+          
+                {{range .Employee.EmergencyContacts}}
+                   <table >
+                       <thead>
+                           <tr>
+                               <th>ID</th>
+                               <th>Name</th>
+                               <th>Relationship</th>
+                               <th>Phone</th>
+                           
+                           </tr>    
+                          </thead>
+                          <tbody id="tbody_Certifications">
+                            <tr>
+                                 <td >{{.ID}}</td>
+                                 <td >{{.Name}}</td>
+                                 <td >{{.Relationship}}</td>
+                                 <td >{{.Phone}}</td>
+                                
+                            </tr>
+                    </table>
+                {{end}}
+           
+        {{else}}
+            <p>No Emergency Contacts listed.</p>
+        {{end}}
 
-    .card-body { padding: 25px; }
+        <hr>
+        <button type="button" class="btn">Add</button>
 
-    .section-title {
-        font-size: 0.9rem;
-        font-weight: bold;
-        color: #006037;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 5px;
-        margin-bottom: 15px;
-        margin-top: 20px;
-    }
 
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr); /* 3 column layout for more formal look */
-        gap: 15px;
-    }
 
-    .info-item label {
-        display: block;
-        color: #888;
-        font-size: 0.7rem;
-        margin-bottom: 2px;
-    }
 
-    .info-item span {
-        color: #333;
-        font-size: 0.9rem;
-    }
 
-    .info-item a { color: #006037; text-decoration: none; }
-</style>
+
+          <h4>Documents</h4>
+        {{if .Employee.EmployeeDocuments}}
+           
+                {{range .Employee.EmployeeDocuments}}
+                   <table>
+                       <thead>
+                           <tr>
+                               <th >ID</th>
+                               <th >Name</th>
+                               <th >Type</th>
+                               <th >Attachment</th>
+                               <th >Expiry Date</th>
+                           
+                           </tr>    
+                          </thead>
+                          <tbody id="tbody_Certifications">
+                            <tr>
+                                 <td >{{.ID}}</td>
+                                 <td >{{.Name}}</td>
+                                 <td >{{.Type}}</td>
+                                 <td >{{.FilePath}}</td>
+                                 <td >{{.ExpiryDate.Format "2006-01-02"}}</td>
+                                
+                            </tr>
+                    </table>
+                {{end}}
+           
+        {{else}}
+            <p>No Documents listed.</p>
+        {{end}}
+
+        <hr>
+        <button type="button" class="btn">Add</button>
+
+
+   
+</form>
+
 {{end}}

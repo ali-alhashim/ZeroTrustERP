@@ -129,11 +129,121 @@ func GetEmployeeById(id string) models.Employee {
     }
 
     var familyMembers []models.FamilyMember
+    var certifications []models.Certification
+    var emergencyContacts []models.EmergencyContact
+    var employeeDocuments []models.EmployeeDocument
+    
     familyMembers = GetEmployeeFamilyMembers(id)
+    certifications = GetEmployeeCertifications(id)
+    emergencyContacts = GetEmployeeEmergencyContacts(id)
+    employeeDocuments = GetEmployeeDocuments(id)
+
     employee.FamilyMembers = familyMembers
+    employee.Certifications = certifications
+    employee.EmergencyContacts = emergencyContacts
+    employee.EmployeeDocuments = employeeDocuments
     return employee
 }
 
+func GetEmployeeDocuments(employeeId string) []models.EmployeeDocument {
+    var employeeDocuments []models.EmployeeDocument
+    query := `SELECT id, employee_id, name, type, expiry_date, file_path FROM employee_documents WHERE employee_id = $1`
+
+    rows, err := core.DB.Query(query, employeeId)
+    if err != nil {
+        fmt.Printf("Database error: %v\n", err)
+        return employeeDocuments
+    }
+    defer rows.Close()
+
+    var EmployeeID int
+
+    for rows.Next() {
+        var doc models.EmployeeDocument
+        err := rows.Scan(
+            &doc.ID,
+            &EmployeeID,
+            &doc.Name,
+            &doc.Type,
+            &doc.ExpiryDate,
+            &doc.FilePath,
+        )
+        if err != nil {
+            fmt.Printf("Scan error: %v\n", err)
+            continue
+        }
+        employeeDocuments = append(employeeDocuments, doc)
+    }
+
+    return employeeDocuments
+}
+
+func GetEmployeeEmergencyContacts(employeeId string) []models.EmergencyContact {
+    var emergencyContacts []models.EmergencyContact
+    query := `SELECT id, employee_id, name, relationship, phone FROM emergency_contacts WHERE employee_id = $1` 
+
+    rows, err := core.DB.Query(query, employeeId)
+    if err != nil {
+        fmt.Printf("Database error: %v\n", err)
+        return emergencyContacts
+    }
+    defer rows.Close()
+
+    var EmployeeID int
+
+    for rows.Next() {
+        var ec models.EmergencyContact
+        err := rows.Scan(
+            &ec.ID,
+            &EmployeeID,
+            &ec.Name,
+            &ec.Relationship,
+            &ec.Phone,
+        )
+        if err != nil {
+            fmt.Printf("Scan error: %v\n", err)
+            continue
+        }
+        emergencyContacts = append(emergencyContacts, ec)
+    }
+
+    return emergencyContacts
+}
+
+
+func GetEmployeeCertifications(employeeId string) []models.Certification {
+    var certifications []models.Certification
+    query := `SELECT id, employee_id, name, issuer, issue_date, expiry_date, file_path FROM certifications WHERE employee_id = $1`
+
+    rows, err := core.DB.Query(query, employeeId)
+    if err != nil {
+        fmt.Printf("Database error: %v\n", err)
+        return certifications
+    }
+    defer rows.Close()
+
+    var EmployeeID int
+
+    for rows.Next() {
+        var cert models.Certification
+        err := rows.Scan(
+            &cert.ID,
+            &EmployeeID,
+            &cert.Name,
+            &cert.Issuer,
+            &cert.IssueDate,
+            &cert.ExpiryDate,
+            &cert.FilePath,
+        )
+        if err != nil {
+            fmt.Printf("Scan error: %v\n", err)
+            continue
+        }
+        certifications = append(certifications, cert)
+    }
+
+    return certifications
+}
 
 func GetEmployeeFamilyMembers(employeeId string) []models.FamilyMember {
 
