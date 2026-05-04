@@ -24,6 +24,11 @@
                 "name": "Contract",
                 "path": "/employees/contract",
                 "icon": "contract"
+              },
+                {
+                "name": "Payroll",
+                "path": "/employees/payroll",
+                "icon": "SAR"
               }
               
   

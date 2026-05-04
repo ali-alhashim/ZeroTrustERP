@@ -1,5 +1,38 @@
 {{define "content"}}
+
+<hr>
+<div class="tool-bar">
+        <a href="/employees" class="btn btn-secondary">Calender</a>
+
+        <a href="/employees" class="btn btn-secondary">Tasks</a>
+
+        <a href="/employees" class="btn btn-secondary">Contracts</a>
+
+        <a href="/employees" class="btn btn-secondary">Payslips</a>
+
+        <a href="/employees" class="btn btn-secondary">Performance</a>
+
+        
+
+       
+
+        
+
+        <a href="/employees" class="btn btn-secondary">Training</a>
+
+           
+
+        <a href="/employees" class="btn btn-secondary">Onboarding</a>
+
+        <a href="/employees" class="btn btn-secondary">Offboarding</a>
+</div>
+<hr>
+
+
+
 <form method="POST" action="/employees/update/{{.Employee.ID}}" enctype="multipart/form-data">
+
+    
 
 <table>
     <tr>
@@ -69,7 +102,7 @@
 
                 <tr>
                     <td>Status</td>
-                    <td><input type="text" name="status" value="{{.Employee.Status}}"></td>
+                    <td><input type="text" name="status" value="{{.Employee.Status}}" readonly></td>
                 </tr>
 
                 <tr>
@@ -89,9 +122,36 @@
                                 <td>
                                     <select name="nationality" id="nationality">
                                     <option value="{{.Employee.Nationality}}">{{.Employee.Nationality}}</option>    
+                                       <option value="Saudi">Saudi</option>
+                                        <option value="Egyptian">Egyptian</option>
+                                        <option value="Jordanian">Jordanian</option>
+                                        <option value="Syrian">Syrian</option>
+                                        <option value="Lebanese">Lebanese</option>
+                                        <option value="Iraqi">Iraqi</option>
+                                        <option value="Indian">Indian</option>
+                                        <option value="Pakistani">Pakistani</option>
+                                        <option value="Filipino">Filipino</option>
+                                        <option value="Bangladeshi">Bangladeshi</option>
+                                        <option value="Sudanese">Sudanese</option>
                                 </select>
                                 </td>
                             </tr>
+
+
+                            <tr>
+            <td>Religion</td>
+            <td>
+                <select name="religion">
+                    <option value="{{.Employee.Religion}}">{{.Employee.Religion}}</option>
+                    <option value="Islam">Islam</option>
+                    <option value="Christianity">Christianity</option>
+                    <option value="Hinduism">Hinduism</option>
+                    <option value="Buddhism">Buddhism</option>
+                    <option value="Judaism">Judaism</option>
+                    <option value="Other">Other</option>
+                </select>
+            </td>
+        </tr>
                                 <tr>
                                     <td>
                                         Gender
@@ -177,7 +237,7 @@
         {{end}}
 
         <hr>
-        <button type="button" class="btn">Add</button>
+        <button type="button" class="btn btn-secondary">Add</button>
 
 
 
@@ -217,7 +277,7 @@
         {{end}}
 
         <hr>
-        <button type="button" class="btn">Add</button>
+        <button type="button" class="btn btn-secondary">Add</button>
 
 
 
@@ -254,7 +314,7 @@
         {{end}}
 
         <hr>
-        <button type="button" class="btn">Add</button>
+        <button type="button" class="btn btn-secondary">Add</button>
 
 
 
@@ -293,9 +353,13 @@
         {{end}}
 
         <hr>
-        <button type="button" class="btn">Add</button>
+        <button type="button" class="btn btn-secondary">Add</button>
 
 
+
+
+        <hr>
+        <button type="submit" class="btn btn-primary">Save</button>
    
 </form>
 

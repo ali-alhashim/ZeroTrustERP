@@ -25,6 +25,12 @@ type Employee struct {
     EmergencyContacts []EmergencyContact `v:"true"`
     FamilyMembers     []FamilyMember `v:"true"`
     EmployeeDocuments []EmployeeDocument `v:"true"`
+    OnboardingProcesses []OnboardingProcess `v:"true"`
+    OffboardingProcesses []OffboardingProcess `v:"true"`
+    PerformanceReviews []PerformanceReview `v:"true"`
+    TrainingSessions   []Training `v:"true"`  
+    Tasks              []Task `v:"true"`
+    CalendarEvents     []CalendarEvent `v:"true"`
     GovermentID string      `f:"text"` // Iqama/ID
     Image       string      `f:"text"` 
     Email       *string      `f:"text, unique"`
@@ -239,3 +245,70 @@ type EmployeeDocument struct {
     UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
 }
 
+type OnboardingProcess struct {
+    ID          int        `f:"number, primary, auto"`
+    Employee    *Employee  `f:"many2one:employees, notnull"`
+    StepName    string     `f:"text, notnull"` // e.g., "Document Submission", "Orientation", "Training"
+    Status      string     `f:"text"`         // e.g., "Pending", "Completed", "In Progress"
+    DueDate     time.Time  `f:"timestamp"`    // Deadline for completing this step
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+}
+
+type OffboardingProcess struct {
+    ID          int        `f:"number, primary, auto"`
+    Employee    *Employee  `f:"many2one:employees, notnull"`
+    StepName    string     `f:"text, notnull"` // e.g., "Exit Interview", "Asset Return", "Final Settlement"
+    Status      string     `f:"text"`         // e.g., "Pending", "Completed", "In Progress"
+    DueDate     time.Time  `f:"timestamp"`    // Deadline for completing this step
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+}
+
+
+type Training struct {
+    ID          int        `f:"number, primary, auto"`
+    Employee    *Employee  `f:"many2one:employees, notnull"`
+    Name        string     `f:"text, notnull"` // e.g., "Safety Training", "Leadership Workshop"
+    Description string     `f:"text"`         // Details about the training
+    Date        time.Time  `f:"timestamp"`    // Date of the training session
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+}
+
+
+type PerformanceReview struct {
+    ID          int        `f:"number, primary, auto"`
+    Employee    *Employee  `f:"many2one:employees, notnull"`
+    Reviewer    *Employee  `f:"many2one:employees"` // The person conducting the review
+    Date        time.Time  `f:"timestamp"`          // Date of the review
+    Rating      int        `f:"number"`             // e.g., 1-5 rating
+    Comments    string     `f:"text"`               // Feedback and notes from the review
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+}
+
+
+type Task struct {
+    ID          int        `f:"number, primary, auto"`
+    Employee    *Employee  `f:"many2one:employees, notnull"`
+    Title       string     `f:"text, notnull"` // e.g., "Complete Onboarding Paperwork"
+    Description string     `f:"text"`         // Details about the task
+    DueDate     time.Time  `f:"timestamp"`    // Deadline for the task
+    Status      string     `f:"text"`         // e.g., "Pending", "Completed", "In Progress"
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+}
+
+
+
+type CalendarEvent struct {
+    ID          int        `f:"number, primary, auto"`
+    Employee    *Employee  `f:"many2one:employees, notnull"`
+    Title       string     `f:"text, notnull"` // e.g., "Team Meeting", "Performance Review"
+    Description string     `f:"text"`         // Details about the event
+    StartTime   time.Time  `f:"timestamp"`    // Event start time
+    EndTime     time.Time  `f:"timestamp"`    // Event end time
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+}
