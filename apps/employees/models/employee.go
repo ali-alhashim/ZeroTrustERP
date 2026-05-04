@@ -69,14 +69,24 @@ type Department struct {
     Active      bool       `f:"bool, default:true"`
 }
 
+type ExDepartment struct {
+    ID            int        `f:"number, primary, auto"`
+    Department   *Department `f:"many2one:departments"`
+    Employee     *Employee  `f:"many2one:employees"`
+    CreatedAt    time.Time `f:"timestamp, default:current_timestamp"`
+    UpdatedAt    time.Time `f:"timestamp, default:current_timestamp"`
+    StartDate    time.Time  `f:"timestamp"` // When the employee started in this department
+    EndDate      time.Time  `f:"timestamp"` // When the employee left this department 
+}
+
 // ExManagerDepartment is a join table to track historical manager assignments for departments
 type ExManagerDepartment struct {
     ID         int        `f:"number, primary, auto"`
     Employee   *Employee  `f:"many2one:employees"`
     Department *Department `f:"many2one:departments"`
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
-    FromDate       time.Time `f:"timestamp,"`
-    ToDate         time.Time `f:"timestamp,"`
+    StartDate       time.Time `f:"timestamp,"`
+    EndDate         time.Time `f:"timestamp,"`
 }
 
 // is a join table to track historical jobtitle
@@ -85,8 +95,8 @@ type ExJobTitle struct {
     Employee   *Employee   `f:"many2one:employees"`
     JobTitle   *JobTitle   `f:"many2one:job_titles"`
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
-    FromDate       time.Time   `f:"timestamp,"`
-    ToDate         time.Time   `f:"timestamp,"`
+    StartDate       time.Time   `f:"timestamp,"`
+    EndDate         time.Time   `f:"timestamp,"`
 }
 
 type JobTitle struct {

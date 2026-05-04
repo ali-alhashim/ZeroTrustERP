@@ -40,10 +40,12 @@
         <td>
              {{if .Employee.Image}}
                 <img src="../{{.Employee.Image}}" alt="{{.Employee.Name}}" width="150">
-                <input type="file" name="img" style="display: none;" id="imgInput">
+               
             {{else}}
                 {{slice .Employee.Name 0 1}}
             {{end}}
+
+             <input type="file" name="img" style="display: none;" id="imgInput">
         </td>
     </tr>
 
@@ -71,7 +73,7 @@
             <tr>
                 <td>Department</td>
                 <td>
-                    <select name="department" id="department">
+                    <select name="departmentId" id="departmentId" class="select-search">
                     {{if .Employee.Department}}
                     <option value="{{.Employee.Department.ID}}" selected>{{.Employee.Department.Name}}</option>
                     {{end}}
@@ -82,7 +84,7 @@
                 <tr>
                     <td>Job Title</td>
                     <td>
-                        <select name="jobTitle" id="jobTitle">
+                        <select name="jobTitleId" id="jobTitle" class="select-search">
                         {{if .Employee.JobTitle}}
                        <option value="{{.Employee.JobTitle.ID}}" selected>{{.Employee.JobTitle.Name}}</option>
                         {{end}}
@@ -362,5 +364,45 @@
         <button type="submit" class="btn btn-primary">Save</button>
    
 </form>
+
+
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const departmentSelect = document.querySelector('select[name="departmentId"]');
+        const jobTitleSelect = document.querySelector('select[name="jobTitleId"]');
+
+        // Fetch departments and populate the select
+        fetch('/api/departments/list')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Departments data:', data); // Debugging log
+                data.forEach(department => {
+                    const option = document.createElement('option');
+                    option.value = department.ID;
+                    option.textContent ="(" + department.Code + ") " + department.Name + " (" + department.LocalName + ") - " + department.ID;
+                    departmentSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching departments:', error));
+
+        // Fetch job titles and populate the select
+        fetch('/api/job-titles/list')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(jobTitle => {
+                    console.log('Job Title:', jobTitle); // Debugging log
+                    const option = document.createElement('option');
+                    option.value = jobTitle.ID;
+                    option.textContent = jobTitle.Name + " (" + jobTitle.LocalName + ") - " + jobTitle.ID;
+                    jobTitleSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching job titles:', error));
+    });
+</script>
 
 {{end}}

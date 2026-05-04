@@ -1028,3 +1028,127 @@ func GetEmployeeDetails(w http.ResponseWriter, r *http.Request) {
 
     core.RenderPage(w, r, "apps/employees/views/employees-details.html", data)
 }
+
+
+func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
+
+    fmt.Printf("Received %s request for updating employee\n", r.Method)
+
+    if r.Method == http.MethodPost {
+    id := r.PathValue("id")
+    fmt.Printf("Updating employee ID: %s\n", id)
+
+    employee := GetEmployeeById(id)
+
+    fmt.Printf("Current employee details: %+v\n", employee)
+
+    
+    departmentId := r.PostFormValue("departmentId")
+    jobTitleId := r.PostFormValue("jobTitleId")
+
+    fmt.Printf("Received update data - Department ID: %s, Job Title ID: %s\n", departmentId, jobTitleId)
+
+    var theDepartment *models.Department
+    var theJobTitle   *models.JobTitle
+
+    if departmentId != "0" && departmentId != "" {
+        dept := GetDepartmentById(departmentId)
+        if dept.ID != 0 {
+            theDepartment = &dept
+        }
+    }
+
+    if jobTitleId != "0" && jobTitleId != "" {
+        job := GetJobTitleById(jobTitleId)
+        if job.ID != 0 {
+            theJobTitle = &job
+        }
+    }
+
+    //we need to check if the department or job has been updated not the same as old value if new value then we need to update
+    // ExJobTitle & 
+
+    if employee.Department != nil && theDepartment != nil {
+        if employee.Department.ID != theDepartment.ID {
+            fmt.Printf("Department changed from %s to %s\n", employee.Department.Name, theDepartment.Name)
+        } else {
+            fmt.Printf("Department remains unchanged: %s\n", employee.Department.Name)
+        }
+    } else if employee.Department == nil && theDepartment != nil {
+        fmt.Printf("Department set to %s\n", theDepartment.Name)
+    } else if employee.Department != nil && theDepartment == nil {
+        fmt.Printf("Department cleared from %s\n", employee.Department.Name)
+    } else {
+        fmt.Println("Department remains unchanged: nil")
+    }
+
+    if employee.JobTitle != nil && theJobTitle != nil {
+        if employee.JobTitle.ID != theJobTitle.ID {
+            fmt.Printf("Job Title changed from %s to %s\n", employee.JobTitle.Name, theJobTitle.Name)
+        } else {
+            fmt.Printf("Job Title remains unchanged: %s\n", employee.JobTitle.Name)
+        }
+    } else if employee.JobTitle == nil && theJobTitle != nil {
+        fmt.Printf("Job Title set to %s\n", theJobTitle.Name)
+    } else if employee.JobTitle != nil && theJobTitle == nil {
+        fmt.Printf("Job Title cleared from %s\n", employee.JobTitle.Name)
+    } else {
+        fmt.Println("Job Title remains unchanged: nil")
+    }
+
+    employee.Department = theDepartment
+    employee.JobTitle = theJobTitle
+
+    fmt.Printf("Updated employee details to be saved: %+v\n", employee)
+
+
+
+    SaveEmployeeObj(employee)
+
+
+
+
+    http.Redirect(w, r, "/employees/details/"+id, http.StatusSeeOther)
+    }
+
+    w.WriteHeader(http.StatusMethodNotAllowed)
+}
+
+
+
+func SetExDepartment(employee models.Employee, newDepartment *models.Department, oldDepartment *models.Department) { 
+
+
+
+}
+
+
+func SaveEmployeeObj(employee models.Employee) error {
+   
+    //here you pass employee struct with all fields to the database and update the employee record in the database with the new values, you can use sql UPDATE statement to update the employee record in the database based on employee.ID and set all fields of employee struct to the database record, you can also use transaction if you want to update multiple tables related to employee like certifications, documents, family members, emergency contacts in one transaction to ensure data integrity
+
+    fmt.Printf("Saving employee to database.......: %+v\n", employee)
+
+    query := `UPDATE employees SET 
+    badge_id = $1, 
+    name = $2, 
+    department_id = $3, 
+    local_name = $4, 
+    job_title_id = $5, 
+    grade = $6, 
+    birth_date = $7, 
+    active = $8, 
+    goverment_id = $9, 
+    image = $10, 
+    email = $11, 
+    nationality = $12
+    WHERE id = $13`
+
+    _, err := core.DB.Exec(query, employee.BadgeID, employee.Name, employee.Department.ID, employee.LocalName, employee.JobTitle.ID, employee.Grade, employee.BirthDate, employee.Active, employee.GovermentID, employee.Image, employee.Email, employee.Nationality, employee.ID)
+    if err != nil {
+        return err
+    }
+
+
+    return nil
+}
