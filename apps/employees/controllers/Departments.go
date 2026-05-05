@@ -7,6 +7,7 @@ import (
 	"zerotrusterp/core"
 	"strconv"
 	"encoding/json"
+	 "database/sql"
 )
 
 func ListDepartments(w http.ResponseWriter, r *http.Request) {
@@ -237,6 +238,9 @@ func GetDepartmentById(id string) models.Department {
     }
     defer rows.Close()
 
+    // FIX: Use sql.NullInt64 to handle cases where manager_id is NULL in the DB
+    var managerID sql.NullInt64
+
     for rows.Next() {
         var emp models.Employee
         // Using pointers for employee fields to handle LEFT JOIN NULLs
@@ -244,8 +248,9 @@ func GetDepartmentById(id string) models.Department {
         var empBadge, empName, empLocal, empJob *string
         var empDeptId *int
 
+        // FIX: Scan managerID (variable) instead of &dept.Manager (struct field)
         err := rows.Scan(
-            &dept.ID, &dept.Code, &dept.Name, &dept.LocalName, &dept.Manager, &dept.Active,
+            &dept.ID, &dept.Code, &dept.Name, &dept.LocalName, &managerID, &dept.Active,
             &empId, &empBadge, &empName, &empDeptId, &empLocal, &empJob,
         )
         if err != nil {
@@ -253,12 +258,20 @@ func GetDepartmentById(id string) models.Department {
             return models.Department{}
         }
 
+        // FIX: Only assign the manager to the struct if it is valid (not NULL)
+        if managerID.Valid {
+            // Assuming dept.Manager is of type int. 
+            // If it is *int, use: val := int(managerID.Int64); dept.Manager = &val
+			 managerStr := strconv.FormatInt(managerID.Int64, 10)
+             manager := GetEmployeeById(managerStr)
+			dept.Manager = &manager
+        }
+
         // If empId is not null, an employee exists for this row
         if empId != nil {
             emp.ID = *empId
             if empName != nil { emp.Name = *empName }
             if empBadge != nil { emp.BadgeID = *empBadge }
-            // ... map other fields ...
             
             dept.Employees = append(dept.Employees, emp)
         }

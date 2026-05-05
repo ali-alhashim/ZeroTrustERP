@@ -57,13 +57,16 @@ func GetEmployeeById(id string) models.Employee {
 
     var employee models.Employee
 
-    
-    // Null types for the LEFT JOINed tables
+    // 1. Create separate variables for the Employee's FK columns
+    var empDeptID sql.NullInt64
+    var empJobID sql.NullInt64
+
+    // 2. Keep existing variables for the JOINed table data
     var dID, dManager sql.NullInt64
     var dName, dLocal, dCode sql.NullString
     var dActive sql.NullBool
     var dCreated, dUpdated sql.NullTime
-    
+
     var jID sql.NullInt64
     var jName, jLocal, jCode, jDesc sql.NullString
     var jCreated, jUpdated sql.NullTime
@@ -79,12 +82,14 @@ func GetEmployeeById(id string) models.Employee {
         WHERE e.id = $1`
 
     err := core.DB.QueryRow(query, id).Scan(
-        // IMPORTANT: Scan into the ID fields, NOT the struct fields
-        &employee.ID, &employee.BadgeID, &employee.Name, &dID, &employee.LocalName, 
-        &jID, &employee.CreatedAt, &employee.UpdatedAt, &employee.Image, &employee.Education, &employee.Major, &employee.Religion,&employee.GovermentID, &employee.Email, &employee.Nationality, &employee.Gender, &employee.MaritalStatus, &employee.PhoneNumber, &employee.Address, &employee.BirthDate,
-        // Department scan
+        // 3. Scan e.department_id into empDeptID (NOT dID)
+        &employee.ID, &employee.BadgeID, &employee.Name, &empDeptID, &employee.LocalName, 
+        &empJobID, &employee.CreatedAt, &employee.UpdatedAt, &employee.Image, &employee.Education, &employee.Major, &employee.Religion,&employee.GovermentID, &employee.Email, &employee.Nationality, &employee.Gender, &employee.MaritalStatus, &employee.PhoneNumber, &employee.Address, &employee.BirthDate,
+        
+        // 4. Scan d.id into dID (This overwrites nothing now)
         &dID, &dName, &dLocal, &dCode, &dManager, &dCreated, &dUpdated, &dActive,
-        // Job Title scan
+        
+        // 5. Scan j.id into jID
         &jID, &jName, &jLocal, &jCode, &jDesc, &jCreated, &jUpdated,
     )
 
@@ -97,7 +102,7 @@ func GetEmployeeById(id string) models.Employee {
         return models.Employee{}
     }
 
-    // Map Department if JOIN found a record
+    // Map Department if JOIN found a record (dID comes from d.id)
     if dID.Valid {
         dept := models.Department{
             ID:        int(dID.Int64),
@@ -109,14 +114,19 @@ func GetEmployeeById(id string) models.Employee {
             UpdatedAt: dUpdated.Time,
         }
         if dManager.Valid {
-            // Check if your Employee.ID is string or int. 
-            // If ID is string: strconv.Itoa(int(dManager.Int64))
-            // If ID is int: int(dManager.Int64)
             dept.Manager = &models.Employee{
                 ID: int(dManager.Int64), 
             }
         }
         employee.Department = &dept
+    } else {
+        // Optional: Handle case where employee has a Dept ID (empDeptID) 
+        // but the Dept doesn't exist in the DB (dID is invalid).
+        // Currently this leaves employee.Department as nil.
+        if empDeptID.Valid {
+            fmt.Printf("⚠️ Employee has Dept ID %d but it wasn't found in JOIN.\n", empDeptID.Int64)
+            // You could assign a placeholder here if needed to preserve the ID
+        }
     }
 
     // Map JobTitle if JOIN found a record
@@ -124,7 +134,6 @@ func GetEmployeeById(id string) models.Employee {
         employee.JobTitle = &models.JobTitle{
             ID:   int(jID.Int64),
             Name: jName.String,
-            // ... add other job fields here
         }
     }
 
