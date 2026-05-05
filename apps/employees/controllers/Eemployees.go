@@ -1039,6 +1039,7 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
     fmt.Printf("Updating employee ID: %s\n", id)
 
     employee := GetEmployeeById(id)
+    email := r.PostFormValue("email")
 
     fmt.Printf("Current employee details: %+v\n", employee)
 
@@ -1097,15 +1098,16 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
     }
 
     employee.Department = theDepartment
-    employee.JobTitle = theJobTitle
+    employee.JobTitle   = theJobTitle
+    employee.Email = &email
 
     fmt.Printf("Updated employee details to be saved: %+v\n", employee)
 
 
 
-   err := SaveEmployeeObj(employee)
+   err := SaveEmployeeObj(&employee)
 
-   fmt.Printf("SaveEmployeeObj error: %v\n", err)
+   fmt.Printf("........SaveEmployeeObj error: %v\n", err)
 
 
 
@@ -1125,7 +1127,7 @@ func SetExDepartment(employee models.Employee, newDepartment *models.Department,
 }
 
 
-func SaveEmployeeObj(employee models.Employee) error {
+func SaveEmployeeObj(employee *models.Employee) error {
    
     //here you pass employee struct with all fields to the database and update the employee record in the database with the new values, you can use sql UPDATE statement to update the employee record in the database based on employee.ID and set all fields of employee struct to the database record, you can also use transaction if you want to update multiple tables related to employee like certifications, documents, family members, emergency contacts in one transaction to ensure data integrity
 
@@ -1161,6 +1163,8 @@ func SaveEmployeeObj(employee models.Employee) error {
     } else {
         jobTitleId = sql.NullInt64{Valid: false}
     }
+
+    fmt.Printf("Department Id: %v , JobTitle Id: %v", departmentId, jobTitleId)
 
 
 
