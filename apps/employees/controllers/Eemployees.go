@@ -1103,7 +1103,9 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 
 
 
-    SaveEmployeeObj(employee)
+   err := SaveEmployeeObj(employee)
+
+   fmt.Printf("SaveEmployeeObj error: %v\n", err)
 
 
 
@@ -1130,7 +1132,7 @@ func SaveEmployeeObj(employee models.Employee) error {
     fmt.Printf("Saving employee to database.......: %+v\n", employee)
 
     query := `UPDATE employees SET 
-    badge_id = $1, 
+    gender = $1,
     name = $2, 
     department_id = $3, 
     local_name = $4, 
@@ -1144,7 +1146,25 @@ func SaveEmployeeObj(employee models.Employee) error {
     nationality = $12
     WHERE id = $13`
 
-    _, err := core.DB.Exec(query, employee.BadgeID, employee.Name, employee.Department.ID, employee.LocalName, employee.JobTitle.ID, employee.Grade, employee.BirthDate, employee.Active, employee.GovermentID, employee.Image, employee.Email, employee.Nationality, employee.ID)
+    //ok maybe employee.Department or employee.JobTitle is nil so we need to handle that case and pass null to the database if it's nil
+
+    var departmentId sql.NullInt64
+    if employee.Department != nil {
+        departmentId = sql.NullInt64{Int64: int64(employee.Department.ID), Valid: true}
+    } else {
+        departmentId = sql.NullInt64{Valid: false}
+    }
+
+    var jobTitleId sql.NullInt64
+    if employee.JobTitle != nil {
+        jobTitleId = sql.NullInt64{Int64: int64(employee.JobTitle.ID), Valid: true}
+    } else {
+        jobTitleId = sql.NullInt64{Valid: false}
+    }
+
+
+
+    _, err := core.DB.Exec(query, employee.Gender, employee.Name, departmentId, employee.LocalName, jobTitleId, employee.Grade, employee.BirthDate, employee.Active, employee.GovermentID, employee.Image, employee.Email, employee.Nationality, employee.ID)
     if err != nil {
         return err
     }
