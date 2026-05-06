@@ -19,7 +19,9 @@
         <th>Manager</th>
         <th>
             <select name="manager" id="ManagerSelect" class="select-search">
-                <option>{{.Department.Manager}}</option>
+                <option>
+                    {{if .Department.Manager}} {{.Department.Manager.Name}}{{end}}
+                </option>
             </select>
         </th>
     </tr>
@@ -52,18 +54,28 @@
                 </tr>
             </thead>
             <tbody>
+
+                {{if .Department.Employees}}
+
+                {{range .Department.Employees}}
                 <tr>
                     <td>
-                        <img src="/static/icons/userCircle.svg" class="employee-photo" width="90">
+                        <img src="{{.Image}}" class="employee-photo" width="90">
                     </td>
                     <td>A1000</td>
-                    <td>Ali Musa Alhashim</td>
-                    <td>علي موسى الهاشم</td>
-                    <td>Ali@example.com</td>
-                    <td>IT Supervisor</td>
-                    <td>Active</td>
+                    <td>{{.Name}}</td>
+                    <td>{{.LocalName}}</td>
+                    <td>{{.Email}}</td>
+                    <td>
+                        {{if .JobTitle}}
+                          {{.JobTitle.Name}}
+                        {{end}}
+                    </td>
+                    <td>{{.Status}}</td>
                    
                 </tr>
+                {{end}}
+                {{end}}
              
             </tbody>
         </table>

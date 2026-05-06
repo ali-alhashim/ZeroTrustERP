@@ -226,7 +226,7 @@ func GetDepartmentById(id string) models.Department {
     query := `
         SELECT 
             d.id, d.code, d.name, d.local_name, d.manager_id, d.active,
-            e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id
+            e.id, e.department_id
         FROM departments d 
         LEFT JOIN employees e ON d.id = e.department_id
         WHERE d.id = $1`
@@ -245,13 +245,13 @@ func GetDepartmentById(id string) models.Department {
         var emp models.Employee
         // Using pointers for employee fields to handle LEFT JOIN NULLs
         var empId *int
-        var empBadge, empName, empLocal, empJob *string
+       
         var empDeptId *int
 
         // FIX: Scan managerID (variable) instead of &dept.Manager (struct field)
         err := rows.Scan(
-            &dept.ID, &dept.Code, &dept.Name, &dept.LocalName, &managerID, &dept.Active,
-            &empId, &empBadge, &empName, &empDeptId, &empLocal, &empJob,
+            			&dept.ID, &dept.Code, &dept.Name, &dept.LocalName, &managerID, &dept.Active,
+           			    &empId, &empDeptId,
         )
         if err != nil {
             fmt.Printf("Scan error: %v\n", err)
@@ -269,9 +269,11 @@ func GetDepartmentById(id string) models.Department {
 
         // If empId is not null, an employee exists for this row
         if empId != nil {
-            emp.ID = *empId
-            if empName != nil { emp.Name = *empName }
-            if empBadge != nil { emp.BadgeID = *empBadge }
+            
+			  idString := strconv.Itoa(*empId)
+			  emp = GetEmployeeById(idString)
+			
+			
             
             dept.Employees = append(dept.Employees, emp)
         }
