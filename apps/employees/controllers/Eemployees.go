@@ -1049,8 +1049,17 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 
     employee := GetEmployeeById(id)
     email := r.PostFormValue("email")
+    name  := r.PostFormValue("name")
+    localName := r.PostFormValue("localName")
+    govermentId:= r.PostFormValue("govermentId")
+    nationality := r.PostFormValue("nationality")
+    education   := r.PostFormValue("education")
+    major       := r.PostFormValue("major")
+    religion    := r.PostFormValue("religion")
+    
 
-    fmt.Printf("Current employee details: %+v\n", employee)
+
+    fmt.Printf("\n...........Current employee details.....................................: %+v\n", employee)
 
     
     departmentId := r.PostFormValue("departmentId")
@@ -1108,7 +1117,16 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 
     employee.Department = theDepartment
     employee.JobTitle   = theJobTitle
-    employee.Email = &email
+    employee.Email      = &email
+    employee.Name       = name
+    employee.LocalName  = localName
+    employee.GovermentID=govermentId
+    employee.Nationality=&nationality
+    employee.Education = &education
+    employee.Major = &major
+    employee.Religion   =&religion
+
+
 
     fmt.Printf("Updated employee details to be saved: %+v\n", employee)
 

@@ -63,6 +63,13 @@
             <td><input type="text" name="localName" value="{{.Employee.LocalName}}"></td>   
         </tr>
 
+        <tr>
+            <td>Goverment ID</td>
+            <td>
+                <input type="text" name="govermentId" value="{{.Employee.GovermentID}}"></td>
+            </td>
+        </tr>
+
 
         <tr>
             <td>Education</td>
@@ -147,7 +154,7 @@
                             <tr>
             <td>Religion</td>
             <td>
-                <select name="religion">
+                <select name="religion" id="religion">
                     <option value="{{.Employee.Religion}}">{{.Employee.Religion}}</option>
                     <option value="Islam">Islam</option>
                     <option value="Christianity">Christianity</option>
