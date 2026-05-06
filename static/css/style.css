@@ -531,7 +531,10 @@ legend {
     padding: 0;
 }
 
-
+.bg-dark{
+    background-color: #b4b4b4;
+    cursor: pointer;
+}
 
 
 

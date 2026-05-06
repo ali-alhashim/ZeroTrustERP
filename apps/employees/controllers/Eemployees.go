@@ -1185,3 +1185,73 @@ func SaveEmployeeObj(employee *models.Employee) error {
 
     return nil
 }
+
+
+func UploadEmployeeImage(w http.ResponseWriter, r *http.Request) {
+    id := r.PathValue("id")
+
+    // 1. Parse the multipart form
+    const maxMemory = 10 << 20 // 10MB
+    if err := r.ParseMultipartForm(maxMemory); err != nil {
+        http.Error(w, "File too large or bad request", http.StatusBadRequest)
+        return
+    }
+
+    // 2. Retrieve the file from the form data
+    // "imgInput" must match the 'name' attribute on your HTML <input>
+    files := r.MultipartForm.File["imgInput"] 
+    if len(files) == 0 {
+        http.Error(w, "No image uploaded", http.StatusBadRequest)
+        return
+    }
+    fileHeader := files[0]
+
+    employee := GetEmployeeById(id)
+    var savedImagePath string
+
+    // 3. Image Processing
+    dirPath := "./media/employees/images/"
+    fileName := fmt.Sprintf("%s.jpg", employee.BadgeID)
+    savedImagePath = filepath.Join(dirPath, fileName)
+
+    if err := os.MkdirAll(dirPath, 0755); err != nil {
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    // Open the uploaded file
+    src, err := fileHeader.Open()
+    if err != nil {
+        http.Error(w, "Failed to open uploaded file", http.StatusInternalServerError)
+        return
+    }
+    defer src.Close()
+
+    // Decode the uploaded image (supports multiple formats if you use image.Decode)
+    imgData, _, err := image.Decode(src)
+    if err != nil {
+        http.Error(w, "Invalid image format", http.StatusBadRequest)
+        return
+    }
+
+    // Create the destination file
+    out, err := os.Create(savedImagePath)
+    if err != nil {
+        http.Error(w, "Failed to save image", http.StatusInternalServerError)
+        return
+    }
+    defer out.Close()
+
+    // Encode as JPEG
+    if err := jpeg.Encode(out, imgData, &jpeg.Options{Quality: 85}); err != nil {
+        http.Error(w, "Failed to encode image", http.StatusInternalServerError)
+        return
+    }
+
+    // 4. Update Employee and Redirect
+    employee.Image = savedImagePath
+    SaveEmployeeObj(&employee)
+    // SaveEmployee(employee) // Don't forget to persist to your DB!
+
+    http.Redirect(w, r, "/employees/details/"+id, http.StatusSeeOther)
+}

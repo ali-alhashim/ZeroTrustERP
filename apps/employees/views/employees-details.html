@@ -28,6 +28,10 @@
 </div>
 <hr>
 
+<form id="uploadForm" action="/employees/upload/image/{{.Employee.ID}}" enctype="multipart/form-data" method="POST">
+    <input type="file" name="imgInput" style="display: none;" id="imgInput">
+</form>
+
 
 
 <form method="POST" action="/employees/update/{{.Employee.ID}}" enctype="multipart/form-data">
@@ -37,7 +41,7 @@
 <table>
     <tr>
         <td>Image</td>
-        <td>
+        <td class="bg-dark" onclick="uploadEmployeeImage()">
              {{if .Employee.Image}}
                 <img src="../{{.Employee.Image}}" alt="{{.Employee.Name}}" width="150">
                
@@ -45,7 +49,7 @@
                 {{slice .Employee.Name 0 1}}
             {{end}}
 
-             <input type="file" name="img" style="display: none;" id="imgInput">
+             
         </td>
     </tr>
 
@@ -104,7 +108,7 @@
 
                 <tr>
                     <td>Status</td>
-                    <td><input type="text" name="status" value="{{.Employee.Status}}" readonly></td>
+                    <td>{{.Employee.Status}}</td>
                 </tr>
 
                 <tr>
@@ -209,9 +213,8 @@
 
          <h4>Certifications</h4>
         {{if .Employee.Certifications}}
-          
-                {{range .Employee.Certifications}}
-                   <table>
+
+         <table>
                        <thead>
                            <tr>
                                <th>ID</th>
@@ -223,6 +226,9 @@
                            </tr>    
                           </thead>
                           <tbody id="tbody_Certifications">
+          
+                {{range .Employee.Certifications}}
+                  
                             <tr>
                                  <td >{{.ID}}</td>
                                  <td >{{.Name}}</td>
@@ -231,8 +237,11 @@
                                  <td >{{.ExpiryDate.Format "2006-01-02"}}</td>
                                  <td >{{if .FilePath}}<a href="../{{.FilePath}}" target="_blank">View</a>{{else}}-{{end}}</td>
                             </tr>
-                    </table>
+                    
                 {{end}}
+                </tbody>
+                </table>
+
             
         {{else}}
             <p>No Certifications listed.</p>
@@ -249,9 +258,7 @@
 
         <h4>Family Members</h4>
         {{if .Employee.FamilyMembers}}
-           
-                {{range .Employee.FamilyMembers}}
-                   <table style="width: 100%; border-collapse: collapse;">
+         <table style="width: 100%; border-collapse: collapse;">
                        <thead>
                            <tr>
                                <th >Name</th>
@@ -263,6 +270,9 @@
                            </tr>    
                           </thead>
                           <tbody>
+           
+                {{range .Employee.FamilyMembers}}
+                  
                             <tr>
                                  <td >{{.Name}}</td>
                                  <td >{{.Relationship}}</td>
@@ -271,8 +281,10 @@
                                  <td >{{.GovernmentId}}</td>
                                  <td >{{if .FilePath}}<a href="../{{.FilePath}}" target="_blank">View</a>{{else}}-{{end}}</td>
                             </tr>
-                    </table>
+                  
                 {{end}}
+                          </tbody>
+                  </table>
           
         {{else}}
             <p>No family members listed.</p>
@@ -288,9 +300,7 @@
 
           <h4>Emergency Contacts</h4>
         {{if .Employee.EmergencyContacts}}
-          
-                {{range .Employee.EmergencyContacts}}
-                   <table >
+          <table >
                        <thead>
                            <tr>
                                <th>ID</th>
@@ -301,6 +311,9 @@
                            </tr>    
                           </thead>
                           <tbody id="tbody_Certifications">
+          
+                {{range .Employee.EmergencyContacts}}
+                 
                             <tr>
                                  <td >{{.ID}}</td>
                                  <td >{{.Name}}</td>
@@ -308,8 +321,10 @@
                                  <td >{{.Phone}}</td>
                                 
                             </tr>
-                    </table>
+                   
                 {{end}}
+                          </tbody>
+                           </table>
            
         {{else}}
             <p>No Emergency Contacts listed.</p>
@@ -325,9 +340,7 @@
 
           <h4>Documents</h4>
         {{if .Employee.EmployeeDocuments}}
-           
-                {{range .Employee.EmployeeDocuments}}
-                   <table>
+         <table>
                        <thead>
                            <tr>
                                <th >ID</th>
@@ -339,6 +352,9 @@
                            </tr>    
                           </thead>
                           <tbody id="tbody_Certifications">
+           
+                {{range .Employee.EmployeeDocuments}}
+                  
                             <tr>
                                  <td >{{.ID}}</td>
                                  <td >{{.Name}}</td>
@@ -347,8 +363,10 @@
                                  <td >{{.ExpiryDate.Format "2006-01-02"}}</td>
                                 
                             </tr>
-                    </table>
+                   
                 {{end}}
+                          </tbody>
+                           </table>
            
         {{else}}
             <p>No Documents listed.</p>
@@ -403,6 +421,23 @@
             })
             .catch(error => console.error('Error fetching job titles:', error));
     });
+</script>
+
+
+<script>
+    function uploadEmployeeImage(){
+        const theForm = document.getElementById("uploadForm");
+        const theImgInput = document.getElementById("imgInput");
+
+        theImgInput.click();
+
+        //if img select and user click ok submit the form theForm.submit()
+        theImgInput.onchange = function() {
+        if (theImgInput.value) {
+            theForm.submit();
+        }
+    };
+    }
 </script>
 
 {{end}}
