@@ -43,6 +43,8 @@ type Employee struct {
     Education    *string      `f:"text"` // e.g., "Bachelor's in Computer Science"
     Major        *string      `f:"text"` // e.g., "Computer Science", "Business Administration"
     Religion     *string      `f:"text"` // e.g., "Islam", "Christianity", "Hinduism"
+    PersonalEmail *string     `f:"text"`
+    PersonalMobile *string     `f:"text"`
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments
@@ -149,6 +151,8 @@ type Contract struct {
     UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
     IBAN        *string    `f:"text"` // Bank account number for salary payments
     BankName    *string    `f:"text"` // Bank name for salary payments
+    AbsenseBalance *int    `f:"number"`
+    Status      *string    `f:"text"`
 }
 
 // SalaryComponentType defines what the money is for (Housing, Transport, etc.)
@@ -322,3 +326,6 @@ type CalendarEvent struct {
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
 }
+
+
+ 

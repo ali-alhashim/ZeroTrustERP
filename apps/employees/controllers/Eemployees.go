@@ -1056,6 +1056,21 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
     education   := r.PostFormValue("education")
     major       := r.PostFormValue("major")
     religion    := r.PostFormValue("religion")
+    gender      := r.PostFormValue("gender")
+    phone       := r.PostFormValue("phone")
+    maritalStatus := r.PostFormValue("maritalStatus")
+
+
+    birthDateStr  := r.PostFormValue("birthDate")
+
+
+
+      // 5. Date Parsing
+        birthDate, err := time.Parse("2006-01-02", birthDateStr)
+        if err != nil {
+            http.Error(w, "Invalid Date (Required: YYYY-MM-DD)", http.StatusBadRequest)
+            return
+        }
     
 
 
@@ -1120,11 +1135,16 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
     employee.Email      = &email
     employee.Name       = name
     employee.LocalName  = localName
-    employee.GovermentID=govermentId
-    employee.Nationality=&nationality
-    employee.Education = &education
-    employee.Major = &major
-    employee.Religion   =&religion
+    employee.GovermentID= govermentId
+    employee.Nationality= &nationality
+
+    employee.Education  = &education
+    employee.Major      = &major
+    employee.Religion   = &religion
+    employee.Gender     = &gender
+    employee.PhoneNumber = &phone
+    employee.MaritalStatus = &maritalStatus
+    employee.BirthDate = birthDate
 
 
 
@@ -1132,7 +1152,7 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 
 
 
-   err := SaveEmployeeObj(&employee)
+   err = SaveEmployeeObj(&employee)
 
    fmt.Printf("........SaveEmployeeObj error: %v\n", err)
 
@@ -1172,8 +1192,13 @@ func SaveEmployeeObj(employee *models.Employee) error {
     goverment_id = $9, 
     image = $10, 
     email = $11, 
-    nationality = $12
-    WHERE id = $13`
+    nationality = $12,
+    religion = $13,
+    education = $14,
+    major = $15,
+    phone_number = $16,
+    marital_status = $17
+    WHERE id = $18`
 
     //ok maybe employee.Department or employee.JobTitle is nil so we need to handle that case and pass null to the database if it's nil
 
@@ -1195,7 +1220,28 @@ func SaveEmployeeObj(employee *models.Employee) error {
 
 
 
-    _, err := core.DB.Exec(query, employee.Gender, employee.Name, departmentId, employee.LocalName, jobTitleId, employee.Grade, employee.BirthDate, employee.Active, employee.GovermentID, employee.Image, employee.Email, employee.Nationality, employee.ID)
+    _, err := core.DB.Exec(query, 
+        employee.Gender, 
+        employee.Name, 
+        departmentId, 
+        employee.LocalName, 
+        jobTitleId, 
+        employee.Grade, 
+        employee.BirthDate, 
+        employee.Active, 
+        employee.GovermentID, 
+        employee.Image, 
+        employee.Email, 
+        employee.Nationality, 
+        employee.Religion,
+        employee.Education,
+        employee.Major,
+        employee.PhoneNumber,
+        employee.MaritalStatus,
+        employee.ID,
+        
+
+    )
     if err != nil {
         return err
     }
