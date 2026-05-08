@@ -172,11 +172,12 @@ func GetDepartmentsFromDB(search, sort, order, page, pageSize string) []models.D
 
 
 	var departments []models.Department
-	var EmployeesDepartment [] models.Employee
+	
     var ManagerID *string
 
 	for rows.Next() {
 		var l models.Department
+		var EmployeesDepartment [] models.Employee
 		err := rows.Scan(&l.ID, &l.Name, &l.LocalName, &l.Code, &ManagerID, &l.Active)
 		if err != nil {
 			panic(err)
