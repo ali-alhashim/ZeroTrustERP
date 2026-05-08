@@ -36,6 +36,18 @@
 </select>
 <button type="button" class="btn btn-secondary" style="margin-bottom: 15px;" id="nextBtn">Next > </button>
 
+
+
+<form method="post" action="/department/upload/csv" enctype="multipart/form-data" style="margin-bottom: 15px;" id="UploadCSVIdForm">
+    <button type="button" class="btn btn-secondary"><img src="/static/icons/upload.svg" width="20" /> Upload </button>
+    <input type="file" name="csvFile" style="display: none;" id="csvFileId">
+</form>
+
+
+<form method="post" action="/department/download/csv" enctype="multipart/form-data" style="margin-bottom: 15px;" id="downloadCSVIdForm">
+    <button type="button" class="btn btn-secondary"><img src="/static/icons/download.svg" width="20" /> Download </button>
+</form>
+
 </div><!--toolbar-->
   Count Records: {{.TotalRecords}}     
         <table>

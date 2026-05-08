@@ -192,3 +192,61 @@ func GetJobTitleListApi(w http.ResponseWriter, r *http.Request) {
 
 
 
+func JobsDetails(w http.ResponseWriter, r *http.Request){
+
+	id:=r.PathValue("id")
+
+	
+
+	theJob := GetJobTitleById(id)
+
+	if r.Method == http.MethodGet {
+
+	data := map[string]interface{}{
+		"Title": "Jobs",
+		"Job":theJob,
+	}
+		core.RenderPage(w,r,"apps/employees/views/jobs-details.html", data)
+	}
+
+
+}
+
+
+func UpdateJob(w http.ResponseWriter, r *http.Request){
+
+	id:=r.PathValue("id")
+
+	if r.Method == http.MethodPost{
+
+
+		//beforeUpdate := GetJobTitleById(id)
+
+		code      := r.PostFormValue("code")
+        name      := r.PostFormValue("name")
+		local_name:= r.PostFormValue("local_name")
+		description:= r.PostFormValue("description")
+
+		query :=`UPDATE job_titles
+		SET code = $1,
+		name = $2,
+        local_name = $3,
+		description = $4
+		WHERE id = $5 
+		`
+        _, err := core.DB.Exec(query, code, name, local_name,description, id)
+
+		if err !=nil {
+			fmt.Print(err)
+		}
+
+		core.InsertLog(core.GetCurrentUser(r), "JobTitle", "update Job Title id: "+id)
+
+		http.Redirect(w, r, "/job/details/"+id, http.StatusSeeOther)
+
+	}
+
+}
+
+
+

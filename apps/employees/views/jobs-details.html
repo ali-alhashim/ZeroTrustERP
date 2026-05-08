@@ -1,0 +1,36 @@
+{{define "content"}}
+<h4>Job Details / {{.Job.ID}}</h4>
+
+
+<form action="/job/update/{{.Job.ID}}" method="POST">
+
+
+  
+       <table>
+        <tbody>
+            <tr>
+                <th>Code</th><th><input type="text" name="code" value="{{.Job.Code}}"></th>
+            </tr>
+            <tr>
+                <th>Name</th><th><input type="text" name="name"  value="{{.Job.Name}}" > </th>
+            </tr>
+            <tr>
+                <th>Name(AR)</th><th><input type="text" name="local_name" value="{{.Job.LocalName}}"></th>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <th>
+                    <textarea name="description" >{{.Job.Description}}</textarea>
+                </th>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <button class="btn btn-primary">Update</button>
+    
+
+    
+</form>
+
+
+{{end}}

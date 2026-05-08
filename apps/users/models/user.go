@@ -25,6 +25,7 @@ type User struct {
 
     CreatedAt time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt time.Time `f:"timestamp, default:current_timestamp"`
+    PreferredLanguage *string `f:"text"`  // EN or AR
 }
 
 // Role header can be admin, manager, employee, etc. Each role has many permissions, and each permission can be assigned to many roles. For example, admin role can have all permissions, manager role can have read and update permissions, employee role can have read permission only.

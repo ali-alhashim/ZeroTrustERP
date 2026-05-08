@@ -45,6 +45,7 @@ type Employee struct {
     Religion     *string      `f:"text"` // e.g., "Islam", "Christianity", "Hinduism"
     PersonalEmail *string     `f:"text"`
     PersonalMobile *string     `f:"text"`
+    ShiftSchedule  *ShiftSchedule `f:"many2one:"`
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments

@@ -14,5 +14,8 @@ func SequenceListRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /sequence/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateSequence), "prefix_sequences:W"))
 	mux.Handle("POST /sequence/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateSequence), "prefix_sequences:W"))
 
+	mux.Handle("GET /sequence/{id}/edit", core.AuthMiddleware(http.HandlerFunc(controllers.SequenceEdit), "prefix_sequences:W"))
+	mux.Handle("POST /sequence/{id}/edit", core.AuthMiddleware(http.HandlerFunc(controllers.SequenceEdit), "prefix_sequences:W"))
+
 
 }

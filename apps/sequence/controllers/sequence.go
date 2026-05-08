@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	    "net/http"
-		"zerotrusterp/core"
-	    "strconv"
-		"zerotrusterp/apps/sequence/models"
+	"fmt"
+	"net/http"
+	"strconv"
+	"zerotrusterp/apps/sequence/models"
+	"zerotrusterp/core"
 )
 
 
@@ -155,6 +156,65 @@ func CreateSequence(w http.ResponseWriter, r *http.Request){
 		}
 
 		http.Redirect(w, r, "/sequence/list", http.StatusSeeOther)
+	}
+
+}
+
+
+func GetSequenceById(id string) models.PrefixSequence{
+	var theSequence models.PrefixSequence
+
+	query :="select id, name, prefix, next_value, digits, step from prefix_sequences where id = $1"
+
+	err := core.DB.QueryRow(query, id).Scan(&theSequence.ID, &theSequence.Name, &theSequence.Prefix, &theSequence.NextValue, &theSequence.Digits, &theSequence.Step)
+
+	if err !=nil{
+		fmt.Print(err)
+	}
+
+
+	return theSequence
+}
+
+
+
+func SequenceEdit(w http.ResponseWriter, r *http.Request){
+	id := r.PathValue("id")
+
+	Sequence := GetSequenceById(id)
+
+	if r.Method == http.MethodGet {
+		data:= map[string]interface{}{
+			"Sequence":Sequence,
+		}
+		core.RenderPage(w,r, "apps/sequence/views/sequence-edit.html", data)
+	}
+
+	if r.Method == http.MethodPost{
+		//Update 
+
+		name := r.FormValue("name")
+		prefix := r.FormValue("prefix")
+		nextValue := r.FormValue("next_value")
+		digits := r.FormValue("digits")
+		step := r.FormValue("step")
+
+		query:=`UPDATE prefix_sequences
+		SET name = $1,
+		prefix = $2,
+		next_value = $3,
+		digits = $4,
+		step = $5
+		WHERE id = $6
+		`
+
+		_, err := core.DB.Exec(query, name, prefix, nextValue, digits, step, id)
+		if err != nil {
+			panic(err)
+		}
+
+		http.Redirect(w, r, "/sequence/list", http.StatusSeeOther)
+
 	}
 
 }

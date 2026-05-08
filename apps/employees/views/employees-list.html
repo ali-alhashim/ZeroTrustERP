@@ -38,8 +38,19 @@
 <button type="button" class="btn btn-secondary" style="margin-bottom: 15px;" id="nextBtn">Next > </button>
 
 
-<form method="post" action="/employees/upload/csv" enctype="multipart/form-data" style="margin-bottom: 15px;">
+<form method="post" action="/employees/upload/csv" enctype="multipart/form-data" style="margin-bottom: 15px;" id="UploadCSVIdForm">
     <button type="button" class="btn btn-secondary"><img src="/static/icons/upload.svg" width="20" /> Upload </button>
+    <input type="file" name="csvFile" style="display: none;" id="csvFileId">
+</form>
+
+
+<form method="post" action="/employees/download/csv" enctype="multipart/form-data" style="margin-bottom: 15px;" id="downloadCSVIdForm">
+    <button type="button" class="btn btn-secondary"><img src="/static/icons/download.svg" width="20" /> Download </button>
+</form>
+
+<form method="post" action="/employees/import/photo/zip" enctype="multipart/form-data" style="margin-bottom: 15px;" id="importPhotoIdForm">
+     <input type="file" name="zipFile" style="display: none;" id="zipFileId">
+    <button type="button" class="btn btn-secondary" title="collect employees photos .jpg name as badge id add all in one zip file"><img src="/static/icons/box.svg" width="20"/>  Import Photo .Zip </button>
 </form>
 
 </div><!--toolbar-->
