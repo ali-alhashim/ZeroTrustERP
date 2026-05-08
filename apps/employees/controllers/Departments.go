@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"encoding/json"
 	 "database/sql"
+	 "encoding/csv"
 )
 
 func ListDepartments(w http.ResponseWriter, r *http.Request) {
@@ -378,12 +379,54 @@ func exManagerDepartment(departmentID string, manager string){
 
 func GetDepartmentListApi(w http.ResponseWriter, r *http.Request) {
 
-	 totalRecords := core.GetCountRecords("departments")
+	totalRecords := core.GetCountRecords("departments")
 	 
 	departments := GetDepartmentsFromDB("", "ID", "asc", "1", strconv.Itoa(totalRecords))
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(departments)
+}
+
+
+
+
+///department/download/csv
+func DownloadDepartmentsCSV(w http.ResponseWriter, r *http.Request){
+
+	totalRecords := core.GetCountRecords("departments")
+	 
+	departments := GetDepartmentsFromDB("", "ID", "asc", "1", strconv.Itoa(totalRecords))
+
+	// 2. Set Headers for CSV Download
+    w.Header().Set("Content-Type", "text/csv")
+    w.Header().Set("Content-Disposition", "attachment;filename=departments_export.csv")
+
+	// THE QUICK FIX: Write the UTF-8 BOM
+	w.Write([]byte{0xEF, 0xBB, 0xBF})
+
+	// 3. Initialize CSV Writer
+    writer := csv.NewWriter(w)
+    defer writer.Flush()
+
+	header := []string{"id", "name", "local_name", "code"}
+	if err := writer.Write(header); err != nil {
+        http.Error(w, "Failed to write header", http.StatusInternalServerError)
+        return
+    }
+
+	for _, dept := range departments {
+        row := []string{
+            strconv.Itoa(dept.ID),
+            dept.Name,
+            dept.LocalName,
+            dept.Code,
+        }
+        if err := writer.Write(row); err != nil {
+            http.Error(w, "Failed to write row", http.StatusInternalServerError)
+            return
+        }
+    }
+
 }
 
 
