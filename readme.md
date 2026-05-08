@@ -177,10 +177,10 @@ To build a **secure, scalable, and developer-friendly ERP framework** that combi
 * Users CRUD -> OK
 * Roles & Permission -> OK
 * System Health -> Ok
-* Employees CRUD <br/>
-      -Information<br/>
+* Employees CRUD -> Ok <br/>
+      -Information -> Ok<br/>
       -OrgUnit<br/>
-      -Department<br/>
+      -Department -> Ok<br/>
       -ExManagerDepartment<br/>
       -ExJobTitle<br/>
       -JobTitle<br/>

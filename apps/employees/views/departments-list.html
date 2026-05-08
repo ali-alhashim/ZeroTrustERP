@@ -55,7 +55,7 @@
 
                 {{range .Departments}}
 
-                <tr>
+                <tr  class="{{if not .Active}} deactive {{end}}" >
                     <td>
                         <a class="btn btn-id" href="/departments/details/{{.ID}}">
                         {{.ID}}

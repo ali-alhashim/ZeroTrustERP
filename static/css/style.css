@@ -536,5 +536,10 @@ legend {
     cursor: pointer;
 }
 
+.deactive{
+    background-color: rgb(255, 171, 171);
+  
+}
+
 
 

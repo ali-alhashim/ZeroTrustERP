@@ -19,9 +19,11 @@
         <th>Manager</th>
         <th>
             <select name="manager" id="ManagerSelect" class="select-search">
-                <option>
-                    {{if .Department.Manager}} {{.Department.Manager.Name}}{{end}}
+                 {{if .Department.Manager}} 
+                <option value="{{.Department.Manager.ID}}">
+                   {{.Department.Manager.Name}} -  {{.Department.Manager.LocalName}}
                 </option>
+                {{end}}
             </select>
         </th>
     </tr>

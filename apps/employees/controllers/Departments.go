@@ -172,6 +172,7 @@ func GetDepartmentsFromDB(search, sort, order, page, pageSize string) []models.D
 
 
 	var departments []models.Department
+	var EmployeesDepartment [] models.Employee
     var ManagerID *string
 
 	for rows.Next() {
@@ -189,6 +190,32 @@ func GetDepartmentsFromDB(search, sort, order, page, pageSize string) []models.D
 		} else {
 			l.Manager = nil
 		}
+
+
+		//get all employees members of this depaerment l.ID
+		query = "select id, badge_id, name, local_name from employees where department_id = $1"
+		empRows, empErr := core.DB.Query(query,l.ID)
+		if empErr !=nil {
+			fmt.Print(empErr)
+		}
+		for empRows.Next() {
+            
+			var emp models.Employee
+		    errE := rows.Scan(&emp.ID, &emp.BadgeID, emp.Name, emp.LocalName)
+
+			if errE !=nil{
+				fmt.Print(errE)
+			}
+
+			EmployeesDepartment = append(EmployeesDepartment, emp)
+
+		}
+
+
+		
+		l.Employees = EmployeesDepartment
+
+        
 		departments = append(departments, l)
 
 	}
