@@ -108,8 +108,8 @@ func GetDepartmentsFromDB(search, sort, order, page, pageSize string) []models.D
 	argIndex := 1
 
 	if search != "" {
-		query += " AND (username ILIKE $" + strconv.Itoa(argIndex) +
-			     " OR email ILIKE $" + strconv.Itoa(argIndex+1) + ")"
+		query += " AND (code ILIKE $" + strconv.Itoa(argIndex) +
+			     " OR name ILIKE $" + strconv.Itoa(argIndex+1) + ")"
 
 		args = append(args, "%"+search+"%", "%"+search+"%")
 		argIndex += 2
