@@ -430,3 +430,88 @@ func DownloadDepartmentsCSV(w http.ResponseWriter, r *http.Request){
 }
 
 
+///department/upload/csv  enctype="multipart/form-data" type="file" name="csvFile"
+
+func ImportCSVDepartments(w http.ResponseWriter, r *http.Request) {
+    // 1. Limit the size of the upload (e.g., 5MB) to prevent server abuse
+    r.ParseMultipartForm(5 << 20)
+
+    // 2. Retrieve the file from form data
+    file, _, err := r.FormFile("csvFile")
+    if err != nil {
+        http.Error(w, "Error retrieving the file", http.StatusBadRequest)
+        return
+    }
+    defer file.Close()
+
+    // 3. Initialize the CSV Reader
+    reader := csv.NewReader(file)
+    
+    // Read the first line (the header) to skip it
+    _, err = reader.Read()
+    if err != nil {
+        http.Error(w, "The CSV file is empty or invalid", http.StatusBadRequest)
+        return
+    }
+
+    // 4. Iterate through the records
+    records, err := reader.ReadAll()
+    if err != nil {
+        http.Error(w, "Error reading CSV content", http.StatusInternalServerError)
+        return
+    }
+
+    for _, column := range records {
+        // Based on your download structure: 0:id, 1:name, 2:local_name, 3:code
+        // Note: If ID is provided, you might want to UPDATE. If empty, INSERT.
+        
+        id, _ := strconv.Atoi(column[0])
+        name := column[1]
+        localName := column[2]
+        code := column[3]
+
+        // 5. Database Logic
+        if id > 0 {
+            // Logic to Update existing department
+            // core.UpdateDepartment(id, name, localName, code)
+
+		query := "UPDATE departments SET code=$1, name=$2, local_name=$3  WHERE id=$4"
+
+		_, err := core.DB.Exec(query, code, name, localName, id)
+		if err != nil {
+			fmt.Printf("Error updating department: %v\n", err)
+			http.Error(w, "Error updating department", http.StatusInternalServerError)
+			return
+		}
+
+		CurrentUser := core.GetCurrentUser(r)
+
+		core.InsertLog(CurrentUser, "Departments", fmt.Sprintf("Updated Department ID %s with code: %s and name: %s",id, code, name))
+
+
+
+
+        } else {
+            // Logic to Insert new department
+            // core.InsertDepartment(name, localName, code)
+			query:= "insert into departments (code, name, local_name) values ($1, $2, $3)"
+        
+		 _,err := core.DB.Exec(query, code,name,localName)
+
+		 if err != nil {
+			fmt.Println("Error inserting department:", err)
+			http.Error(w, "Error creating department", http.StatusInternalServerError)
+			return
+		}
+
+		CurrentUser := core.GetCurrentUser(r)
+
+		core.InsertLog(CurrentUser, "Departments", fmt.Sprintf("Created Department code %s with name: %s",code, name))
+        }
+    }
+
+    
+    http.Redirect(w, r, "/employees/departments", http.StatusSeeOther)
+}
+
+

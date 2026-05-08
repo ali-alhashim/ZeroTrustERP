@@ -39,7 +39,9 @@
 
 
 <form method="post" action="/department/upload/csv" enctype="multipart/form-data" style="margin-bottom: 15px;" id="UploadCSVIdForm">
-    <button type="button" class="btn btn-secondary"><img src="/static/icons/upload.svg" width="20" /> Upload </button>
+
+    <button type="button" class="btn btn-secondary" onclick="importListDepartments()"><img src="/static/icons/upload.svg" width="20" /> Upload </button>
+
     <input type="file" name="csvFile" style="display: none;" id="csvFileId">
 </form>
 
@@ -141,6 +143,25 @@
         updateLocation(1, selectPageSize.value);
     });
 });
+</script>
+
+
+
+<script>
+  function importListDepartments(){
+    const UploadCSVIdForm = document.getElementById("UploadCSVIdForm");
+    const csvFileId       = document.getElementById("csvFileId");
+
+    csvFileId.click();
+
+      csvFileId.onchange = function() {
+        if (csvFileId.value) {
+            UploadCSVIdForm.submit();
+        }
+    };
+
+
+    }
 </script>
 
 {{end}}
