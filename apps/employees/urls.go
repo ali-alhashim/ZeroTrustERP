@@ -45,5 +45,10 @@ func EmployeeListRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /employees/download/csv", core.AuthMiddleware(http.HandlerFunc(controllers.DownloadEmployeesCSV), "employees:R"))
 	mux.Handle("POST /employees/upload/csv", core.AuthMiddleware(http.HandlerFunc(controllers.ImportCSVEmployees), "employees:W"))
 
+
+	mux.Handle("GET /employees/ShiftSchedule", core.AuthMiddleware(http.HandlerFunc(controllers.ListShift), "ShiftSchedule:R"))
+	mux.Handle("GET /employees/shift/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateShift), "ShiftSchedule:W"))
+	
+
 	
 }
