@@ -24,6 +24,8 @@ func EmployeeListRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /api/job-titles/list", core.AuthMiddleware(http.HandlerFunc(controllers.GetJobTitleListApi), "jobs:R"))
 	mux.Handle("GET /job/details/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.JobsDetails), "jobs:R"))
 	mux.Handle("POST /job/update/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.UpdateJob), "job:W"))
+	mux.Handle("GET /jobs/download/csv", core.AuthMiddleware(http.HandlerFunc(controllers.DownloadJobsCSV), "job:R"))
+	mux.Handle("POST /jobs/upload/csv", core.AuthMiddleware(http.HandlerFunc(controllers.ImportCSVJobs), "job:W"))
 
 	mux.Handle("GET /employees/departments", core.AuthMiddleware(http.HandlerFunc(controllers.ListDepartments), "departments:R"))
 	mux.Handle("GET /employees/departments/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateDepartment), "departments:R"))

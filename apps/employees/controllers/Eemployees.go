@@ -133,7 +133,7 @@ func GetEmployeeById(id string) models.Employee {
     if jID.Valid {
         employee.JobTitle = &models.JobTitle{
             ID:   int(jID.Int64),
-            Name: jName.String,
+            Name: &jName.String,
         }
     }
 

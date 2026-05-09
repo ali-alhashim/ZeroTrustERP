@@ -104,10 +104,10 @@ type ExJobTitle struct {
 
 type JobTitle struct {
     ID          int    `f:"number, primary, auto"`
-    Name        string `f:"text, unique, notnull"`
-    LocalName   string     `f:"text"`
-    Code        string `f:"text, unique, notnull"`
-    Description string `f:"text"`
+    Name        *string `f:"text"`
+    LocalName   *string     `f:"text"`
+    Code         string `f:"text, unique, notnull"`
+    Description *string `f:"text"`
     Employees   []Employee `v:"true"`
     CreatedAt   time.Time `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time `f:"timestamp, default:current_timestamp"`
