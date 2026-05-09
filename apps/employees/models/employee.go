@@ -32,7 +32,7 @@ type Employee struct {
     Tasks              []Task `v:"true"`
     CalendarEvents     []CalendarEvent `v:"true"`
     GovermentID string      `f:"text"` // Iqama/ID
-    Image       string      `f:"text"` 
+    Image       *string      `f:"text"` 
     Email       *string      `f:"text, unique"`
     Nationality *string      `f:"text"`
     Gender       *string      `f:"text"` // "Male", "Female"

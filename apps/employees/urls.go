@@ -41,6 +41,9 @@ func EmployeeListRoutes(mux *http.ServeMux) {
 
 
 	mux.Handle("POST /employees/upload/image/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.UploadEmployeeImage), "employees:W"))
+	
+	mux.Handle("GET /employees/download/csv", core.AuthMiddleware(http.HandlerFunc(controllers.DownloadEmployeesCSV), "employees:R"))
+	mux.Handle("POST /employees/upload/csv", core.AuthMiddleware(http.HandlerFunc(controllers.ImportCSVEmployees), "employees:W"))
 
 	
 }

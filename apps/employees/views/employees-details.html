@@ -128,7 +128,12 @@
                     </tr>
                         <tr>
                             <td>Birth Date</td>
-                            <td><input type="date" name="birthDate" value="{{.Employee.BirthDate.Format "2006-01-02"}}"></td>
+                            <td>
+                                <input type="date" name="birthDate" value="{{.Employee.BirthDate.Format "2006-01-02"}}">
+
+                                <span id="AgeID" style="font-size: large; font-weight: bold;">  Age: </span>
+
+                            </td>
                         </tr>
                             <tr>
                                 <td>Nationality</td>
@@ -445,6 +450,43 @@
         }
     };
     }
+</script>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    const dateInput = document.querySelector('input[name="birthDate"]');
+    const ageDisplay = document.getElementById('AgeID');
+
+    function calculateAge(birthDateString) {
+        if (!birthDateString) return "";
+
+        const today = new Date();
+        const birthDate = new Date(birthDateString);
+        
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        // Adjust age if the birthday hasn't occurred yet this year
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        return age >= 0 ? age : 0;
+    }
+
+    function updateAge() {
+        const age = calculateAge(dateInput.value);
+        ageDisplay.textContent = age !== "" ? ` Age: ${age}` : " Age: ";
+    }
+
+    // Run once on page load to show age for the existing value
+    updateAge();
+
+    // Listen for manual changes
+    dateInput.addEventListener('change', updateAge);
+});
 </script>
 
 {{end}}
