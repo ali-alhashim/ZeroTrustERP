@@ -32,6 +32,7 @@ func ListEmployees(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("list logs: search=%s, sort=%s, order=%s, page=%s, pageSize=%s\n", search, sortBy, order, page, pageSize)
     
     totalRecords := core.GetCountRecords("employees")
+    
 
 	employees:= GetEmployeesFromDB(search, sortBy, order, page, pageSize)
 
@@ -44,11 +45,40 @@ func ListEmployees(w http.ResponseWriter, r *http.Request) {
 		"Page":  page,
 		"PageSize": pageSize,
 		"TotalRecords":totalRecords,
+        "SaudizationStats":GetSaudizationStats(),
 		"Employees": employees,
-		
 	}
 
 	core.RenderPage(w,r, "apps/employees/views/employees-list.html", data)
+}
+
+type SaudizationStats struct {
+    TotalCount int
+    SaudiCount int
+    NonSaudi   int
+}
+
+
+func GetSaudizationStats() SaudizationStats {
+    var stats SaudizationStats
+
+    // One query to get Total and Saudi count simultaneously
+    query := `
+        SELECT 
+            COUNT(*) as total, 
+            COUNT(*) FILTER (WHERE nationality ILIKE 'Saudi Arabia') as saudi 
+        FROM employees`
+
+    err := core.DB.QueryRow(query).Scan(&stats.TotalCount, &stats.SaudiCount)
+    if err != nil {
+        fmt.Printf("Error counting records: %v\n", err)
+        return stats
+    }
+
+    // Calculate the remainder
+    stats.NonSaudi = stats.TotalCount - stats.SaudiCount
+
+    return stats
 }
 
 
