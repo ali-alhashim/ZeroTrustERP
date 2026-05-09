@@ -56,8 +56,118 @@
 </div><!--toolbar-->
 
 
+<!----------------------------------------------------->
+<style>
+    .saudi-monitor {
+        font-family: sans-serif;
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 500px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
 
-      Total Employees: {{.TotalRecords}}  / {{.SaudizationStats}}
+    .monitor-title {
+        margin: 0 0 20px 0;
+        font-size: 1.2rem;
+        color: #333;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-row {
+        margin-bottom: 20px;
+    }
+
+    .label-group {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    /* Bar Background */
+    .bar-container {
+        background: #eee;
+        height: 32px;
+        border-radius: 16px;
+        overflow: hidden; /* Clips the inner bar */
+        display: flex;
+    }
+
+    /* Individual Bar Fills */
+    .fill {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.8rem;
+        font-weight: bold;
+        transition: width 0.6s ease;
+    }
+
+    .fill-saudi {
+        background-color: #2e7d32; /* Saudi Green */
+    }
+
+    .fill-non-saudi {
+        background-color: #546e7a; /* Professional Grey/Blue */
+    }
+
+    .legend {
+        display: flex;
+        gap: 20px;
+        margin-top: 15px;
+        font-size: 0.85rem;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+</style>
+
+<div class="saudi-monitor">
+    <div class="monitor-title">
+        <span>Saudization Monitor</span>
+        <small style="color: #666;">Total: {{.SaudizationStats.TotalCount}}</small>
+    </div>
+
+    <div class="stat-row">
+        <div class="label-group">
+            <span>Status Distribution</span>
+            <!-- Calculation done in the browser via Go templates -->
+            <span>{{.SaudizationStats.SaudiCount}} Saudi / {{.SaudizationStats.NonSaudi}} Non-Saudi</span>
+        </div>
+
+        <div class="bar-container">
+            <!-- We calculate the percentage directly in the HTML attribute -->
+            <div class="fill fill-saudi" 
+                 style="width: calc(({{.SaudizationStats.SaudiCount}} / {{.SaudizationStats.TotalCount}}) * 100%)">
+            </div>
+            <div class="fill fill-non-saudi" 
+                 style="width: calc(({{.SaudizationStats.NonSaudi}} / {{.SaudizationStats.TotalCount}}) * 100%)">
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <span class="dot" style="background: #2e7d32;"></span> Saudi
+        </div>
+        <div class="legend-item">
+            <span class="dot" style="background: #546e7a;"></span> Non-Saudi
+        </div>
+    </div>
+</div>
+<!----------------------------------------------------->
+
+<br/>
+
+
+      
         <table>
             <thead>
                 <tr>
