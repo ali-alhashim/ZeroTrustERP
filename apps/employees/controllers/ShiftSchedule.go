@@ -196,3 +196,55 @@ func CreateShift(w http.ResponseWriter, r *http.Request) {
         http.Redirect(w, r, "/employees/ShiftSchedule", http.StatusSeeOther)
     }
 }
+
+
+
+
+func UpdateSchedules(w http.ResponseWriter, r *http.Request){
+
+	id:=r.PathValue("id")
+
+	if r.Method == http.MethodGet{
+
+		data:= map[string]interface{}{
+			"Shift":GetShiftById(id),
+		}
+
+
+		core.RenderPage(w, r, "apps/employees/views/ShiftSchedule-Update.html", data)
+        return // Ensure we stop execution after rendering
+	}
+
+}
+
+
+func GetShiftById(id string) models.ShiftSchedule{
+	var Shift models.ShiftSchedule
+
+	query :="select id, name, from_time, to_time, from_date, to_date, monday, tuesday, wednesday, thursday, friday, saturday, sunday from shift_schedules where id = $1"
+    
+	err := core.DB.QueryRow(query, id).Scan(
+        &Shift.ID,
+		&Shift.Name,
+		&Shift.FromTime,
+		&Shift.ToTime,
+		&Shift.FromDate,
+		&Shift.ToDate,
+		&Shift.Monday,
+		&Shift.Tuesday,
+		&Shift.Wednesday,
+		&Shift.Thursday,
+		&Shift.Friday,
+		&Shift.Saturday,
+		&Shift.Sunday,
+    )
+
+	if err !=nil{
+		fmt.Print(err)
+	}
+
+
+
+
+	return Shift
+}

@@ -1,0 +1,94 @@
+{{define "content"}}
+
+ <h3>Update Shift Schedule / {{.Shift.ID}}</h3>
+
+ <form method="POST">
+
+
+    <table>
+        <tr>
+            <td>Name</td>
+            <td>
+                <input type="text" name="name" value="{{.Shift.Name}}"/>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>From Time</td>
+            <td>
+                <input type="time" name="from_time" value='{{.Shift.FromTime}}'/>
+            </td>
+        </tr>
+
+        <tr>
+            <td>To Time</td>
+            <td>
+                <input type="time" name="to_time"/>
+            </td>
+        </tr>
+
+         <tr>
+            <td>From Date</td>
+            <td>
+                <input type="date" name="from_date" id="from_date_id" value="{{.Shift.FromDate}}"/>
+            </td>
+        </tr>
+
+        <tr>
+            <td>To Date</td>
+            <td>
+                <input type="date" name="to_date" id="to_date_id"/>
+            </td>
+        </tr>
+
+        <tr>
+            <td rowspan="7">Working Days</td>
+
+            <td>
+            <input type="checkbox" name="monday" {{if .Shift.Monday}} checked {{end}}>monday
+            </td>
+        </tr>
+        <tr>
+             <td>
+            <input type="checkbox" name="tuesday">tuesday
+            </td>
+        </tr>
+        <tr>
+         <td>
+            <input type="checkbox" name="wednesday">wednesday
+        </td>
+        </tr>
+        <tr>
+         <td>
+            <input type="checkbox" name="thursday">thursday
+        </td>
+        </tr>
+        <tr>
+         <td>
+            <input type="checkbox" name="friday" {{if .Shift.Friday}} checked {{end}} >friday
+        </td>
+        </tr>
+        <tr>
+         <td>
+            <input type="checkbox" name="saturday">saturday
+        </td>
+        </tr>
+        <tr>
+         <td>
+            <input type="checkbox" name="sunday">sunday
+        </td>
+        </tr>
+       
+
+
+
+    </table>
+
+    <hr>
+    <button type="submit" class="btn btn-primary">Create</button>
+
+ </form>
+
+
+ {{end}}
