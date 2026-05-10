@@ -76,9 +76,44 @@
             </thead>
 
             <tbody>
+                {{range .ShiftSchedules}}
                 <tr>
                     
+                      <td>
+                        <a class="btn btn-id" href="/ShiftSchedule/details/{{.ID}}">
+                        {{.ID}}
+                        </a>
+                      </td>
+
+
+                    <td>{{.Name}}</td>
+                    <td>{{.FromTime.Format "03:04 PM"}}</td>
+                    <td>{{.ToTime.Format "03:04 PM"}}</td>
+                    <td>{{.FromDate.Format "01/02/2006"}}</td>
+                    <td>{{.ToDate.Format "01/02/2006"}}</td>
+                    <td>
+                        <img src="{{if .Monday}}/static/icons/check.svg {{else}} /static/icons/x-mark.svg {{end}}" width="20">
+                    </td>
+                     <td>
+                        <img src="{{if .Tuesday}}/static/icons/check.svg {{else}} /static/icons/x-mark.svg {{end}}" width="20">
+                    </td>
+                     <td>
+                        <img src="{{if .Wednesday}}/static/icons/check.svg {{else}} /static/icons/x-mark.svg {{end}}" width="20">
+                    </td>
+                     <td>
+                        <img src="{{if .Thursday}}/static/icons/check.svg {{else}} /static/icons/x-mark.svg {{end}}" width="20">
+                    </td>
+                     <td>
+                        <img src="{{if .Friday}}/static/icons/check.svg {{else}} /static/icons/x-mark.svg {{end}}" width="20">
+                    </td>
+                     <td>
+                        <img src="{{if .Saturday}}/static/icons/check.svg {{else}} /static/icons/x-mark.svg {{end}}" width="20">
+                    </td>
+                     <td>
+                        <img src="{{if .Sunday}}/static/icons/check.svg {{else}} /static/icons/x-mark.svg {{end}}" width="20">
+                    </td>
                 </tr>
+                {{end}}
             </tbody>
   </table>
 

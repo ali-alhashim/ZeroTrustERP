@@ -145,23 +145,54 @@ func GetShiftSchedulesFromDB(search, sort, order, page, pageSize string)[]models
 }
 
 
+func CreateShift(w http.ResponseWriter, r *http.Request) {
+    if r.Method == http.MethodGet {
+        data := map[string]interface{}{
+            "Title": "Create Shift",
+        }
+        core.RenderPage(w, r, "apps/employees/views/ShiftSchedule-create.html", data)
+        return // Ensure we stop execution after rendering
+    }
 
-func CreateShift(w http.ResponseWriter, r *http.Request){
+    if r.Method == http.MethodPost {
+        // 1. Extract values from form
+        name := r.PostFormValue("name")
+        fromTime := r.PostFormValue("from_time")
+        toTime := r.PostFormValue("to_time")
+        fromDate := r.PostFormValue("from_date")
+        toDate := r.PostFormValue("to_date")
+
+        // Checkboxes return "on" if checked, or empty string if not
+        monday := r.PostFormValue("monday") == "on"
+        tuesday := r.PostFormValue("tuesday") == "on"
+        wednesday := r.PostFormValue("wednesday") == "on"
+        thursday := r.PostFormValue("thursday") == "on"
+        friday := r.PostFormValue("friday") == "on"
+        saturday := r.PostFormValue("saturday") == "on"
+        sunday := r.PostFormValue("sunday") == "on"
+
+        // 2. Database Insertion
+        
+        query := `
+            INSERT INTO shift_schedules 
+            (name, from_time, to_time, from_date, to_date, monday, tuesday, wednesday, thursday, friday, saturday, sunday) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
 
 
-	if r.Method == http.MethodGet{
+			fullFromTimestamp := fromDate + " " + fromTime
+            fullToTimestamp := toDate + " " + toTime
 
-		data:=map[string]interface{}{
-			"Title":"Create Shift",
-		}
+        _, err := core.DB.Exec(query, 
+            name, fullFromTimestamp, fullToTimestamp, fromDate, toDate, 
+            monday, tuesday, wednesday, thursday, friday, saturday, sunday,
+        )
 
+        if err != nil {
+            http.Error(w, "Failed to save shift: "+err.Error(), http.StatusInternalServerError)
+            return
+        }
 
-		core.RenderPage(w,r, "apps/employees/views/ShiftSchedule-create.html", data)
-
-	}
-
-	if r.Method == http.MethodPost{
-
-	}
-
+        // 3. Redirect to list view
+        http.Redirect(w, r, "/employees/ShiftSchedule", http.StatusSeeOther)
+    }
 }
