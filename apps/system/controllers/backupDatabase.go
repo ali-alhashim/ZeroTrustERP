@@ -12,3 +12,6 @@ func DownloadBackup(){
 
 }
 
+
+//autbackup to selected destination like [oneDrive] [GoogleDrive] [Local Drive like D:\\] [to NAS Storage]
+
