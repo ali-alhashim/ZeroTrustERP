@@ -45,7 +45,7 @@ type Employee struct {
     Religion     *string      `f:"text"` // e.g., "Islam", "Christianity", "Hinduism"
     PersonalEmail *string     `f:"text"`
     PersonalMobile *string     `f:"text"`
-    ShiftSchedule  *ShiftSchedule `f:"many2one:"`
+    
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments
@@ -146,7 +146,7 @@ type Contract struct {
     
     // Virtual field to see all salary updates linked to this contract
     SalaryLines []ContractSalaryLine `v:"true"`
-    
+    JobTitle    *JobTitle   `f:"many2one:"`   
     Active      bool       `f:"bool, default:true"`
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
@@ -154,6 +154,11 @@ type Contract struct {
     BankName    *string    `f:"text"` // Bank name for salary payments
     AbsenseBalance *int    `f:"number"`
     Status      *string    `f:"text"`
+    ShiftSchedule  *ShiftSchedule `f:"many2one:"`
+    WorkLocation *string   `f:"text"`
+    Note         *string   `f:"text"`
+    CompanyAuthoritySignature *string `f:"text"`   //this path of image Signature
+    EmployeeSignature         *string `f:"text"`
 }
 
 // SalaryComponentType defines what the money is for (Housing, Transport, etc.)

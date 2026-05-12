@@ -52,6 +52,9 @@ func EmployeeListRoutes(mux *http.ServeMux) {
 
 	mux.Handle("GET /ShiftSchedule/details/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.UpdateSchedules), "ShiftSchedule:R"))
 	mux.Handle("POST /ShiftSchedule/details/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.UpdateSchedules), "ShiftSchedule:W"))
+
+
+	mux.Handle("GET /employees/contract", core.AuthMiddleware(http.HandlerFunc(controllers.ListContract), "Contract:R"))
 	
 
 	
