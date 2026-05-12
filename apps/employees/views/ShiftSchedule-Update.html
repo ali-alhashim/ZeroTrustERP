@@ -17,28 +17,28 @@
         <tr>
             <td>From Time</td>
             <td>
-                <input type="time" name="from_time" value='{{.Shift.FromTime}}'/>
+                <input type="time" name="from_time" value='{{.Shift.FromTime.Format "15:04"}}'/>
             </td>
         </tr>
 
         <tr>
             <td>To Time</td>
             <td>
-                <input type="time" name="to_time"/>
+                <input type="time" name="to_time" value='{{.Shift.ToTime.Format "15:04"}}'/>
             </td>
         </tr>
 
          <tr>
             <td>From Date</td>
             <td>
-                <input type="date" name="from_date" id="from_date_id" value="{{.Shift.FromDate}}"/>
+                <input type="date" name="from_date" id="from_date_id" value='{{.Shift.FromDate.Format "2006-01-02"}}'/>
             </td>
         </tr>
 
         <tr>
             <td>To Date</td>
             <td>
-                <input type="date" name="to_date" id="to_date_id"/>
+                <input type="date" name="to_date" id="to_date_id" value='{{.Shift.ToDate.Format "2006-01-02"}}'/>
             </td>
         </tr>
 
@@ -51,17 +51,17 @@
         </tr>
         <tr>
              <td>
-            <input type="checkbox" name="tuesday">tuesday
+            <input type="checkbox" name="tuesday" {{if .Shift.Tuesday}} checked {{end}}>tuesday
             </td>
         </tr>
         <tr>
          <td>
-            <input type="checkbox" name="wednesday">wednesday
+            <input type="checkbox" name="wednesday" {{if .Shift.Wednesday}} checked {{end}}>wednesday
         </td>
         </tr>
         <tr>
          <td>
-            <input type="checkbox" name="thursday">thursday
+            <input type="checkbox" name="thursday" {{if .Shift.Thursday}} checked {{end}}>thursday
         </td>
         </tr>
         <tr>
@@ -71,12 +71,12 @@
         </tr>
         <tr>
          <td>
-            <input type="checkbox" name="saturday">saturday
+            <input type="checkbox" name="saturday" {{if .Shift.Saturday}} checked {{end}}>saturday
         </td>
         </tr>
         <tr>
          <td>
-            <input type="checkbox" name="sunday">sunday
+            <input type="checkbox" name="sunday" {{if .Shift.Sunday}} checked {{end}}>sunday
         </td>
         </tr>
        
@@ -86,7 +86,7 @@
     </table>
 
     <hr>
-    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="submit" class="btn btn-primary">Update</button>
 
  </form>
 

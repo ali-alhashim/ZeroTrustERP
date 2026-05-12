@@ -215,6 +215,71 @@ func UpdateSchedules(w http.ResponseWriter, r *http.Request){
         return // Ensure we stop execution after rendering
 	}
 
+	if r.Method == http.MethodPost{
+
+		
+
+		name := r.PostFormValue("name")
+        fromTime := r.PostFormValue("from_time")
+        toTime := r.PostFormValue("to_time")
+        fromDate := r.PostFormValue("from_date")
+        toDate := r.PostFormValue("to_date")
+
+        // Checkboxes return "on" if checked, or empty string if not
+        monday := r.PostFormValue("monday") == "on"
+        tuesday := r.PostFormValue("tuesday") == "on"
+        wednesday := r.PostFormValue("wednesday") == "on"
+        thursday := r.PostFormValue("thursday") == "on"
+        friday := r.PostFormValue("friday") == "on"
+        saturday := r.PostFormValue("saturday") == "on"
+        sunday := r.PostFormValue("sunday") == "on"
+
+		fullFromTimestamp := fromDate + " " + fromTime
+        fullToTimestamp := toDate + " " + toTime
+
+		
+		
+
+
+
+		query :=`update shift_schedules set 
+		         name = $1, 
+				 from_time = $2, 
+				 to_time = $3, 
+				 from_date =$4, 
+				 to_date = $5, 
+				 monday = $6, 
+				 tuesday = $7, 
+				 wednesday = $8, 
+				 thursday = $9, 
+				 friday = $10, 
+				 saturday = $11, 
+				 sunday = $12 
+				 where id = $13
+				 `
+
+
+				 _, err := core.DB.Exec(query, 
+            name, fullFromTimestamp, fullToTimestamp, fromDate, toDate, 
+            monday, tuesday, wednesday, thursday, friday, saturday, sunday,id,
+        )
+
+	if err != nil {
+		fmt.Printf("Error updating Shift: %v\n", err)
+		http.Error(w, fmt.Sprintf("Error updating Shift: %s", err), http.StatusInternalServerError)
+		return
+	}
+
+	CurrentUser := core.GetCurrentUser(r)
+
+	core.InsertLog(CurrentUser, "shift_schedules", fmt.Sprintf("Updated Shift ID %d with Name: %s ",id, name))
+
+	 http.Redirect(w, r, "/employees/ShiftSchedule", http.StatusSeeOther)
+
+	}
+
+	
+
 }
 
 
