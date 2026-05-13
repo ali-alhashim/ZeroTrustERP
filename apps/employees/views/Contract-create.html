@@ -115,12 +115,12 @@
 <hr>
 
 <table>
-    <tr>
-        <td>Base Salary</td>
-        <td>
-            <input type="number" name="BaseSalary"/>
-        </td>
-    </tr>
+   <tr>
+    <td>Base Salary</td>
+    <td>
+        <input type="number" name="BaseSalary" id="BaseSalary" value="0"/>
+    </td>
+</tr>
 
     <tr>
         <td>
@@ -133,14 +133,17 @@
 </table>
 
 <hr>
-<table>
+<table id="SalaryComponentsTable">
     <thead>
         <tr>
-           <td>Type</td> <td>Amount</td>
+           <th>Type</th> <th>Amount</th> <th>Action</th>
         </tr>
+    </thead>
+    <tbody>
+        <!-- This is the initial row -->
         <tr>
             <td>
-                <select name="SalaryComponentType">
+                <select name="SalaryComponentType" class="form-control">
                     <option>Housing</option>
                     <option>Transport</option>
                     <option>Telecom</option>
@@ -148,12 +151,25 @@
                 </select>
             </td>
             <td>
-                <input type="number" name="Amount">
+                <input type="number" name="Amount" class="form-control">
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm" onclick="RemoveRow(this)">Delete</button>
             </td>
         </tr>
-    </thead>
+    </tbody>
+
+   <tfoot>
+    <tr style="font-weight: bold; background-color: #f8f9fa;">
+        <td>Total Salary</td>
+        <td id="TotalSalaryDisplay">0.00</td>
+        <td></td>
+    </tr>
+</tfoot>
+
+
 </table>
-<button type="button" class="btn btn-secondary">Add+</button>
+<button type="button" class="btn btn-secondary" onclick="AddSalaryComponent()">Add+</button>
 <hr>
 
 
@@ -216,6 +232,79 @@
             })
             .catch(error => console.error('Error fetching job titles:', error));
     });
+</script>
+
+
+
+
+<script>
+ function AddSalaryComponent() {
+    // 1. Get the table body
+    const tableBody = document.querySelector('#SalaryComponentsTable tbody');
+    
+    // 2. Create a new row element
+    const newRow = document.createElement('tr');
+    
+    // 3. Set the inner HTML for the new row
+    // Note: Use backticks `` for multi-line strings
+    newRow.innerHTML = `
+        <td>
+            <select name="SalaryComponentType" class="form-control">
+                <option>Housing</option>
+                <option>Transport</option>
+                <option>Telecom</option>
+                <option>GOSI</option>
+            </select>
+        </td>
+        <td>
+            <input type="number" name="Amount" class="form-control">
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger btn-sm" onclick="RemoveRow(this)">Delete</button>
+        </td>
+    `;
+    
+    // 4. Append the row to the table
+    tableBody.appendChild(newRow);
+}
+
+
+
+
+
+function calculateTotalSalary() {
+    // 1. Get Base Salary
+    const baseSalaryInput = document.getElementById('BaseSalary');
+    let total = parseFloat(baseSalaryInput.value) || 0;
+
+    // 2. Get all dynamic component amounts
+    const componentAmounts = document.querySelectorAll('input[name="Amount"]');
+    
+    componentAmounts.forEach(input => {
+        let val = parseFloat(input.value) || 0;
+        total += val;
+    });
+
+    // 3. Update the display
+    document.getElementById('TotalSalaryDisplay').textContent = total.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+// Add event listeners to existing elements and the document for dynamic ones
+document.addEventListener('input', function (e) {
+    if (e.target.name === 'Amount' || e.target.id === 'BaseSalary') {
+        calculateTotalSalary();
+    }
+});
+
+// Update RemoveRow to recalculate after deleting a row
+function RemoveRow(button) {
+    const row = button.closest('tr');
+    row.remove();
+    calculateTotalSalary(); // Recalculate after removal
+}
 </script>
 
 {{end}}
