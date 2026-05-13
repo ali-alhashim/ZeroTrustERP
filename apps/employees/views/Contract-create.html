@@ -161,8 +161,10 @@
 
    <tfoot>
     <tr style="font-weight: bold; background-color: #f8f9fa;">
-        <td>Total Salary</td>
-        <td id="TotalSalaryDisplay">0.00</td>
+        <td>Net Salary</td>
+
+        <td><input type="text" name="NetSalary" id="TotalNetSalary"/></td>
+
         <td></td>
     </tr>
 </tfoot>
@@ -275,6 +277,7 @@
 function calculateTotalSalary() {
     // 1. Get Base Salary
     const baseSalaryInput = document.getElementById('BaseSalary');
+
     let total = parseFloat(baseSalaryInput.value) || 0;
 
     // 2. Get all dynamic component amounts
@@ -286,7 +289,7 @@ function calculateTotalSalary() {
     });
 
     // 3. Update the display
-    document.getElementById('TotalSalaryDisplay').textContent = total.toLocaleString(undefined, {
+    document.getElementById('TotalNetSalary').value = total.toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
