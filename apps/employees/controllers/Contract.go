@@ -28,7 +28,7 @@ func ListContract(w http.ResponseWriter, r *http.Request) {
 
 
 	data := map[string]interface{}{
-		"Title": "Departments",
+		"Title": "Contract",
 		"Query": search,
 		"Sort":  sortBy,
 		"Order": order,
@@ -156,4 +156,23 @@ func GetContractsFromDB(search, sort, order, page, pageSize string) []models.Con
 	}
 
 	return contracts
+}
+
+
+func CreateContract(w http.ResponseWriter, r *http.Request){
+
+	if r.Method == http.MethodGet{
+
+		data := map[string]interface{}{
+		"Title": "Create Contract",
+		}
+
+	core.RenderPage(w,r, "apps/employees/views/Contract-create.html", data)
+
+	} //--End Get
+
+	if r.Method == http.MethodPost{
+		//insert contract to db
+	}
+
 }

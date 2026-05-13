@@ -1,0 +1,221 @@
+{{define "content"}}
+
+<h4>{{.Title}}</h4>
+
+<form method="post">
+
+<table>
+    <tbody>
+        
+
+        <tr>
+            <td>Name</td><td><input type="text" placeholder="Enter Contract Name" name="name"></td>
+        </tr>
+
+        
+
+         <tr>
+            <td>Employee</td>
+            <td>
+                <select name="employee" class="select-search" id="ManagerSelect">
+                    <option>Select Employee</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Start Date
+            </td>
+            <td><input type="date" name="start_date"/></td>
+        </tr>
+
+        <tr>
+            <td>
+                End Date
+            </td>
+            <td><input type="date" name="end_date"/></td>
+        </tr>
+
+         <tr>
+            <th>Job Title</th>
+            <th>
+                <select name="jobTitleId" class="select-search">
+                    <option value="0">Select Job Title</option>
+                </select>
+            </th>
+        </tr>
+
+
+
+        <tr>
+            <td>IBAN</td><td><input type="text" placeholder="Enter IBAN" name="IBAN"></td>
+        </tr>
+
+        <tr>
+            <td>Bank Name</td><td><input type="text" placeholder="Enter Bank Name" name="BankName"></td>
+        </tr>
+
+        <tr>
+            <td>
+                Absense Balance
+            </td>
+            <td>
+                 <input type="text" placeholder="0" name="AbsenseBalance" value="0"></td>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Status</td>
+            <td>
+                <select name="Status">
+                    <option>Active</option>
+                    <option>Expired</option>
+                    <option>Terminated</option>
+                </select>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>
+                Shift Schedule
+            </td>
+            <td>
+                <select name="ShiftSchedule" i="ShiftScheduleId">
+                    <option>Select Shift Schedule</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Work Location</td>
+            <td>
+                <input type="text" name="workLocation"/>
+            </td>
+        </tr>
+        <tr>
+            <td>Note</td>
+            <td>
+                <input type="text" name="note">
+            </td>
+        </tr>
+
+        
+
+
+        <tr>
+            <td>Active</td><td><input type="checkbox"  name="active" checked></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+<hr>
+
+<table>
+    <tr>
+        <td>Base Salary</td>
+        <td>
+            <input type="number" name="BaseSalary"/>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            Effective Date
+        </td>
+        <td>
+            <input type="date" name="EffectiveDate">
+        </td>
+    </tr>
+</table>
+
+<hr>
+<table>
+    <thead>
+        <tr>
+           <td>Type</td> <td>Amount</td>
+        </tr>
+        <tr>
+            <td>
+                <select name="SalaryComponentType">
+                    <option>Housing</option>
+                    <option>Transport</option>
+                    <option>Telecom</option>
+                    <option>GOSI</option>
+                </select>
+            </td>
+            <td>
+                <input type="number" name="Amount">
+            </td>
+        </tr>
+    </thead>
+</table>
+<button type="button" class="btn btn-secondary">Add+</button>
+<hr>
+
+
+
+
+
+
+
+<button type="submit" class="btn btn-primary m-5">Create Contract</button>
+
+</form>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        const ManagerSelect = document.getElementById('ManagerSelect');
+
+        // Fetch employees and populate the select
+        fetch('/api/employees/list')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Employees data:', data); // Debugging log
+                data.forEach(employee => {
+                    const option = document.createElement('option');
+                    option.value = employee.ID;
+                    option.textContent ="(" + employee.BadgeID + ") " + employee.Name + " (" + employee.LocalName + ") - " + employee.ID;
+                    ManagerSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching employees:', error));
+
+
+             selectSearch();
+          });
+</script>
+
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      
+        const jobTitleSelect = document.querySelector('select[name="jobTitleId"]');
+
+     
+        // Fetch job titles and populate the select
+        fetch('/api/job-titles/list')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(jobTitle => {
+                    console.log('Job Title:', jobTitle); // Debugging log
+                    const option = document.createElement('option');
+                    option.value = jobTitle.ID;
+                    option.textContent = jobTitle.Name + " (" + jobTitle.LocalName + ") - " + jobTitle.ID;
+                    jobTitleSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching job titles:', error));
+    });
+</script>
+
+{{end}}
