@@ -45,7 +45,17 @@ type Employee struct {
     Religion     *string      `f:"text"` // e.g., "Islam", "Christianity", "Hinduism"
     PersonalEmail *string     `f:"text"`
     PersonalMobile *string     `f:"text"`
+    ServicePeriods []ServicePeriod `v:"true"`
     
+}
+
+type ServicePeriod struct {
+    ID         int        `f:"number, primary, auto"`
+    EmployeeID int        `f:"number"`
+    HireDate   time.Time `f:"timestamp"`
+    TerminationDate *time.Time `f:"timestamp"`
+    Reason          *string   `f:"text"`
+    EOSBPaid        *bool   `f:"bool, default:false"`
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments
@@ -153,13 +163,20 @@ type Contract struct {
     IBAN        *string    `f:"text"` // Bank account number for salary payments
     BankName    *string    `f:"text"` // Bank name for salary payments
     AbsenseBalance *int    `f:"number"`
+    YearlyTotalAllocationDays *int `f:"number"`
+    AccrualRatePerDay *int `f:"number"`
     Status      *string    `f:"text"`
     ShiftSchedule  *ShiftSchedule `f:"many2one:"`
     WorkLocation *string   `f:"text"`
     Note         *string   `f:"text"`
     CompanyAuthoritySignature *string `f:"text"`   //this path of image Signature
     EmployeeSignature         *string `f:"text"`
+    TotalServiceYears *int `f:"number"`
 }
+
+// Accrual Rate Per Day = Yearly Total Allocation Days / Days in year
+// Cron Job
+// for the year some time 366 & 365 we will stick to a fixed 365
 
 // SalaryComponentType defines what the money is for (Housing, Transport, etc.)
 type SalaryComponentType struct {

@@ -125,7 +125,7 @@ func GetContractsFromDB(search, sort, order, page, pageSize string) []models.Con
 		var ShiftId *string
 		var contract models.Contract
 	
-		err := rows.Scan(&contract.ID, EmployeeId, &contract.StartDate, &contract.EndDate, &contract.Active, &contract.CreatedAt, ShiftId, &contract.Status)
+		err := rows.Scan(&contract.ID, &EmployeeId, &contract.Name, &contract.StartDate, &contract.EndDate, &contract.Active, &contract.CreatedAt, &ShiftId, &contract.Status)
 		if err != nil {
 			panic(err)
 		}
@@ -173,6 +173,28 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 
 	if r.Method == http.MethodPost{
 		//insert contract to db
+
+		contractName:= r.PostFormValue("name")
+		employeeId:= r.PostFormValue("employee")
+		start_date:= r.PostFormValue("start_date")
+		end_date:=r.PostFormValue("end_date")
+		totalServiceYears:=r.PostFormValue("totalServiceYears")
+		jobTitleId:=r.PostFormValue("jobTitleId")
+		IBAN:=r.PostFormValue("IBAN")
+		BankName:=r.PostFormValue("BankName")
+        AbsenseBalance:=r.PostFormValue("AbsenseBalance")
+		fmt.Printf("we get the following %s %s %s %s %s %s %s %s %s", 
+		contractName,
+		employeeId,
+		start_date,
+		end_date,
+		totalServiceYears,
+		jobTitleId,
+		IBAN,
+		BankName,
+		AbsenseBalance,
+	     )
+
 	}
 
 }

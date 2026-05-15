@@ -27,14 +27,23 @@
             <td>
                 Start Date
             </td>
-            <td><input type="date" name="start_date"/></td>
+            <td><input type="date" name="start_date" id="start_dateId" onchange="TotalServiceYears()"/></td>
         </tr>
 
         <tr>
             <td>
                 End Date
             </td>
-            <td><input type="date" name="end_date"/></td>
+            <td><input type="date" name="end_date" id="end_dateId" onchange="TotalServiceYears()"/></td>
+        </tr>
+
+        <tr>
+            <td>
+                Total Service Years
+            </td>
+            <td>
+                <input type="text" name="totalServiceYears" id="TotalServiceYearsId">
+            </td>
         </tr>
 
          <tr>
@@ -49,11 +58,11 @@
 
 
         <tr>
-            <td>IBAN</td><td><input type="text" placeholder="Enter IBAN" name="IBAN"></td>
+            <td>IBAN</td><td><input type="text" placeholder="Enter IBAN" name="IBAN" onchange="GetBankName()" id="IBAN_ID"></td>
         </tr>
 
         <tr>
-            <td>Bank Name</td><td><input type="text" placeholder="Enter Bank Name" name="BankName"></td>
+            <td>Bank Name</td><td><input type="text" placeholder="Enter Bank Name" name="BankName" id="BankNameId"></td>
         </tr>
 
         <tr>
@@ -62,6 +71,23 @@
             </td>
             <td>
                  <input type="text" placeholder="0" name="AbsenseBalance" value="0"></td>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Yearly Total Allocation Days
+            </td>
+            <td>
+                <input type="text" placeholder="30" name="YearlyTotalAllocationDays" id="YearlyTotalAllocationDaysId" value="30" onchange="CalAccrualRate()">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Accrual Rate Per Day
+            </td>
+            <td>
+                <input type="text" name="AccrualRatePerDay" id="AccrualRatePerDayId" readonly>
             </td>
         </tr>
 
@@ -308,6 +334,126 @@ function RemoveRow(button) {
     row.remove();
     calculateTotalSalary(); // Recalculate after removal
 }
+</script>
+
+
+<script>
+
+   function CalAccrualRate(){
+    const TotalDaysYears = 365;
+    // Adding parseFloat or Number ensures the system treats the input as a number
+    const totalAlocationDays = parseFloat(document.getElementById("YearlyTotalAllocationDaysId").value) || 0;
+    const AccrualRate = document.getElementById("AccrualRatePerDayId");
+
+    // Calculate and round to 4 decimal places
+    const calculatedRate = totalAlocationDays / TotalDaysYears;
+    AccrualRate.value = calculatedRate.toFixed(4); 
+}
+
+ CalAccrualRate();
+</script>
+
+
+<script>
+function TotalServiceYears(){
+    const StartDateInput = document.getElementById("start_dateId").value;
+    const EndDateInput = document.getElementById("end_dateId").value;
+    const TotalServiceInput = document.getElementById("TotalServiceYearsId");
+
+    // 1. Ensure we have at least a start date to calculate from
+    if (!StartDateInput) {
+        TotalServiceInput.value = "";
+        return;
+    }
+
+    const start = new Date(StartDateInput);
+    let end;
+
+    // 2. Logic check: Use EndDate if it exists, otherwise use the current date/time
+    if (EndDateInput) {
+        end = new Date(EndDateInput);
+    } else {
+        end = new Date(); // Gets today's date
+    }
+
+    // 3. Calculate the difference in milliseconds
+    const timeDiff = end - start;
+
+    // Prevent negative results if End Date is set before Start Date
+    if (timeDiff < 0) {
+        TotalServiceInput.value = "Invalid Date Range";
+        return;
+    }
+
+    // 4. Convert milliseconds to days
+    // (1000ms * 60s * 60m * 24h) = 86,400,000 ms in a day
+    const totalDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+    // 5. Convert days to years (using 365.25 to account for leap years)
+    const totalYears = (totalDays / 365.25).toFixed(2);
+
+    // 6. Display the result (Change this depending on if you want Days or Years)
+    TotalServiceInput.value = totalYears; 
+}
+</script>
+
+
+<script>
+
+function GetBankName(){
+    // 1. Get the raw input value, remove spaces, and convert to uppercase
+    const ibanValue = document.getElementById("IBAN_ID").value.toUpperCase().replace(/\s+/g, '');
+    const BankNameInput = document.getElementById("BankNameId");
+
+    // 2. Define the correct JavaScript object dictionary
+   const bankNameByCode = {
+    "15": "Al Bilad Bank",
+    "05": "Al Inma Bank",
+    "80": "Al Rajhi Bank",
+    "30": "Arab National Bank",
+    "60": "Bank Al Jazira",
+    "76": "Bank Muscat",
+    "55": "Banque Saudi Fransi",
+    "98": "BNP Paribas",
+    "81": "Deutsche Bank",
+    "95": "Emirates Bank",
+    "90": "Gulf International Bank",
+    "71": "National Bank of Bahrain",
+    "75": "National Bank of Kuwait",
+    "82": "National Bank of Pakistan",
+    "10": "National Commercial Bank (SNB)",
+    "20": "Riyad Bank",
+    "40": "Samba Financial Services",
+    "01": "Saudi Arabian Monetary Agency",
+    "45": "Saudi British Bank (SABB)",
+    "50": "Saudi Hollandi Bank (Alawwal Bank)",
+    "65": "Saudi Investment Bank",
+    "83": "State Bank of India",
+    "84": "Turkiye Cumhuriyeti Ziraat Bankasi",
+    "87": "Industrial & Commercial Bank of China",
+    "86": "JP Morgan Chase"
+};
+
+    // 3. Validate that it starts with SA and has enough characters to check the code
+    if (ibanValue.startsWith("SA") && ibanValue.length >= 6) {
+        
+        // Extract characters at index 4 and 5 (the 5th and 6th digits)
+        const code = ibanValue.substring(4, 6);
+
+        // 4. Check if the code exists in our dictionary
+        if (bankNameByCode[code]) {
+            BankNameInput.value = bankNameByCode[code];
+        } else {
+            BankNameInput.value = "Unknown Saudi Bank";
+        }
+        
+    } else {
+        // Clear the field if the input isn't a valid Saudi IBAN format yet
+        BankNameInput.value = "";
+    }
+}
+
+
 </script>
 
 {{end}}
