@@ -195,8 +195,8 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 		BaseSalary :=r.PostFormValue("BaseSalary")
 		EffectiveDate:=r.PostFormValue("EffectiveDate")
 
-		SalaryComponentType:=r.PostForm["SalaryComponentType[]"]
-		Amount:=r.PostForm["Amount[]"]
+		SalaryComponentType:=r.PostForm["SalaryComponentType"]
+		Amount:=r.PostForm["Amount"]
 
 		fmt.Printf("Create Contract Data :  \n%s \n %s \n %s \n %s \n %s \n %s\n %s\n %s\n %s \n%s \n%s \n%s\n %s \n%s \n%s\n %t \n%s\n %s\n %v\n %v\n", 
 		contractName,
@@ -221,6 +221,53 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 		Amount,
 	     )
 
+
+		 // if this first contract for the employee then we create record for him in ServicePeriod
+		 query :=`insert into contracts 
+		         (employee_id,
+				  name,
+				   start_date, 
+				   end_date, 
+				   active, 
+				   iban, 
+				   bank_name, 
+				   absense_balance, 
+				   status, 
+				   shift_schedule_id,
+				   job_title_id, 
+				   work_location,
+				    note,
+					yearly_total_allocation_days,
+					accrual_rate_per_day,
+					total_service_years
+					) 
+					values ($1,$2,$3)`
+
+		 if isThisFirstContract(employeeId){
+			//Insert record in service_periods
+		 }
+
+
+
+
 	} //end post request
+
+}
+
+
+func isThisFirstContract(employeeId string) bool{
+var count int
+	query := "select count(*) from contracts where employee_id = $1"
+
+	// Execute the query and scan the result into the count variable
+	err := core.DB.QueryRow(query, employeeId).Scan(&count)
+	if err != nil {
+		// Handle the error according to your application's logging/error strategy
+		fmt.Printf("Error checking employee contracts: %v", err)
+		return false 
+	}
+
+	// If count is 0, it is their first contract
+	return count == 0
 
 }

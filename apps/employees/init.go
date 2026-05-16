@@ -12,6 +12,7 @@ func init() {
 
 	// Register models for migrations
 	core.RegisterModel(models.Employee{})
+	core.RegisterModel(models.ServicePeriod{})
 	core.RegisterModel(models.Department{})
 
 	core.RegisterModel(models.JobTitle{})
