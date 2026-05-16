@@ -183,7 +183,22 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 		IBAN:=r.PostFormValue("IBAN")
 		BankName:=r.PostFormValue("BankName")
         AbsenseBalance:=r.PostFormValue("AbsenseBalance")
-		fmt.Printf("we get the following %s %s %s %s %s %s %s %s %s", 
+		YearlyTotalAllocationDays:= r.PostFormValue("YearlyTotalAllocationDays")
+        AccrualRatePerDay:= r.PostFormValue("AccrualRatePerDay")
+		Status:=r.PostFormValue("Status")
+		ShiftSchedule:=r.PostFormValue("ShiftSchedule")
+		workLocation:=r.PostFormValue("workLocation")
+		note:=r.PostFormValue("note")
+		active:=r.PostFormValue("active") =="on"
+
+		//----Salary
+		BaseSalary :=r.PostFormValue("BaseSalary")
+		EffectiveDate:=r.PostFormValue("EffectiveDate")
+
+		SalaryComponentType:=r.PostForm["SalaryComponentType[]"]
+		Amount:=r.PostForm["Amount[]"]
+
+		fmt.Printf("Create Contract Data :  \n%s \n %s \n %s \n %s \n %s \n %s\n %s\n %s\n %s \n%s \n%s \n%s\n %s \n%s \n%s\n %t \n%s\n %s\n %v\n %v\n", 
 		contractName,
 		employeeId,
 		start_date,
@@ -193,8 +208,19 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 		IBAN,
 		BankName,
 		AbsenseBalance,
+		YearlyTotalAllocationDays,
+		AccrualRatePerDay,
+		Status,
+		ShiftSchedule,
+		workLocation,
+		note,
+		active,
+		BaseSalary,
+		EffectiveDate,
+		SalaryComponentType,
+		Amount,
 	     )
 
-	}
+	} //end post request
 
 }
