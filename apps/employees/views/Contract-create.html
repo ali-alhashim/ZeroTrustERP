@@ -108,7 +108,7 @@
                 Shift Schedule
             </td>
             <td>
-                <select name="ShiftSchedule" i="ShiftScheduleId">
+                <select name="ShiftSchedule" id="ShiftScheduleId">
                     <option>Select Shift Schedule</option>
                 </select>
             </td>
@@ -221,7 +221,7 @@
         fetch('/api/employees/list')
             .then(response => response.json())
             .then(data => {
-                console.log('Employees data:', data); // Debugging log
+                //console.log('Employees data:', data); // Debugging log
                 data.forEach(employee => {
                     const option = document.createElement('option');
                     option.value = employee.ID;
@@ -251,7 +251,7 @@
             .then(response => response.json())
             .then(data => {
                 data.forEach(jobTitle => {
-                    console.log('Job Title:', jobTitle); // Debugging log
+                    //console.log('Job Title:', jobTitle); // Debugging log
                     const option = document.createElement('option');
                     option.value = jobTitle.ID;
                     option.textContent = jobTitle.Name + " (" + jobTitle.LocalName + ") - " + jobTitle.ID;
@@ -452,6 +452,35 @@ function GetBankName(){
         BankNameInput.value = "";
     }
 }
+
+
+</script>
+
+
+<script>
+    ///api/ShiftSchedule/list
+
+
+      document.addEventListener('DOMContentLoaded', function() {
+      
+        const ShiftSchedule = document.getElementById("ShiftScheduleId");
+
+     
+        // Fetch job titles and populate the select
+        fetch('/api/ShiftSchedule/list')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(shift => {
+                    console.log('shift:', shift); // Debugging log
+                    const option = document.createElement('option');
+                    option.value = shift.ID;
+                    option.textContent = shift.Name + " - " + shift.ID;
+                    ShiftSchedule.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching Shift :', error));
+    });
+
 
 
 </script>

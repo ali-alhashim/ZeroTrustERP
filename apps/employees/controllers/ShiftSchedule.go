@@ -6,7 +6,7 @@ import (
 	"zerotrusterp/apps/employees/models"
 	"zerotrusterp/core"
 	"strconv"
-	
+	"encoding/json"
 )
 
 
@@ -312,4 +312,16 @@ func GetShiftById(id string) models.ShiftSchedule{
 
 
 	return Shift
+}
+
+
+///api/ShiftSchedule/list
+func GetShiftListApi(w http.ResponseWriter, r *http.Request) {
+
+	totalRecords := core.GetCountRecords("shift_schedules")
+	 
+	shifts := GetShiftSchedulesFromDB("", "ID", "asc", "1", strconv.Itoa(totalRecords))
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(shifts)
 }
