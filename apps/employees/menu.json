@@ -25,6 +25,15 @@
                 "path": "/employees/contract",
                 "icon": "contract"
               },
+              {
+                "name": "Salary component types",
+                "path": "/salary/componentTypes",
+                "icon": "banknotes"
+
+
+              },
+
+
                 {
                 "name": "Payroll",
                 "path": "/employees/payroll",

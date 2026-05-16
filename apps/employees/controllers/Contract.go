@@ -225,7 +225,7 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 		 // if this first contract for the employee then we create record for him in ServicePeriod
 		 query :=`insert into contracts 
 		         (employee_id,
-				  name,
+				   name,
 				   start_date, 
 				   end_date, 
 				   active, 
@@ -236,12 +236,24 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 				   shift_schedule_id,
 				   job_title_id, 
 				   work_location,
-				    note,
-					yearly_total_allocation_days,
-					accrual_rate_per_day,
-					total_service_years
+				   note,
+				   yearly_total_allocation_days,
+				   accrual_rate_per_day,
+				   total_service_years
 					) 
-					values ($1,$2,$3)`
+					values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id`
+
+				var ContractId int
+				err := core.DB.QueryRow(query,employeeId,contractName,start_date,end_date,active,IBAN,BankName,AbsenseBalance,Status,ShiftSchedule,jobTitleId,workLocation,note,YearlyTotalAllocationDays,AccrualRatePerDay,totalServiceYears).Scan(&ContractId)
+				
+				if err != nil {
+					fmt.Print(err)
+				}
+
+
+				// Insert Salary lines row in contract_salary_lines
+				// contract_id, base_salary, effective_date
+				// salary_component_values ( salary_line_id, type_id, amount)
 
 		 if isThisFirstContract(employeeId){
 			//Insert record in service_periods
