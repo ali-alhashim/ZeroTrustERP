@@ -55,15 +55,24 @@
 <table>
     <thead>
         <tr>
-            <td>ID</td>
-            <td>Name</td>
-            <td>Code</td>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Code</th>
         </tr>
     </thead>
     <tbody>
+
+        {{range .SalaryComp}}
         <tr>
-            
+            <td>
+                        <a class="btn btn-id" href="/componentType/details/{{.ID}}">
+                        {{.ID}}
+                        </a>
+            </td>
+            <td>{{.Name}}</td>
+            <td>{{.Code}}</td>
         </tr>
+        {{end}}
     </tbody>
 </table>
 
