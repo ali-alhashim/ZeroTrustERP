@@ -6,6 +6,7 @@ import(
 	"zerotrusterp/core"
 	"zerotrusterp/apps/employees/models"
 	"strconv"
+	"encoding/json"
 )
 
 func ListSalaryComponentTypes(w http.ResponseWriter, r *http.Request) {
@@ -194,5 +195,16 @@ func GetComponentTypeById(id string) models.SalaryComponentType{
 	core.DB.QueryRow(query, id).Scan(&ComponentType.ID, &ComponentType.Code, &ComponentType.Name)
 
 	return ComponentType
+}
+
+
+func GetComponentTypeListApi(w http.ResponseWriter, r *http.Request) {
+
+	totalRecords := core.GetCountRecords("salary_component_types")
+	 
+	ComponentTypes := GetSalaryComponentTypesFromDB("", "ID", "asc", "1", strconv.Itoa(totalRecords))
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(ComponentTypes)
 }
 

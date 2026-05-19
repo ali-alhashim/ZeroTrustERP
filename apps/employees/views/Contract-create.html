@@ -170,10 +170,7 @@
         <tr>
             <td>
                 <select name="SalaryComponentType" class="form-control">
-                    <option>Housing</option>
-                    <option>Transport</option>
-                    <option>Telecom</option>
-                    <option>GOSI</option>
+                  <option value="">Select...</option>
                 </select>
             </td>
             <td>
@@ -278,10 +275,8 @@
     newRow.innerHTML = `
         <td>
             <select name="SalaryComponentType" class="form-control">
-                <option>Housing</option>
-                <option>Transport</option>
-                <option>Telecom</option>
-                <option>GOSI</option>
+                <option value="">Select...</option>
+                
             </select>
         </td>
         <td>
@@ -294,6 +289,10 @@
     
     // 4. Append the row to the table
     tableBody.appendChild(newRow);
+    
+
+    const newSelect = newRow.querySelector('select[name="SalaryComponentType"]');
+    componentTypeList(newSelect);
 }
 
 
@@ -479,8 +478,44 @@ function GetBankName(){
                 });
             })
             .catch(error => console.error('Error fetching Shift :', error));
+
+         
+            componentTypeList();
+            
     });
 
+
+
+</script>
+
+
+<script>
+    ///api/componentType/list
+
+
+   function componentTypeList(targetSelect) {
+    // Fallback: If no specific select is passed, look for the first one on the page
+    const selectElement = targetSelect || document.querySelector('select[name="SalaryComponentType"]');
+    
+    // Safety check: Prevent errors if the element doesn't exist
+    if (!selectElement) return; 
+
+    fetch('/api/componentType/list')
+        .then(response => response.json())
+        .then(data => {
+            // Optional: Clear existing API options before appending to avoid duplication
+            // while keeping the placeholder "Select..." option intact
+            selectElement.innerHTML = '<option value="">Select...</option>';
+            
+            data.forEach(compo => {
+                const option = document.createElement('option');
+                option.value = compo.ID;
+                option.textContent = compo.Name + " : " + compo.Code;
+                selectElement.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching componentTypes:', error));
+}
 
 
 </script>
