@@ -151,5 +151,48 @@ func CreateSalaryComponentTypes(w http.ResponseWriter, r *http.Request){
 
 func DetailsSalaryComponentTypes(w http.ResponseWriter, r *http.Request){
 
+	id:=r.PathValue("id")
+
+	if r.Method == http.MethodGet {
+
+		
+
+		ComponentType := GetComponentTypeById(id)
+
+		 data := map[string]interface{}{
+		"Title": "Salary Component Types",
+		"ComponentType":ComponentType,
+		}
+
+		core.RenderPage(w,r, "apps/employees/views/componentTypes-details.html", data)
+	}
+
+
+	if r.Method == http.MethodPost{
+        code:=r.PostFormValue("code")
+		name:=r.PostFormValue("name")
+
+		query:="update salary_component_types set code = $1, name=$2 where id = $3"
+
+		core.DB.Exec(query, code, name, id)
+
+		http.Redirect(w, r, "/salary/componentTypes", http.StatusSeeOther)
+
+
+	}
+
+
+
+
+}
+
+func GetComponentTypeById(id string) models.SalaryComponentType{
+	var ComponentType models.SalaryComponentType
+
+	query :="select id, code, name from salary_component_types where id = $1"
+
+	core.DB.QueryRow(query, id).Scan(&ComponentType.ID, &ComponentType.Code, &ComponentType.Name)
+
+	return ComponentType
 }
 

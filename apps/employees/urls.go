@@ -65,7 +65,9 @@ func EmployeeListRoutes(mux *http.ServeMux) {
 
 	mux.Handle("GET /salary/componentType/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateSalaryComponentTypes), "Contract:W"))
 	mux.Handle("POST /salary/componentType/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateSalaryComponentTypes), "Contract:W"))
+
 	mux.Handle("GET /componentType/details/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.DetailsSalaryComponentTypes), "Contract:W"))
+	mux.Handle("POST /componentType/details/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.DetailsSalaryComponentTypes), "Contract:W"))
 	
 	
 
