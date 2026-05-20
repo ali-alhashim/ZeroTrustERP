@@ -68,9 +68,20 @@ Total Records: {{.TotalRecords}}
                 </tr>
             </thead>
              <tbody>
+
+                {{range .Contracts}}
                 <tr>
+                    <td>{{.ID}}</td>
+                    <td>{{.Employee.Name}}</td>
+                    <td>{{.Name}}</td>
+                    <td>{{.StartDate}}</td>
+                    <td>{{.EndDate}}</td>
+                    <td>{{.CreatedAt}}</td>
+                    <td>{{.ShiftSchedule.Name}}</td>
+                    <td>{{.Status}}</td>
 
                 </tr>
+                {{end}}
             </tbody>
 </table>
 

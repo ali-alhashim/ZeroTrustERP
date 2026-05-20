@@ -159,6 +159,23 @@ func GetContractsFromDB(search, sort, order, page, pageSize string) []models.Con
 	return contracts
 }
 
+func isEmployeeHaveAnyValidContract(id string) bool {
+    var count int
+
+   
+    query := "SELECT COUNT(*) FROM contracts WHERE employee_id = $1 AND end_date IS NULL"
+
+    // Execute the query and Scan the count directly into our variable
+    err := core.DB.QueryRow(query, id).Scan(&count)
+    if err != nil {
+        // Log the error or handle it based on your core package setup
+        return false
+    }
+
+    // If count is greater than 0, they have an active contract
+    return count > 0
+}
+
 
 func CreateContract(w http.ResponseWriter, r *http.Request){
 
@@ -177,6 +194,24 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 
 		contractName:= r.PostFormValue("name")
 		employeeId:= r.PostFormValue("employee")
+
+
+		// before you create contract make sure the employee dose not have any valid contract all his contract shuld first be end if not 
+		// don't allow to create more that contract for the same employee HR must terminate exist contract first 
+		if isEmployeeHaveAnyValidContract(employeeId) {
+    // 1. Set the correct HTTP Status code (400 Bad Request)
+    w.WriteHeader(http.StatusBadRequest)
+
+    // 2. Prepare your user-friendly data payload
+    data := map[string]interface{}{
+        "Title":   "Contract Conflict",
+        "Message": "This employee already has an active contract. An employee cannot have multiple valid contracts at the same time. Please terminate the current contract before creating a new one.",
+    }
+
+    // 3. Render your error page view
+    core.RenderPage(w, r, "apps/employees/views/error.html", data)
+    return
+}
 
         start_date, errStr := time.Parse("2006-01-02", r.PostFormValue("start_date"))
 		if errStr !=nil{

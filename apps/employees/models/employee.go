@@ -191,8 +191,8 @@ type ContractSalaryLine struct {
     ID            int       `f:"number, primary, auto"`
     Contract      *Contract `f:"many2one:contracts, notnull"`
     
-    BaseSalary    float64   `f:"money, notnull"`
-    NetSalary     float64   `f:"money, notnull"`
+    BaseSalary    string   `f:"money, notnull"`
+    NetSalary     string   `f:"money, notnull"`
     
     // This connects to the individual allowances for this specific salary update
     Components    []SalaryComponentValue `v:"true"` 
@@ -206,7 +206,7 @@ type SalaryComponentValue struct {
     ID          int                  `f:"number, primary, auto"`
     SalaryLine  *ContractSalaryLine  `f:"many2one:contract_salary_lines"`
     Type        *SalaryComponentType `f:"many2one:salary_component_types"`
-    Amount      float64              `f:"money, notnull"`
+    Amount      string              `f:"money, notnull"`
 }
 
 
