@@ -151,6 +151,10 @@ func GetContractsFromDB(search, sort, order, page, pageSize string) []models.Con
 		}
 
 
+		//Get the Salary ContractSalaryLine and set to this contract also the compoenents
+		contract.SalaryLines = GetSalaryLinesByContractId(contract.ID)
+
+
         
 		contracts = append(contracts, contract)
 
@@ -158,6 +162,22 @@ func GetContractsFromDB(search, sort, order, page, pageSize string) []models.Con
 
 	return contracts
 }
+
+
+func GetSalaryLinesByContractId(id int) models.ContractSalaryLine{
+	var salaryLine models.ContractSalaryLine
+
+	query := "select id,  base_salary, effective_date, net_salary from contract_salary_lines where contract_id = $1"
+	err := core.DB.QueryRow(query, id).Scan(&salaryLine.ID, &salaryLine.BaseSalary, &salaryLine.EffectiveDate, &salaryLine.NetSalary)
+	if err !=nil{
+		fmt.Print(err)
+	}
+
+
+	return salaryLine
+}
+
+
 
 func isEmployeeHaveAnyValidContract(id string) bool {
     var count int

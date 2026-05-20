@@ -156,7 +156,7 @@ type Contract struct {
     EndDate     *time.Time `f:"timestamp"` // Nullable for open-ended contracts
     
     // Virtual field to see all salary updates linked to this contract
-    SalaryLines []ContractSalaryLine `v:"true"`
+    SalaryLines ContractSalaryLine `v:"true"`
     JobTitle    *JobTitle   `f:"many2one:"`   
     Active      bool       `f:"bool, default:true"`
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`

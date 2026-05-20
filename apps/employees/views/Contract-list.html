@@ -64,6 +64,7 @@ Total Records: {{.TotalRecords}}
                     <th>CreatedAt</th>
                     <th>ShiftSchedule</th>
                     <th>Status</th>
+                    <th>Net Salary</th>
                   
                 </tr>
             </thead>
@@ -79,6 +80,7 @@ Total Records: {{.TotalRecords}}
                     <td>{{.CreatedAt}}</td>
                     <td>{{.ShiftSchedule.Name}}</td>
                     <td>{{.Status}}</td>
+                    <td>{{.SalaryLines.NetSalary}}</td>
 
                 </tr>
                 {{end}}
