@@ -6,6 +6,7 @@ import(
 	"zerotrusterp/apps/employees/models"
 	"zerotrusterp/core"
 	"strconv"
+	"time"
 )
 
 
@@ -176,8 +177,24 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 
 		contractName:= r.PostFormValue("name")
 		employeeId:= r.PostFormValue("employee")
-		start_date:= r.PostFormValue("start_date")
-		end_date:=r.PostFormValue("end_date")
+
+        start_date, errStr := time.Parse("2006-01-02", r.PostFormValue("start_date"))
+		if errStr !=nil{
+			fmt.Print(errStr)
+		}
+
+		var end_date *time.Time
+		endDateStr := r.PostFormValue("end_date")
+		if endDateStr != "" {
+			parsedDate, errStr2 := time.Parse("2006-01-02", endDateStr)
+			if errStr2 !=nil{
+				fmt.Print(errStr2)
+			} else {
+				end_date = &parsedDate
+			}
+		}
+		
+		
 		totalServiceYears:=r.PostFormValue("totalServiceYears")
 		jobTitleId:=r.PostFormValue("jobTitleId")
 		IBAN:=r.PostFormValue("IBAN")
@@ -193,33 +210,18 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 
 		//----Salary
 		BaseSalary :=r.PostFormValue("BaseSalary")
-		EffectiveDate:=r.PostFormValue("EffectiveDate")
+		NetSalary  :=r.PostFormValue("NetSalary")
+
+		EffectiveDate, errStr3 :=time.Parse("2006-01-02", r.PostFormValue("EffectiveDate"))
+		if errStr3 !=nil{
+			fmt.Print(errStr3)
+		}
+
 
 		SalaryComponentType:=r.PostForm["SalaryComponentType"]
 		Amount:=r.PostForm["Amount"]
 
-		fmt.Printf("Create Contract Data :  \n%s \n %s \n %s \n %s \n %s \n %s\n %s\n %s\n %s \n%s \n%s \n%s\n %s \n%s \n%s\n %t \n%s\n %s\n %v\n %v\n", 
-		contractName,
-		employeeId,
-		start_date,
-		end_date,
-		totalServiceYears,
-		jobTitleId,
-		IBAN,
-		BankName,
-		AbsenseBalance,
-		YearlyTotalAllocationDays,
-		AccrualRatePerDay,
-		Status,
-		ShiftSchedule,
-		workLocation,
-		note,
-		active,
-		BaseSalary,
-		EffectiveDate,
-		SalaryComponentType,
-		Amount,
-	     )
+		
 
 
 		 // if this first contract for the employee then we create record for him in ServicePeriod
@@ -241,7 +243,7 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 				   accrual_rate_per_day,
 				   total_service_years
 					) 
-					values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id`
+					values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15, $16) RETURNING id`
 
 				var ContractId int
 				err := core.DB.QueryRow(query,employeeId,contractName,start_date,end_date,active,IBAN,BankName,AbsenseBalance,Status,ShiftSchedule,jobTitleId,workLocation,note,YearlyTotalAllocationDays,AccrualRatePerDay,totalServiceYears).Scan(&ContractId)
@@ -250,13 +252,41 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 					fmt.Print(err)
 				}
 
+				fmt.Printf("\n Contract Created with ID: %d \n ", ContractId)
 
-				// Insert Salary lines row in contract_salary_lines
-				// contract_id, base_salary, effective_date
-				// salary_component_values ( salary_line_id, type_id, amount)
+
+				// Insert Salary lines row in contract_salary_lines(contract_id, base_salary, effective_date)
+                
+				var salaryLinesId int
+				query = "insert into contract_salary_lines (contract_id, base_salary, net_salary, effective_date) values($1,$2,$3,$4) RETURNING id"
+				err = core.DB.QueryRow(query, ContractId, BaseSalary,NetSalary, EffectiveDate).Scan(&salaryLinesId)
+
+				if err != nil {
+					fmt.Print(err)
+				}
+
+				 
+				// Insert salary_component_values ( salary_line_id, type_id, amount) this may has many so we use loop
+				for i:= range SalaryComponentType{
+
+					query = "insert into salary_component_values (salary_line_id, type_id, amount) values ($1, $2, $3)"
+					_,err = core.DB.Exec(query, salaryLinesId, SalaryComponentType[i], Amount[i])
+					if err !=nil{
+						fmt.Print(err)
+					}
+
+
+				}
+
 
 		 if isThisFirstContract(employeeId){
-			//Insert record in service_periods
+			//Insert record in service_periods (employee_id, hire_date, note)
+			query = "insert into service_periods (employee_id, hire_date, note) values ($1, $2, $3)"
+			_,err = core.DB.Exec(query, employeeId, start_date, "hire date base on first contract created [Start Date of first Contract]")
+           if err !=nil{
+						fmt.Print(err)
+					}
+
 		 }
 
 

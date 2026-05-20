@@ -153,6 +153,10 @@ func GenerateSQLFromStruct(model interface{}) (tableSQL []string, joinSQL []stri
 				switch p {
 				case "number":
 					colType = "INTEGER"
+				case "number(12,2)":
+					colType = "NUMERIC(12, 2)"
+				case "money":
+					colType = "money"
 				case "text":
 					colType = "TEXT"
 				case "bool":

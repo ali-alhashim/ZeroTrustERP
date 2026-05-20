@@ -170,8 +170,13 @@ func DetailsSalaryComponentTypes(w http.ResponseWriter, r *http.Request){
 
 
 	if r.Method == http.MethodPost{
-        code:=r.PostFormValue("code")
+
+		if !isComponentTypeUsed(id){
+
+			 code:=r.PostFormValue("code")
 		name:=r.PostFormValue("name")
+
+		//don't update if this salary compoenent used in any contract
 
 		query:="update salary_component_types set code = $1, name=$2 where id = $3"
 
@@ -180,12 +185,42 @@ func DetailsSalaryComponentTypes(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, "/salary/componentTypes", http.StatusSeeOther)
 
 
+		}
+
+		data := map[string]interface{}{
+		"Title": "Salary Component Types",
+		"message":"You can't update Salary Compoent type already in use !",
+		}
+
+
+		
+		core.RenderPage(w,r, "apps/employees/views/componentTypes-details.html", data)
+       
+
 	}
 
 
 
 
 }
+
+
+func isComponentTypeUsed(id string) bool{
+
+	var existsID string
+
+	query :="select type_id from salary_component_values where type_id = $1 limit 1"
+
+   err := core.DB.QueryRow(query, id).Scan(&existsID)
+   if err !=nil {
+        return false
+    }
+
+
+   return true
+}
+
+
 
 func GetComponentTypeById(id string) models.SalaryComponentType{
 	var ComponentType models.SalaryComponentType

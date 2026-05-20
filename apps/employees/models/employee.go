@@ -56,6 +56,7 @@ type ServicePeriod struct {
     TerminationDate *time.Time `f:"timestamp"`
     Reason          *string   `f:"text"`
     EOSBPaid        *bool   `f:"bool, default:false"`
+    note        *string     `f:"text"`
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments
@@ -164,14 +165,14 @@ type Contract struct {
     BankName    *string    `f:"text"` // Bank name for salary payments
     AbsenseBalance *int    `f:"number"`
     YearlyTotalAllocationDays *int `f:"number"`
-    AccrualRatePerDay *int `f:"number"`
+    AccrualRatePerDay *float64 `f:"number(12,2)"`
     Status      *string    `f:"text"`
     ShiftSchedule  *ShiftSchedule `f:"many2one:"`
     WorkLocation *string   `f:"text"`
     Note         *string   `f:"text"`
     CompanyAuthoritySignature *string `f:"text"`   //this path of image Signature
     EmployeeSignature         *string `f:"text"`
-    TotalServiceYears *int `f:"number"`
+    TotalServiceYears *float64 `f:"number(12,2)"`
 }
 
 // Accrual Rate Per Day = Yearly Total Allocation Days / Days in year
@@ -190,7 +191,8 @@ type ContractSalaryLine struct {
     ID            int       `f:"number, primary, auto"`
     Contract      *Contract `f:"many2one:contracts, notnull"`
     
-    BaseSalary    float64   `f:"number, notnull"`
+    BaseSalary    float64   `f:"money, notnull"`
+    NetSalary     float64   `f:"money, notnull"`
     
     // This connects to the individual allowances for this specific salary update
     Components    []SalaryComponentValue `v:"true"` 
@@ -204,7 +206,7 @@ type SalaryComponentValue struct {
     ID          int                  `f:"number, primary, auto"`
     SalaryLine  *ContractSalaryLine  `f:"many2one:contract_salary_lines"`
     Type        *SalaryComponentType `f:"many2one:salary_component_types"`
-    Amount      float64              `f:"number, notnull"`
+    Amount      float64              `f:"money, notnull"`
 }
 
 
