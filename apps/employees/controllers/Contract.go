@@ -368,3 +368,80 @@ var count int
 	return count == 0
 
 }
+
+
+func GetContractById(id string) models.Contract {
+    var contract models.Contract
+    var salaryLine models.ContractSalaryLine
+	var Employee models.Employee
+	var Shift models.ShiftSchedule
+    
+    query := `
+        SELECT 
+            c.id, c.employee_id, c.name, c.start_date, c.end_date, c.active, c.created_at, c.shift_schedule_id, c.status,
+            sl.base_salary, sl.net_salary, sl.effective_date,
+            scv.type_id, scv.amount
+        FROM contracts c
+        LEFT JOIN contract_salary_lines sl ON c.id = sl.contract_id
+        LEFT JOIN salary_component_values scv ON sl.id = scv.salary_line_id
+        WHERE c.id = $1
+    `
+
+    rows, err := core.DB.Query(query, id)
+    if err != nil {
+        fmt.Print(err)
+    }
+    defer rows.Close()
+
+    isFirstRow := true
+
+    for rows.Next() {
+        var comp models.SalaryComponentValue
+        
+        // Using pointers or sql.Null types for fields that could be NULL if a LEFT JOIN finds no match
+        var baseSalary, netSalary *string
+        var effectiveDate *time.Time
+        var typeID *int
+        var amount *string
+		var employeeId string
+		var shiftId string
+
+        err := rows.Scan(
+            &contract.ID, &employeeId, &contract.Name, &contract.StartDate, &contract.EndDate, &contract.Active, &contract.CreatedAt, &shiftId, &contract.Status,
+            &baseSalary, &netSalary, &effectiveDate,
+            &typeID, &amount,
+        )
+        if err != nil {
+            fmt.Print(err)
+        }
+
+		Employee = GetEmployeeById(employeeId)
+		Shift    = GetShiftById(shiftId)
+		contract.Employee = &Employee
+		contract.ShiftSchedule = &Shift
+
+        // On the very first row, grab the salary line details if they exist
+        if isFirstRow && baseSalary != nil {
+            salaryLine.BaseSalary = *baseSalary
+            salaryLine.NetSalary = *netSalary
+            salaryLine.EffectiveDate = *effectiveDate
+            isFirstRow = false
+        }
+
+        // If a component exists in this row, append it to our temporary slice
+        if typeID != nil && amount != nil {
+            comp.ID = *typeID
+            comp.Amount = *amount
+            salaryLine.Components = append(salaryLine.Components, comp)
+        }
+    }
+
+    // Finally, nest the populated structs
+
+	
+
+
+    contract.SalaryLines = salaryLine
+
+    return contract
+}
