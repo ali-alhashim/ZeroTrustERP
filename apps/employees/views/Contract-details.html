@@ -1,0 +1,40 @@
+{{define "content"}}
+
+
+<form method="POST">
+
+    <table>
+        <tr>
+            <td>
+               Contract ID
+            </td>
+            <td>
+{{.contract.ID}}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Name
+            </td>
+            <td>
+                {{.contract.Name}}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Employee
+            </td>
+            <td>
+                <a href="/employees/details/{{.contract.Employee.ID}}" target="_blank">
+                   {{.contract.Employee.Name}}
+                </a>
+                
+            </td>
+        </tr>
+    </table>
+
+</form>
+
+
+{{end}}

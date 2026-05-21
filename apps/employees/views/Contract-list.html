@@ -72,12 +72,26 @@ Total Records: {{.TotalRecords}}
 
                 {{range .Contracts}}
                 <tr>
-                    <td>{{.ID}}</td>
+                    <td>
+                        <a class="btn btn-id" href="/employees/contract/details/{{.ID}}">
+                        {{.ID}}
+                        </a>
+                    </td>
+
                     <td>{{.Employee.Name}}</td>
                     <td>{{.Name}}</td>
-                    <td>{{.StartDate}}</td>
-                    <td>{{.EndDate}}</td>
-                    <td>{{.CreatedAt}}</td>
+                    <td>{{.StartDate.Format "01/02/2006"}}</td>
+
+                    
+                    <td>
+                        {{if .EndDate}}
+                        {{.EndDate.Format "01/02/2006"}}
+                        {{else}}
+                         -
+                        {{end}}
+                    </td>
+
+                    <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
                     <td>{{.ShiftSchedule.Name}}</td>
                     <td>{{.Status}}</td>
                     <td>{{.SalaryLines.NetSalary}}</td>

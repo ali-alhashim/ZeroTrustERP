@@ -71,6 +71,13 @@ func EmployeeListRoutes(mux *http.ServeMux) {
 
     mux.Handle("GET /api/componentType/list", core.AuthMiddleware(http.HandlerFunc(controllers.GetComponentTypeListApi), "jobs:R"))
 
+
+	mux.Handle("GET /employees/contract/details/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.ContractDetails), "Contract:R"))
+	mux.Handle("POST /employees/contract/details/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.ContractDetails), "Contract:R"))
+
+
+	
+
 	
 	
 	
