@@ -164,17 +164,28 @@ func GetContractsFromDB(search, sort, order, page, pageSize string) []models.Con
 }
 
 
-func GetSalaryLinesByContractId(id int) models.ContractSalaryLine{
-	var salaryLine models.ContractSalaryLine
+func GetSalaryLinesByContractId(id int) []models.ContractSalaryLine{
+	var salaryLines []models.ContractSalaryLine
 
 	query := "select id,  base_salary, effective_date, net_salary from contract_salary_lines where contract_id = $1"
-	err := core.DB.QueryRow(query, id).Scan(&salaryLine.ID, &salaryLine.BaseSalary, &salaryLine.EffectiveDate, &salaryLine.NetSalary)
-	if err !=nil{
+	rows, err := core.DB.Query(query, id)
+	if err != nil {
 		fmt.Print(err)
+		return salaryLines
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var salaryLine models.ContractSalaryLine
+		err := rows.Scan(&salaryLine.ID, &salaryLine.BaseSalary, &salaryLine.EffectiveDate, &salaryLine.NetSalary)
+		if err != nil {
+			fmt.Print(err)
+			continue
+		}
+		salaryLines = append(salaryLines, salaryLine)
 	}
 
-
-	return salaryLine
+	return salaryLines
 }
 
 
@@ -378,7 +389,7 @@ func GetContractById(id string) models.Contract {
     
     query := `
         SELECT 
-            c.id, c.employee_id, c.name, c.start_date, c.end_date, c.active, c.created_at, c.shift_schedule_id, c.status,
+            c.id, c.employee_id, c.name, c.start_date, c.end_date, c.active, c.created_at, c.shift_schedule_id, c.status, c.iban, c.bank_name, c.absense_balance, c.yearly_total_allocation_days, c.accrual_rate_per_day, c.total_service_years,
             sl.base_salary, sl.net_salary, sl.effective_date,
             scv.type_id, scv.amount
         FROM contracts c
@@ -397,17 +408,18 @@ func GetContractById(id string) models.Contract {
 
     for rows.Next() {
         var comp models.SalaryComponentValue
+		var ComType models.SalaryComponentType
         
         // Using pointers or sql.Null types for fields that could be NULL if a LEFT JOIN finds no match
         var baseSalary, netSalary *string
         var effectiveDate *time.Time
-        var typeID *int
+        var typeID *string
         var amount *string
 		var employeeId string
 		var shiftId string
 
         err := rows.Scan(
-            &contract.ID, &employeeId, &contract.Name, &contract.StartDate, &contract.EndDate, &contract.Active, &contract.CreatedAt, &shiftId, &contract.Status,
+            &contract.ID, &employeeId, &contract.Name, &contract.StartDate, &contract.EndDate, &contract.Active, &contract.CreatedAt, &shiftId, &contract.Status,&contract.IBAN,&contract.BankName,&contract.AbsenseBalance,&contract.YearlyTotalAllocationDays,&contract.AccrualRatePerDay,&contract.TotalServiceYears,
             &baseSalary, &netSalary, &effectiveDate,
             &typeID, &amount,
         )
@@ -430,7 +442,9 @@ func GetContractById(id string) models.Contract {
 
         // If a component exists in this row, append it to our temporary slice
         if typeID != nil && amount != nil {
-            comp.ID = *typeID
+
+			ComType = GetComponentTypeById(*typeID)
+            comp.Type = &ComType
             comp.Amount = *amount
             salaryLine.Components = append(salaryLine.Components, comp)
         }
@@ -441,7 +455,7 @@ func GetContractById(id string) models.Contract {
 	
 
 
-    contract.SalaryLines = salaryLine
+    contract.SalaryLines = []models.ContractSalaryLine{salaryLine}
 
     return contract
 }

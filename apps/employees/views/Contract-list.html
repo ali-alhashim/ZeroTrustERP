@@ -94,7 +94,14 @@ Total Records: {{.TotalRecords}}
                     <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
                     <td>{{.ShiftSchedule.Name}}</td>
                     <td>{{.Status}}</td>
-                    <td>{{.SalaryLines.NetSalary}}</td>
+
+                    <td>
+                        {{range .SalaryLines}}
+                        <ul>
+                            <li>{{.NetSalary}}</li>
+                        </ul>
+                        {{end}}
+                    </td>
 
                 </tr>
                 {{end}}

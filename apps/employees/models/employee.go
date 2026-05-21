@@ -156,7 +156,7 @@ type Contract struct {
     EndDate     *time.Time `f:"timestamp"` // Nullable for open-ended contracts
     
     // Virtual field to see all salary updates linked to this contract
-    SalaryLines ContractSalaryLine `v:"true"`
+    SalaryLines []ContractSalaryLine `v:"true"`
     JobTitle    *JobTitle   `f:"many2one:"`   
     Active      bool       `f:"bool, default:true"`
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
@@ -192,12 +192,14 @@ type ContractSalaryLine struct {
     Contract      *Contract `f:"many2one:contracts, notnull"`
     
     BaseSalary    string   `f:"money, notnull"`
+    GrossSalary   string   `f:"money"` // Base + Allowances
     NetSalary     string   `f:"money, notnull"`
     
     // This connects to the individual allowances for this specific salary update
     Components    []SalaryComponentValue `v:"true"` 
     
     EffectiveDate time.Time `f:"timestamp, notnull"`
+    EndDate       *time.Time `f:"timestamp"` // When this salary line is no longer effective (e.g., after a raise)
     CreatedAt     time.Time `f:"timestamp, default:current_timestamp"`
 }
 

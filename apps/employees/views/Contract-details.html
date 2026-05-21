@@ -1,6 +1,20 @@
 {{define "content"}}
 
 
+<hr>
+<div class="tool-bar">
+        <a href="/employees/contract/end/{{.contract.ID}}" class="btn btn-secondary">End this Contract</a>
+
+        <a href="/employees/contract/update/IBAN/{{.contract.ID}}" class="btn btn-secondary">Update IBAN</a>
+
+        <a href="/employees/contract/update/Salary/{{.contract.ID}}" class="btn btn-secondary">Update Salary</a>
+
+
+      
+</div>
+<hr>
+
+
 <form method="POST">
 
     <table>
@@ -32,7 +46,108 @@
                 
             </td>
         </tr>
+
+        <tr>
+            <td>
+                Start Date
+            </td>
+            <td>
+                {{.contract.StartDate.Format "01/02/2006"}}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                End Date
+            </td>
+            <td>
+                  {{if .EndDate}}
+                        {{.EndDate.Format "01/02/2006"}}
+                        {{else}}
+                         -
+                        {{end}}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Created At
+            </td>
+             <td>{{.contract.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+        </tr>
+
+        <tr>
+            <td>
+                ShiftS chedule
+            </td>
+             <td>{{.contract.ShiftSchedule.Name}}</td>
+        </tr>
+
+        <tr>
+            <td>
+                Status
+            </td>
+             <td>{{.contract.Status}}</td>  
+        </tr>
+
+        <tr>
+            <td>
+                IBAN
+            </td>
+            <td>
+                {{.contract.IBAN}}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Bank Name
+            </td>
+            <td>
+                {{.contract.BankName}}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Absense Balance
+            </td>
+            <td>
+                {{.contract.AbsenseBalance}}
+            </td>
+        </tr>
+
     </table>
+
+    <hr>
+    <h3>Salary Package</h3>
+    <table border="1">
+
+        {{range .contract.SalaryLines}}
+        <tr>
+            <td>Effective Date</td>
+            <td>{{.EffectiveDate.Format "01/02/2006"}}</td>
+           
+        </tr>
+      
+        <tr>
+            <td>Base Salary</td>
+            <td>{{.BaseSalary}}</td>
+           
+        </tr>
+
+        {{range .Components}}
+        <tr>
+            <td>{{.Type.Name}}</td>
+            <td>{{.Amount}}</td>
+        </tr>
+        {{end}}
+        <tr>
+            <td>Net Salary</td>
+            <td>{{.NetSalary}}</td>
+        </tr>
+        {{end}}
+        
 
 </form>
 
