@@ -49,6 +49,26 @@
 
         <tr>
             <td>
+                Job Title
+            </td>
+            <td>
+                {{.contract.JobTitle}}
+            </td>
+        </tr>
+
+          <tr>
+            <td>
+                Work Location
+            </td>
+            <td>
+                {{.contract.WorkLocation}}
+            </td>
+        </tr>
+
+      
+
+        <tr>
+            <td>
                 Start Date
             </td>
             <td>
@@ -67,6 +87,21 @@
                          -
                         {{end}}
             </td>
+        </tr>
+
+        
+
+        <tr>
+            <td>
+                Total Service Years
+            </td>
+             <td>
+                
+                {{.contract.TotalServiceYears}}
+
+                <button type="button" class="btn"><img src="/static/icons/refresh.svg" class="icon" width="20"></button>
+
+             </td>  
         </tr>
 
         <tr>
@@ -112,6 +147,25 @@
             </td>
         </tr>
 
+          <tr>
+            <td>
+                Yearly Total Allocation Days
+            </td>
+            <td>
+                {{.contract.YearlyTotalAllocationDays}}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Accrual Rate Per Day
+            </td>
+            <td>
+                {{.contract.AccrualRatePerDay}}
+            </td>
+        </tr>
+
+
         <tr>
             <td>
                 Absense Balance
@@ -121,6 +175,9 @@
             </td>
         </tr>
 
+
+
+
     </table>
 
     <hr>
@@ -129,8 +186,20 @@
 
         {{range .contract.SalaryLines}}
         <tr>
-            <td>Effective Date</td>
-            <td>{{.EffectiveDate.Format "01/02/2006"}}</td>
+            <th>Effective Date</th>
+            <th>{{.EffectiveDate.Format "01/02/2006"}}</th>
+           
+        </tr>
+
+         <tr>
+            <th>End Date</th>
+            <th>
+                {{if .EndDate}}
+                {{.EndDate.Format "01/02/2006"}}
+                {{else}}
+                -
+                {{end}}
+            </th>
            
         </tr>
       
