@@ -52,7 +52,11 @@
                 Job Title
             </td>
             <td>
-                {{.contract.JobTitle}}
+                {{if .contract.JobTitle}}
+                 {{.contract.JobTitle.Name}}
+                 {{else}}
+                  -
+                {{end}}
             </td>
         </tr>
 

@@ -389,7 +389,7 @@ func GetContractById(id string) models.Contract {
     
     query := `
         SELECT 
-            c.id, c.employee_id, c.name, c.start_date, c.end_date, c.active, c.created_at, c.shift_schedule_id, c.status, c.iban, c.bank_name, c.absense_balance, c.yearly_total_allocation_days, c.accrual_rate_per_day, c.total_service_years,
+            c.id, c.employee_id, c.name, c.start_date, c.end_date, c.active, c.created_at, c.shift_schedule_id, c.status, c.iban, c.bank_name, c.absense_balance, c.yearly_total_allocation_days, c.accrual_rate_per_day, c.total_service_years,c.work_location,c.job_title_id,
             sl.base_salary, sl.net_salary, sl.effective_date,
             scv.type_id, scv.amount
         FROM contracts c
@@ -417,9 +417,10 @@ func GetContractById(id string) models.Contract {
         var amount *string
 		var employeeId string
 		var shiftId string
+		var jobTitleId string
 
         err := rows.Scan(
-            &contract.ID, &employeeId, &contract.Name, &contract.StartDate, &contract.EndDate, &contract.Active, &contract.CreatedAt, &shiftId, &contract.Status,&contract.IBAN,&contract.BankName,&contract.AbsenseBalance,&contract.YearlyTotalAllocationDays,&contract.AccrualRatePerDay,&contract.TotalServiceYears,
+            &contract.ID, &employeeId, &contract.Name, &contract.StartDate, &contract.EndDate, &contract.Active, &contract.CreatedAt, &shiftId, &contract.Status,&contract.IBAN,&contract.BankName,&contract.AbsenseBalance,&contract.YearlyTotalAllocationDays,&contract.AccrualRatePerDay,&contract.TotalServiceYears,&contract.WorkLocation,&jobTitleId,
             &baseSalary, &netSalary, &effectiveDate,
             &typeID, &amount,
         )
@@ -431,6 +432,9 @@ func GetContractById(id string) models.Contract {
 		Shift    = GetShiftById(shiftId)
 		contract.Employee = &Employee
 		contract.ShiftSchedule = &Shift
+
+		JobTitle := GetJobTitleById(jobTitleId)
+		contract.JobTitle = &JobTitle
 
         // On the very first row, grab the salary line details if they exist
         if isFirstRow && baseSalary != nil {
