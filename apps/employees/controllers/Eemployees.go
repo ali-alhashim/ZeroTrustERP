@@ -1455,6 +1455,14 @@ func SaveEmployeeObj(employee *models.Employee) error {
         return err
     }
 
+     //maybe employee object has 
+     // employee.Certifications   
+    // employee.FamilyMembers    
+    //employee.EmergencyContacts 
+    //employee.EmployeeDocuments 
+    // Ok if not empty loop and insert to database tables 
+    // certifications
+
 
     return nil
 }
