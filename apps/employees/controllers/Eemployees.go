@@ -483,6 +483,7 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
         religion      := r.PostFormValue("religion")
         major         := r.PostFormValue("major")
 
+        //-------------------- Employee documents---------------------------------------------------------
 
         var Certifications    []models.Certification
         var FamilyMembers     []models.FamilyMember
@@ -1095,6 +1096,176 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 
     birthDateStr  := r.PostFormValue("birthDate")
 
+    //Employee Documents ------------------------------------------------------------------------------
+     var Certifications    []models.Certification
+     var FamilyMembers     []models.FamilyMember
+     var EmergencyContacts []models.EmergencyContact
+     var EmployeeDocuments []models.EmployeeDocument
+
+        var filePath string
+        var CertName string
+        var issuingOrgan string
+
+      //Certifcations maybe there are multiple certification maybe empty
+        certifications       := r.PostForm["certificationName[]"]
+        issuingOrganizations := r.PostForm["issuingOrganization[]"]
+        issuingDate:= r.PostForm["issueDate[]"]
+        expirationDate := r.PostForm["expirationDate[]"]
+
+        certificationAttachments := r.MultipartForm.File["certificationAttachment[]"]  
+
+        if len(certifications) > 0 {
+            fmt.Printf("Received certifications: %v\n", certifications)
+            //loop through certifications and build the slice of Certification models
+            for i := range certifications {
+
+                    CertName = certifications[i]
+                    
+
+                issuingDate_parsedDate, err := time.Parse("2006-01-02", issuingDate[i])
+                if err != nil {
+                     fmt.Printf("invalid date format: %v", err)
+                }
+                expirationDate_parsedDate, err := time.Parse("2006-01-02", expirationDate[i])
+                if err != nil {
+                     fmt.Printf("invalid date format: %v", err)
+                }
+
+                if i < len(issuingOrganizations) {
+                    issuingOrgan = issuingOrganizations[i]
+                } else {
+                    fmt.Printf("No issuing organization for certification: %s\n", certifications[i])
+                    issuingOrgan = ""
+                }
+
+                if i < len(certificationAttachments) {
+                    fileHeader := certificationAttachments[i]
+                    // Process the file as needed (e.g., save to disk, get path, etc.)
+                   filePath = UploadEmployeeAttachment(fileHeader, employee.BadgeID, "certifications") // Reusing the same function for simplicity
+                    fmt.Printf("Received certification attachment: %s\n", fileHeader.Filename)
+                    // You would typically save the file and get its path to store in the database
+                } else {
+                    fmt.Printf("No attachment for certification: %s\n", certifications[i])
+                    filePath =""
+                }
+
+                fmt.Printf("Certification details - Name: %s, Issuer: %s, Issue Date: %s, Expiry Date: %s, File Path: %s\n", CertName, issuingOrgan, issuingDate_parsedDate.Format("2006-01-02"), expirationDate_parsedDate.Format("2006-01-02"), filePath)
+                cert := models.Certification{
+                    Name  : CertName,
+                    Issuer: issuingOrgan,
+                    IssueDate: issuingDate_parsedDate,
+                    ExpiryDate: expirationDate_parsedDate,
+                    FilePath: filePath,
+                    // You would also extract other fields like Issuer, IssueDate, ExpiryDate, and FilePath similarly
+                }
+                Certifications = append(Certifications, cert)
+            } //end of loop for certifications
+        } else {
+            fmt.Println("No certifications received")
+        }
+
+
+        familyMemberName          := r.PostForm["familyMemberName[]"]
+        familyMemberRelationship  := r.PostForm["familyMemberRelationship[]"]
+        familyMemberContactNumber := r.PostForm["familyMemberContactNumber[]"]
+        familyMemberGender        := r.PostForm["familyMemberGender[]"]
+        familyMemberGovernmentId  := r.PostForm["familyMemberGovernmentId[]"]
+        familyMemberBirthDate     := r.PostForm["familyMemberBirthDate[]"]
+        familyMemberAttachment    := r.MultipartForm.File["familyMemberAttachment[]"]
+        
+        if len(familyMemberName) > 0 {
+            fmt.Printf("Received family members: %v , relationships: %v , contact numbers: %v , genders: %v ID: %v birthDate: %v files: %v\n", 
+                      familyMemberName, familyMemberRelationship, familyMemberContactNumber, familyMemberGender, familyMemberGovernmentId, familyMemberBirthDate, familyMemberAttachment)
+            // Similar loop for family members
+                for i := range familyMemberName {   
+                    var familyFilePath string
+                    if i < len(familyMemberAttachment) {
+                        fileHeader := familyMemberAttachment[i]
+                        familyFilePath = UploadEmployeeAttachment(fileHeader, employee.BadgeID, "familyMembers") // Reusing the same function for simplicity
+                        fmt.Printf("Received family member attachment: %s\n", fileHeader.Filename)
+                    } else {
+                        fmt.Printf("No attachment for family member: %s\n", familyMemberName[i])
+                        familyFilePath = ""
+                    }
+
+                    birthDateParsed, err := time.Parse("2006-01-02", familyMemberBirthDate[i])
+                    if err != nil {
+                        fmt.Printf("Invalid birth date format for family member: %v\n", err)
+                        birthDateParsed = time.Time{} // Zero value if parsing fails
+                    }
+
+                    familyMember := models.FamilyMember{
+                        Name:          familyMemberName[i],
+                        Relationship:  familyMemberRelationship[i],
+                        ContactNumber: &familyMemberContactNumber[i],
+                        GovernmentId:  &familyMemberGovernmentId[i],
+                        BirthDate:     birthDateParsed,
+                        FilePath:      familyFilePath,
+                    }
+                    FamilyMembers = append(FamilyMembers, familyMember)
+                } //end of loop for family members
+        } else {
+            fmt.Println("No family members received")
+        }
+
+         emergencyContactName := r.PostForm["emergencyContactName[]"]
+         emergencyContactRelationship := r.PostForm["emergencyContactRelationship[]"]
+         emergencyContactNumber := r.PostForm["emergencyContactNumber[]"]
+        if len(emergencyContactName) > 0 {
+            fmt.Printf("Received emergency contacts: %v relationships: %v numbers: %v\n", emergencyContactName, emergencyContactRelationship, emergencyContactNumber)
+            // Similar loop for emergency contacts
+                for i := range emergencyContactName {
+                        contact:= models.EmergencyContact{
+                        Name:         emergencyContactName[i],
+                        Relationship: emergencyContactRelationship[i],
+                        Phone:        emergencyContactNumber[i],
+                    }
+                    EmergencyContacts = append(EmergencyContacts, contact)
+                } //end of loop for emergency contacts
+        } else {
+            fmt.Println("No emergency contacts received")
+        }
+
+        documentName        := r.PostForm["documentName[]"]
+        documentType        := r.PostForm["documentType[]"]
+        documentExpiryDate  := r.PostForm["documentExpiryDate[]"]
+        documentAttachments := r.MultipartForm.File["documentAttachment[]"]
+        if len(documentName) > 0 {
+            fmt.Printf("Received employee documents: %v\n", EmployeeDocuments)
+            // Similar loop for employee documents
+                for i := range documentName {
+                    var documentFilePath string
+                    if i < len(documentAttachments) {
+                        fileHeader := documentAttachments[i]
+                        documentFilePath = UploadEmployeeAttachment(fileHeader, employee.BadgeID, "employeeDocuments") // Reusing the same function for simplicity
+                        fmt.Printf("Received employee document attachment: %s\n", fileHeader.Filename)
+                    } else {
+                        fmt.Printf("No attachment for employee document: %s\n", documentName[i])
+                        documentFilePath = ""
+                    }
+
+                    expiryDateParsed, err := time.Parse("2006-01-02", documentExpiryDate[i])
+                    if err != nil {
+                        fmt.Printf("Invalid expiry date format for employee document: %v\n", err)
+                        expiryDateParsed = time.Time{} // Zero value if parsing fails
+                    }
+
+                    doc := models.EmployeeDocument{
+                        Name:       documentName[i],
+                        Type:       documentType[i],
+                        ExpiryDate: expiryDateParsed,
+                        FilePath:  documentFilePath,
+                    }
+                    EmployeeDocuments = append(EmployeeDocuments, doc)
+                } //end of loop for employee documents
+        } else {
+            fmt.Println("No employee documents received")
+        }
+
+    //End Employee Documents --------------------------------------------------------------------------
+
+
+
 
 
       // 5. Date Parsing
@@ -1177,6 +1348,12 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
     employee.PhoneNumber = &phone
     employee.MaritalStatus = &maritalStatus
     employee.BirthDate = birthDate
+
+    employee.Certifications    = Certifications
+    employee.FamilyMembers     = FamilyMembers
+    employee.EmergencyContacts = EmergencyContacts
+    employee.EmployeeDocuments = EmployeeDocuments
+
 
 
 

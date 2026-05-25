@@ -276,7 +276,6 @@
 
 
         <h4>Family Members</h4>
-        {{if .Employee.FamilyMembers}}
          <table style="width: 100%; border-collapse: collapse;">
                        <thead>
                            <tr>
@@ -288,29 +287,32 @@
                                <th >Attachment</th>
                            </tr>    
                           </thead>
-                          <tbody>
-           
-                {{range .Employee.FamilyMembers}}
-                  
-                            <tr>
-                                 <td >{{.Name}}</td>
-                                 <td >{{.Relationship}}</td>
-                                 <td >{{.BirthDate.Format "2006-01-02"}}</td>
-                                 <td >{{.ContactNumber}}</td>
-                                 <td >{{.GovernmentId}}</td>
-                                 <td >{{if .FilePath}}<a href="../{{.FilePath}}" target="_blank">View</a>{{else}}-{{end}}</td>
-                            </tr>
-                  
-                {{end}}
-                          </tbody>
-                  </table>
-          
-        {{else}}
-            <p>No family members listed.</p>
-        {{end}}
+                          <tbody id="FamilyMembersTableBody">
+                                {{if .Employee.FamilyMembers}}
+                                
+                                
+                                        {{range .Employee.FamilyMembers}}
+                                        
+                                                    <tr>
+                                                        <td >{{.Name}}</td>
+                                                        <td >{{.Relationship}}</td>
+                                                        <td >{{.BirthDate.Format "2006-01-02"}}</td>
+                                                        <td >{{.ContactNumber}}</td>
+                                                        <td >{{.GovernmentId}}</td>
+                                                        <td >{{if .FilePath}}<a href="../{{.FilePath}}" target="_blank">View</a>{{else}}-{{end}}</td>
+                                                    </tr>
+                                        
+                                        {{end}}
+                                                
+                                
+                                {{else}}
+                                    <p>No family members listed.</p>
+                                {{end}}
+                             </tbody>
+        </table>
 
         <hr>
-        <button type="button" class="btn btn-secondary">Add</button>
+        <button type="button" class="btn btn-secondary" onclick="addFamilyMember()">Add</button>
 
 
 
@@ -318,8 +320,7 @@
 
 
           <h4>Emergency Contacts</h4>
-        {{if .Employee.EmergencyContacts}}
-          <table >
+             <table >
                        <thead>
                            <tr>
                                <th>ID</th>
@@ -329,7 +330,9 @@
                            
                            </tr>    
                           </thead>
-                          <tbody id="tbody_Certifications">
+                          <tbody id="EmergencyContactsTableBody">
+        {{if .Employee.EmergencyContacts}}
+       
           
                 {{range .Employee.EmergencyContacts}}
                  
@@ -342,15 +345,16 @@
                             </tr>
                    
                 {{end}}
-                          </tbody>
-                           </table>
+                          
            
         {{else}}
             <p>No Emergency Contacts listed.</p>
         {{end}}
+        </tbody>
+                           </table>
 
         <hr>
-        <button type="button" class="btn btn-secondary">Add</button>
+        <button type="button" class="btn btn-secondary" onclick="addEmergencyContact()">Add</button>
 
 
 
@@ -358,8 +362,7 @@
 
 
           <h4>Documents</h4>
-        {{if .Employee.EmployeeDocuments}}
-         <table>
+           <table>
                        <thead>
                            <tr>
                                <th >ID</th>
@@ -370,7 +373,9 @@
                            
                            </tr>    
                           </thead>
-                          <tbody id="tbody_Certifications">
+                          <tbody id="DocumentsTableBody">
+        {{if .Employee.EmployeeDocuments}}
+        
            
                 {{range .Employee.EmployeeDocuments}}
                   
@@ -384,15 +389,16 @@
                             </tr>
                    
                 {{end}}
-                          </tbody>
-                           </table>
+                         
            
         {{else}}
             <p>No Documents listed.</p>
         {{end}}
+         </tbody>
+                           </table>
 
         <hr>
-        <button type="button" class="btn btn-secondary">Add</button>
+        <button type="button" class="btn btn-secondary" onclick="addDocument()">Add</button>
 
 
 
