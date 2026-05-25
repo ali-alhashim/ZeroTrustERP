@@ -17,6 +17,7 @@ func init() {
 
 	core.RegisterModel(models.JobTitle{})
 	core.RegisterModel(models.ExJobTitle{})
+	core.RegisterModel(models.ExDepartment{})
 
 	core.RegisterModel(models.ExManagerDepartment{})
 	core.RegisterModel(models.OrgUnit{})

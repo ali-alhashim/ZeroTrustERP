@@ -492,3 +492,42 @@ func ContractDetails(w http.ResponseWriter, r *http.Request){
 
 
 }
+
+
+func GetContractByEmployeeId(employeeId string) models.Contract {
+	var contract models.Contract	
+	query := "SELECT id, employee_id, name, start_date, end_date,active, created_at, shift_schedule_id, status FROM contracts WHERE employee_id = $1 AND end_date IS NULL"
+
+	row := core.DB.QueryRow(query, employeeId)
+
+	var EmployeeId *string
+	var ShiftId *string
+
+	err := row.Scan(&contract.ID, &EmployeeId, &contract.Name, &contract.StartDate, &contract.EndDate, &contract.Active, &contract.CreatedAt, &ShiftId, &contract.Status)
+	if err != nil {
+		fmt.Print(err)
+	}
+	
+	if EmployeeId != nil {
+		fmt.Print(" \n Get employee by ID = "+ *EmployeeId +"\n")
+		theEmployee := GetEmployeeById(*EmployeeId)
+		fmt.Print(" \n Get Employee  Contract  = "+ theEmployee.Name +"\n")
+		contract.Employee = &theEmployee
+	} else {
+		contract.Employee = nil
+	}	
+
+	if ShiftId != nil {
+		fmt.Print(" \n Get ShiftId by ID = "+ *ShiftId +"\n")
+		theShift := GetShiftById(*ShiftId)
+		fmt.Print(" \n Get theShift    = "+ theShift.Name +"\n")
+		contract.ShiftSchedule = &theShift
+	} else {
+		contract.ShiftSchedule = nil
+	}
+
+	//Get the Salary ContractSalaryLine and set to this contract also the compoenents
+	contract.SalaryLines = GetSalaryLinesByContractId(contract.ID)
+
+	return contract
+}
