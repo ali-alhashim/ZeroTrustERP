@@ -732,6 +732,26 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func GetEmployeeAttachment(w http.ResponseWriter, r *http.Request){
+    //Get path value badgeId, documentType, documentName
+
+    documentName := r.PathValue("documentName")
+    documentType := r.PathValue("documentType")
+    badgeId      := r.PathValue("badgeId")
+   
+   fmt.Printf("Requested documentName: %s\n", documentName)
+
+   safeName := filepath.Base(documentName)
+
+   path := filepath.Join("media", "employees", documentType,badgeId, safeName)
+  
+
+    // Serve the document file
+   http.ServeFile(w, r, path)
+
+
+}
+
 func UploadEmployeeAttachment(fileHeader *multipart.FileHeader, badgeId string, documentType string) string {
     // 1. Use multipart.FileHeader instead of http.File for the parameter
     file, err := fileHeader.Open()
@@ -946,8 +966,8 @@ func InsertEmployeeDocumentToDB(document models.EmployeeDocument) error {
 }
 
 func InsertEmployeeFamilyMemberToDB(familyMember models.FamilyMember) error {
-    query := `INSERT INTO family_members (employee_id, name, relationship, birth_date, file_path) VALUES ($1, $2, $3, $4, $5)`
-    _, err := core.DB.Exec(query, familyMember.Employee.ID, familyMember.Name, familyMember.Relationship, familyMember.BirthDate, familyMember.FilePath)
+    query := `INSERT INTO family_members (employee_id, name, relationship, birth_date, file_path, gender, government_id, contact_number) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+    _, err := core.DB.Exec(query, familyMember.Employee.ID, familyMember.Name, familyMember.Relationship, familyMember.BirthDate, familyMember.FilePath, &familyMember.Gender, &familyMember.GovernmentId, &familyMember.ContactNumber)
     if err != nil {
         fmt.Printf("Database insert error for family member: %v\n", err)
         return err
@@ -1462,6 +1482,42 @@ func SaveEmployeeObj(employee *models.Employee) error {
     //employee.EmployeeDocuments 
     // Ok if not empty loop and insert to database tables 
     // certifications
+
+    for _, cert := range employee.Certifications {
+        fmt.Print("\n Inserting certification: ", cert.Name, " for employee: ", employee.Name, "\n")
+        cert.Employee = &models.Employee{ID: employee.ID} // Set the employee ID for the certification
+        if err := InsertEmployeeCertificateToDB(cert); err != nil {
+            fmt.Printf("Error inserting certification: %v\n", err)
+            // Handle error (e.g., continue, rollback, etc.)
+        }
+    }
+
+    for _, familyM:= range employee.FamilyMembers {
+        fmt.Print("\n Inserting family member: ", familyM.Name, " for employee: ", employee.Name, "\n")
+        familyM.Employee = &models.Employee{ID: employee.ID} // Set the employee ID for the family member
+        if err := InsertEmployeeFamilyMemberToDB(familyM); err != nil {
+            fmt.Printf("Error inserting family member: %v\n", err)
+            // Handle error (e.g., continue, rollback, etc.)
+        }
+    }
+
+    for _, contact := range employee.EmergencyContacts {
+        fmt.Print("\n Inserting emergency contact: ", contact.Name, " for employee: ", employee.Name, "\n")
+        contact.Employee = &models.Employee{ID: employee.ID} // Set the employee ID for the emergency contact
+        if err := InsertEmployeeEmergencyContactToDB(contact); err != nil {
+            fmt.Printf("Error inserting emergency contact: %v\n", err)
+            // Handle error (e.g., continue, rollback, etc.)
+        }
+    }
+
+    for _, doc := range employee.EmployeeDocuments {
+        fmt.Print("\n Inserting employee document: ", doc.Name, " for employee: ", employee.Name, "\n")
+        doc.Employee = &models.Employee{ID: employee.ID} // Set the employee ID for the document
+        if err := InsertEmployeeDocumentToDB(doc); err != nil {
+            fmt.Printf("Error inserting employee document: %v\n", err)
+            // Handle error (e.g., continue, rollback, etc.)
+        }
+    }
 
 
     return nil
