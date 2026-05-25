@@ -311,7 +311,20 @@ function GenerateID() {
 
         newRow.innerHTML = `
             <td><input type="text" name="documentName[]"></td>
-            <td><input type="text" name="documentType[]"></td>
+            <td>
+                <select name="documentType[]">
+                    <option>Experience Certificates</option>
+                    <option>Education Certificates</option>
+                    <option>Training Certificates</option>
+                    <option>Resume CV</option>
+                    <option>National ID / Iqama ID</option>
+                    <option>Passport</option>
+                    <option>Family Card</option>
+                    <option>IBAN Certificate</option>
+                    <option>National Address</option>
+                    <option>Driving License</option>
+                </select>
+            </td>
             <td><input type="date" name="documentExpiryDate[]"></td>
             <td><input type="file" name="documentAttachment[]" class="btn btn-secondary"></td>
             <td><button type="button" class="btn btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
