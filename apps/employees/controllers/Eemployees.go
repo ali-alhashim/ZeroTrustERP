@@ -1405,62 +1405,17 @@ func SetExDepartment(employee models.Employee, newDepartment *models.Department,
     // if old department has nil start date so update the start date as current active contract start date
    // table name ex_departments (department_id, employee_id, start_date, end_date)
    // 
-   employeeContract := GetContractByEmployeeId(strconv.Itoa(employee.ID))
+  // employeeContract := GetContractByEmployeeId(strconv.Itoa(employee.ID))
+  // if employeeContract.StartDate is not nil and oldDepartment is not nil and oldDepartment.ID is not 0 then update exdepartment record with start date as employeeContract.StartDate for the old department
 
-    var oldStartDate time.Time
-    if oldDepartment != nil {
-        oldExDept := GetExDepartmentByEmployeeIdAndDepartmentId(employee.ID, oldDepartment.ID)
-        if oldExDept.ID != 0 {
-            oldStartDate = oldExDept.StartDate
-            if oldExDept.StartDate.IsZero() {
-                oldStartDate = employeeContract.StartDate
-            }
-            UpdateExDepartmentEndDate(employee.ID, oldDepartment.ID, time.Now())
-        }
-    }
-
-    var newStartDate time.Time
-    if newDepartment != nil {
-        newExDept := GetExDepartmentByEmployeeIdAndDepartmentId(employee.ID, newDepartment.ID)
-        if newExDept.ID == 0 {
-            if !oldStartDate.IsZero() {
-                newStartDate = oldStartDate.Add(24 * time.Hour) // Start the next day after the old department ended
-            } else {
-                newStartDate = time.Now()
-            }
-            InsertExDepartment(employee.ID, newDepartment.ID, newStartDate, time.Time{})
-        }
-    }
-
-     fmt.Printf("ExDepartment updated - Employee ID: %d, Old Department ID: %v, New Department ID: %v, Old Start Date: %v, New Start Date: %v\n", 
-                employee.ID, 
-                func() interface{} { if oldDepartment != nil { return oldDepartment.ID } else { return nil } }(), 
-                func() interface{} { if newDepartment != nil { return newDepartment.ID } else { return nil } }(), 
-                oldStartDate, 
-                newStartDate)   
+  
 
 
 }
 
-func UpdateExDepartmentEndDate(employeeId int, departmentId int, endDate time.Time) {
-    query := `UPDATE ex_departments SET end_date = $1 WHERE employee_id = $2 AND department_id = $3 AND end_date IS NULL`
-    _, err := core.DB.Exec(query, endDate, employeeId, departmentId)
-    if err != nil {
-        fmt.Printf("Error updating ex_department end date: %v\n", err)
-    } else {
-        fmt.Printf("ExDepartment end date updated for Employee ID: %d, Department ID: %d\n", employeeId, departmentId)
-    }
-}
 
-func InsertExDepartment(employeeId int, departmentId int, startDate time.Time, endDate time.Time) {
-    query := `INSERT INTO ex_departments (employee_id, department_id, start_date, end_date) VALUES ($1, $2, $3, $4)`
-    _, err := core.DB.Exec(query, employeeId, departmentId, startDate, endDate)
-    if err != nil {
-        fmt.Printf("Error inserting ex_department record: %v\n", err)
-    } else {
-        fmt.Printf("ExDepartment record inserted for Employee ID: %d, Department ID: %d\n", employeeId, departmentId)
-    }
-}
+
+
 
 func GetExDepartmentByEmployeeIdAndDepartmentId(employeeId int, departmentId int) models.ExDepartment {
     var exDept models.ExDepartment
