@@ -288,7 +288,7 @@ func GetEmployeeCertifications(employeeId string) []models.Certification {
 func GetEmployeeFamilyMembers(employeeId string) []models.FamilyMember {
 
     var familyMembers []models.FamilyMember
-    query := `SELECT id, employee_id, name, relationship, contact_number, government_id, birth_date, file_path FROM family_members WHERE employee_id = $1`
+    query := `SELECT id, employee_id, name, relationship, contact_number, government_id, birth_date, file_path, gender FROM family_members WHERE employee_id = $1`
 
     rows, err := core.DB.Query(query, employeeId)
     if err != nil {
@@ -310,6 +310,7 @@ func GetEmployeeFamilyMembers(employeeId string) []models.FamilyMember {
             &fm.GovernmentId,
             &fm.BirthDate,
             &fm.FilePath,
+            &fm.Gender,
         )
         if err != nil {
             fmt.Printf("Scan error: %v\n", err)
@@ -1219,8 +1220,9 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
                         Relationship:  familyMemberRelationship[i],
                         ContactNumber: &familyMemberContactNumber[i],
                         GovernmentId:  &familyMemberGovernmentId[i],
-                        BirthDate:     birthDateParsed,
-                        FilePath:      familyFilePath,
+                        Gender:          familyMemberGender[i],
+                        BirthDate:       birthDateParsed,
+                        FilePath:        familyFilePath,
                     }
                     FamilyMembers = append(FamilyMembers, familyMember)
                 } //end of loop for family members

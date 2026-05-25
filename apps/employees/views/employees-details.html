@@ -393,7 +393,9 @@
                                  <td >{{.Name}}</td>
                                  <td >{{.Type}}</td>
                                  <td >{{.ExpiryDate.Format "2006-01-02"}}</td>
-                                  <td >{{.FilePath}}</td>
+
+                                
+                                <td >{{if .FilePath}}<a href="../{{.FilePath}}" target="_blank">View</a>{{else}}-{{end}}</td>
                                 
                             </tr>
                    
