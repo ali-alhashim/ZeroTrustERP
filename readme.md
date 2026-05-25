@@ -183,15 +183,15 @@ To build a **secure, scalable, and developer-friendly ERP framework** that combi
       -Department -> Ok<br/>
       -ExManagerDepartment<br/>
       -ExJobTitle<br/>
-      -JobTitle<br/>
-      -ShiftSchedule<br/>
+      -JobTitle -> Ok<br/>
+      -ShiftSchedule -> Ok<br/>
       -Contract<br/>
       -Salary<br/>
       -InsuranceGrade<br/>
-      -Certification<br/>
-      -EmergencyContact<br/>
-      -FamilyMember<br/>
-      -EmployeeDocument<br/>
+      -Certification -> Ok<br/>
+      -EmergencyContact -> Ok<br/>
+      -FamilyMember -> Ok<br/>
+      -EmployeeDocument -> Ok<br/>
 * IT Ticketing System
 * Simple dashboard
 ### Phase 2 ###
