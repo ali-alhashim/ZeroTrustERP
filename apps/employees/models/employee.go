@@ -269,6 +269,7 @@ type FamilyMember struct {
     GovernmentId *string     `f:"text"`  // Iqama/ID for the family member, if applicable
     ContactNumber *string     `f:"text"`  // Phone number for the family member
     Relationship string     `f:"text"` // e.g., "Spouse", "Child", "Parent"
+    Gender       string      `f:"text"`
     BirthDate   time.Time  `f:"timestamp"`
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`

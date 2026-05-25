@@ -232,12 +232,13 @@
           <table>
                        <thead>
                            <tr>
-                               <th>ID</th>
+                              
                                <th >Name</th>
                                <th >Issuer</th>
                                <th >IssueDate</th>
                                <th >ExpiryDate</th>
                                <th >Attachment</th>
+                               <th>-</th>
                            </tr>    
                           </thead>
                           <tbody id="CertifcationsTableBody">
@@ -248,7 +249,7 @@
                 {{range .Employee.Certifications}}
                   
                             <tr>
-                                 <td >{{.ID}}</td>
+                                 
                                  <td >{{.Name}}</td>
                                  <td >{{.Issuer}}</td>
                                  <td >{{.IssueDate.Format "2006-01-02"}}</td>
@@ -281,9 +282,12 @@
                            <tr>
                                <th >Name</th>
                                <th >Relationship</th>
+                                 <th >Contact Number</th>
+                                 <th>Gender</th>
+                                 <th >Government ID</th>
                                <th >Birth Date</th>
-                               <th >Contact Number</th>
-                               <th >Government ID</th>
+                             
+                               
                                <th >Attachment</th>
                            </tr>    
                           </thead>
@@ -296,9 +300,12 @@
                                                     <tr>
                                                         <td >{{.Name}}</td>
                                                         <td >{{.Relationship}}</td>
+                                                         <td >{{.ContactNumber}}</td>
+                                                         <td>{{.Gender}}</td>
+                                                          <td >{{.GovernmentId}}</td>
                                                         <td >{{.BirthDate.Format "2006-01-02"}}</td>
-                                                        <td >{{.ContactNumber}}</td>
-                                                        <td >{{.GovernmentId}}</td>
+                                                       
+                                                       
                                                         <td >{{if .FilePath}}<a href="../{{.FilePath}}" target="_blank">View</a>{{else}}-{{end}}</td>
                                                     </tr>
                                         
@@ -323,10 +330,11 @@
              <table >
                        <thead>
                            <tr>
-                               <th>ID</th>
+                              
                                <th>Name</th>
                                <th>Relationship</th>
                                <th>Phone</th>
+                               <th>-</th>
                            
                            </tr>    
                           </thead>
@@ -337,7 +345,7 @@
                 {{range .Employee.EmergencyContacts}}
                  
                             <tr>
-                                 <td >{{.ID}}</td>
+                               
                                  <td >{{.Name}}</td>
                                  <td >{{.Relationship}}</td>
                                  <td >{{.Phone}}</td>
@@ -365,11 +373,12 @@
            <table>
                        <thead>
                            <tr>
-                               <th >ID</th>
+                               
                                <th >Name</th>
                                <th >Type</th>
-                               <th >Attachment</th>
                                <th >Expiry Date</th>
+                               <th >Attachment</th>
+                               
                            
                            </tr>    
                           </thead>
@@ -380,11 +389,11 @@
                 {{range .Employee.EmployeeDocuments}}
                   
                             <tr>
-                                 <td >{{.ID}}</td>
+                               
                                  <td >{{.Name}}</td>
                                  <td >{{.Type}}</td>
-                                 <td >{{.FilePath}}</td>
                                  <td >{{.ExpiryDate.Format "2006-01-02"}}</td>
+                                  <td >{{.FilePath}}</td>
                                 
                             </tr>
                    
