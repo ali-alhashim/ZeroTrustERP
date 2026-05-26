@@ -1085,17 +1085,23 @@ func GetEmployeeDetails(w http.ResponseWriter, r *http.Request) {
     }
 
     depHistory, err := GetExDepartmentHistoryByEmployeeId(id)
+    jobHistory, err2:= GetExJobTitleByEmployeeId(id)
 
     if err !=nil{
         fmt.Printf("depHistory err: %s",err)
     }
 
-    fmt.Print(depHistory)
+    if err2 !=nil{
+        fmt.Printf("depHistory err: %s",err2)
+    }
+
+    //fmt.Print(depHistory)
 
     data := map[string]interface{}{
         "Title": "Employee Details",
         "Employee": employee,
         "depHistory":depHistory,
+        "jobHistory":jobHistory,
     }
 
     core.RenderPage(w, r, "apps/employees/views/employees-details.html", data)
@@ -1354,6 +1360,7 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
     if employee.JobTitle != nil && theJobTitle != nil {
         if employee.JobTitle.ID != theJobTitle.ID {
             fmt.Printf("Job Title changed from %d to %d\n", employee.JobTitle.Name, theJobTitle.Name)
+            setExJobTitle(employee, theJobTitle,   employee.JobTitle)
         } else {
             fmt.Printf("Job Title remains unchanged: %d\n", employee.JobTitle.Name)
         }
@@ -1404,6 +1411,72 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
     }
 
     w.WriteHeader(http.StatusMethodNotAllowed)
+}
+
+func GetExJobTitleByEmployeeId(employeeId string) ([]models.ExJobTitle, error) {
+
+     var history []models.ExJobTitle
+
+    // 2. Added an ORDER BY clause so the history is returned chronologically
+    query := `
+        SELECT job_title_id, employee_id, start_date, end_date 
+        FROM ex_job_titles 
+        WHERE employee_id = $1
+        ORDER BY start_date ASC`
+    
+    // 3. Execute the query
+    rows, err := core.DB.Query(query, employeeId)
+    if err != nil {
+        fmt.Println("Error querying ex job titles history:", err)
+        return nil, err
+    }
+    defer rows.Close()
+
+    // 4. Iterate through the result set
+    for rows.Next() {
+        var exJob models.ExJobTitle
+        var JobTitleID string
+        var EmployeeID string
+        
+        // We use sql.NullTime to safely handle database NULL values for end_date
+        var endDateNull sql.NullTime
+
+        err := rows.Scan(
+            &JobTitleID, 
+            &EmployeeID,
+            &exJob.StartDate,
+            &endDateNull,
+        )
+
+         JobTitle:= GetJobTitleById(JobTitleID)
+         Employee:= GetEmployeeById(employeeId)
+
+         exJob.JobTitle = &JobTitle
+         exJob.Employee = &Employee
+
+
+        if err != nil {
+            fmt.Println("Error scanning row:", err)
+            return nil, err
+        }
+
+        // If end_date is valid (not NULL), assign it; otherwise, it defaults to zero time
+        if endDateNull.Valid {
+            exJob.EndDate = endDateNull.Time
+        }
+
+        // Append the record to our slice
+        history = append(history, exJob)
+    }
+
+    // Check for any errors encountered during iteration
+    if err = rows.Err(); err != nil {
+        fmt.Println("Error during rows iteration:", err)
+        return nil, err
+    }
+
+    return history, nil
+
 }
 
 
@@ -1474,7 +1547,86 @@ func GetExDepartmentHistoryByEmployeeId(employeeId string) ([]models.ExDepartmen
     return history, nil
 }
 
+func setExJobTitle(employee models.Employee, newJobTitle *models.JobTitle, oldJobTitle *models.JobTitle){
 
+      // 1. Start a database transaction
+    tx, err := core.DB.Begin()
+    if err != nil {
+        fmt.Println("Transaction begin error:", err)
+        return
+    }
+    defer tx.Rollback()
+
+    now := time.Now()
+
+    // 2. Handle the Old job_titles
+    if oldJobTitle != nil && oldJobTitle.ID != 0 {
+        
+        // FIX: Just update the end_date. Do NOT change the start_date if the record already exists!
+        queryUpdateOld := `
+            UPDATE ex_job_titles 
+            SET end_date = $1
+            WHERE employee_id = $2 AND job_title_id = $3 AND end_date IS NULL`
+        
+        result, err := tx.Exec(queryUpdateOld, now, employee.ID, oldJobTitle.ID)
+        if err != nil {
+            fmt.Println("Update old job title error:", err)
+            return
+        }
+
+        rowsAffected, err := result.RowsAffected()
+        if err != nil {
+            fmt.Println("Rows affected error:", err)
+            return
+        }
+
+        // If 0 rows were updated, it means this is their FIRST job title transfer 
+        // and no history row exists yet. We insert it using the contract start date.
+        if rowsAffected == 0 {
+            employeeContract := GetContractByEmployeeId(strconv.Itoa(employee.ID))
+            
+            var firstStartDate time.Time
+            if !employeeContract.StartDate.IsZero() {
+                firstStartDate = employeeContract.StartDate
+            } else {
+                firstStartDate = now // Fallback safety
+            }
+
+            queryInsertOld := `
+                INSERT INTO ex_job_titles (employee_id, job_title_id, start_date, end_date) 
+                VALUES ($1, $2, $3, $4)`
+            
+            _, err = tx.Exec(queryInsertOld, employee.ID, oldJobTitle.ID, firstStartDate, now)
+            if err != nil {
+                fmt.Println("Insert historical first JobTitle error:", err)
+                return
+            }
+        }
+    }
+
+    // 3. Handle the New job title Insertion
+    if newJobTitle == nil || newJobTitle.ID == 0 {
+        fmt.Println("New JobTitle cannot be nil or have an ID of 0")
+        return
+    }
+
+    queryInsertNew := `
+        INSERT INTO ex_job_titles (employee_id, job_title_id, start_date, end_date) 
+        VALUES ($1, $2, $3, NULL)`
+
+    _, err = tx.Exec(queryInsertNew, employee.ID, newJobTitle.ID, now)
+    if err != nil {
+        fmt.Println("Insert new job title error:", err)
+        return
+    }
+
+    // 4. Commit the transaction if everything succeeded
+    err = tx.Commit()
+    if err != nil {
+        fmt.Println("Commit error:", err)
+    }
+
+}
 
 
 
