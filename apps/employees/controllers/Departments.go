@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	 "database/sql"
 	 "encoding/csv"
+	 "time"
 )
 
 func ListDepartments(w http.ResponseWriter, r *http.Request) {
@@ -234,12 +235,13 @@ func DepartmentsDetails(w http.ResponseWriter, r *http.Request){
 	fmt.Print(" \n Get Department Details ID = "+ departmentID +"\n")
    
 	
-	
+	depMH := GetExManagersDepartmentById(departmentID)
   
 
 	data := map[string]interface{}{
 		"Title": "Departments",
 		"Department":GetDepartmentById(departmentID),
+		"depMH":depMH,
 		
 	}
 
@@ -254,7 +256,7 @@ func GetDepartmentById(id string) models.Department {
     // Ensure the SELECT statement is formatted correctly
     query := `
         SELECT 
-            d.id, d.code, d.name, d.local_name, d.manager_id, d.active,
+            d.id, d.code, d.name, d.local_name, d.manager_id, d.active,d.created_at,
             e.id, e.department_id
         FROM departments d 
         LEFT JOIN employees e ON d.id = e.department_id
@@ -279,7 +281,7 @@ func GetDepartmentById(id string) models.Department {
 
         // FIX: Scan managerID (variable) instead of &dept.Manager (struct field)
         err := rows.Scan(
-            			&dept.ID, &dept.Code, &dept.Name, &dept.LocalName, &managerID, &dept.Active,
+            			&dept.ID, &dept.Code, &dept.Name, &dept.LocalName, &managerID, &dept.Active,&dept.CreatedAt,
            			    &empId, &empDeptId,
         )
         if err != nil {
@@ -369,11 +371,148 @@ func UpdateDepartment(w http.ResponseWriter, r *http.Request){
 
 }
 
+func GetExManagersDepartmentById(departmentID string) []models.ExManagerDepartment {
+   var history []models.ExManagerDepartment
 
-func exManagerDepartment(departmentID string, manager string){
+    query := `
+        SELECT employee_id, department_id, start_date, end_date 
+        FROM ex_manager_departments 
+        WHERE department_id = $1
+        ORDER BY start_date ASC`
 
-	// get the exist employee and set 
+	rows, err := core.DB.Query(query, departmentID)
+    if err != nil {
+        fmt.Println("Error querying ex job titles history:", err)
+        
+    }
+    defer rows.Close()
 
+	for rows.Next() {
+		var EmployeeID string
+		var DepartmentID string
+		var endDateNull sql.NullTime
+		var ExMan models.ExManagerDepartment
+
+		err := rows.Scan(
+            &EmployeeID, 
+            &DepartmentID,
+            &ExMan.StartDate,
+            &endDateNull,
+        )
+
+		Employee:= GetEmployeeById(EmployeeID)
+		Department:=GetDepartmentById(DepartmentID)
+        
+		ExMan.Employee = &Employee
+		ExMan.Department = &Department
+
+		 if err != nil {
+            fmt.Println("Error scanning row:", err)
+            
+        }
+
+		 if endDateNull.Valid {
+            ExMan.EndDate = endDateNull.Time
+        }
+
+		  history = append(history, ExMan)
+
+	} //end looop
+
+   return history
+}
+
+
+func exManagerDepartment(departmentID string, newManagerID string) {
+    // 1. Start a database transaction
+    tx, err := core.DB.Begin()
+    if err != nil {
+        fmt.Println("Transaction begin error:", err)
+        return
+    }
+    defer tx.Rollback()
+
+    now := time.Now()
+
+    // 2. Look for the CURRENT active manager record in the history table
+    var currentManagerID string
+    var currentManagerStartDate time.Time
+
+    queryActiveManager := `
+        SELECT employee_id, start_date 
+        FROM ex_manager_departments 
+        WHERE department_id = $1 AND end_date IS NULL 
+        LIMIT 1`
+
+    err = tx.QueryRow(queryActiveManager, departmentID).Scan(&currentManagerID, &currentManagerStartDate)
+    
+    if err == nil {
+        // CASE A: An active history record exists.
+        // Close out the old manager's record by setting the end_date to now.
+        queryUpdateOld := `
+            UPDATE ex_manager_departments 
+            SET end_date = $1 
+            WHERE department_id = $2 AND employee_id = $3 AND end_date IS NULL`
+        
+        _, err = tx.Exec(queryUpdateOld, now, departmentID, currentManagerID)
+        if err != nil {
+            fmt.Println("Update current manager error:", err)
+            return
+        }
+
+    } else if err == sql.ErrNoRows {
+        // CASE B: No history record exists yet (First time changing the manager!).
+        // We need to look up who the *original* manager was from the department record 
+        // and find the department's creation date.
+        dept := GetDepartmentById(departmentID)
+        
+        // Ensure the department has a valid manager assigned to avoid inserting empty history
+        if dept.Manager != nil  {
+            var originalStartDate time.Time
+            if !dept.CreatedAt.IsZero() {
+                originalStartDate = dept.CreatedAt
+            } else {
+                originalStartDate = now // Fallback safety
+            }
+
+            // Insert the historical record for the original manager
+            queryInsertOriginal := `
+                INSERT INTO ex_manager_departments (department_id, employee_id, start_date, end_date) 
+                VALUES ($1, $2, $3, $4)`
+            
+            _, err = tx.Exec(queryInsertOriginal, departmentID, dept.Manager.ID, originalStartDate, now)
+            if err != nil {
+                fmt.Println("Insert original manager history error:", err)
+                return
+            }
+        }
+    } else {
+        // Handle any actual database query errors
+        fmt.Println("Query active manager error:", err)
+        return
+    }
+
+    // 3. Insert the NEW manager record with end_date as NULL
+    if newManagerID == "" || newManagerID == "0" {
+        fmt.Println("New manager ID cannot be empty or 0")
+        return
+    }
+
+    queryInsertNew := `
+        INSERT INTO ex_manager_departments (department_id, employee_id, start_date, end_date) 
+        VALUES ($1, $2, $3, NULL)`
+
+    _, err = tx.Exec(queryInsertNew, departmentID, newManagerID, now)
+    if err != nil {
+        fmt.Println("Insert new manager error:", err)
+        return
+    }
+
+    // 4. Commit everything
+    err = tx.Commit()
+    if err != nil {
+        fmt.Println("Commit error:", err)
+    }
 }
 
 

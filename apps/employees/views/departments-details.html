@@ -83,6 +83,40 @@
         </table>
 
 
+        <hr>
+        <h4>Department Managers History</h4>
+        <table>
+            <header>
+                <tr>
+                    <td>Name</td><td>Start Date</td><td>End Date</td>
+                </tr>
+            </header>
+            <tbody>
+                {{if .depMH}}
+                 {{range .depMH}}
+                   <tr>
+                    <td>{{.Employee.Name}}</td>
+                      <td>
+                        {{if .StartDate}}
+
+                        {{.StartDate.Format "2006-01-02"}}
+
+                        {{end}}
+
+                    </td>
+
+                    <td>
+                        {{if .EndDate}}
+                         {{.EndDate.Format "2006-01-02"}}
+                        {{end}}
+                    </td>
+                   </tr>
+                 {{end}}
+                {{end}}
+            </tbody>
+        </table>
+
+
 
 
  <script>

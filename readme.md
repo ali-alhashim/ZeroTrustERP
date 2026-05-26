@@ -181,8 +181,8 @@ To build a **secure, scalable, and developer-friendly ERP framework** that combi
       -Information -> Ok<br/>
       -OrgUnit<br/>
       -Department -> Ok<br/>
-      -ExManagerDepartment<br/>
-      -ExJobTitle<br/>
+      -ExManagerDepartment -> Ok<br/>
+      -ExJobTitle -> Ok<br/>
       -JobTitle -> Ok<br/>
       -ShiftSchedule -> Ok<br/>
       -Contract<br/>
