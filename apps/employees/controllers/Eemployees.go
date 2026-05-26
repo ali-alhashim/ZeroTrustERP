@@ -1399,21 +1399,87 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 
 
 
-func SetExDepartment(employee models.Employee, newDepartment *models.Department, oldDepartment *models.Department) { 
-     
-    //update exdepartment table set end_date as current date for the old department and insert new record with new department and start date as current date and end date as null for the employee, you can use sql UPDATE statement to update the exdepartment record in the database based on employee.ID and oldDepartment.ID and set end_date as current date, then use sql INSERT statement to insert new record to exdepartment table with employee.ID, newDepartment.ID, start_date as current date and end_date as null
-    // if old department has nil start date so update the start date as current active contract start date
-   // table name ex_departments (department_id, employee_id, start_date, end_date)
-   // 
-  // employeeContract := GetContractByEmployeeId(strconv.Itoa(employee.ID))
-  // if employeeContract.StartDate is not nil and oldDepartment is not nil and oldDepartment.ID is not 0 then update exdepartment record with start date as employeeContract.StartDate for the old department
+func SetExDepartment(employee models.Employee, newDepartment *models.Department, oldDepartment *models.Department) {
+    // 1. Start a database transaction
+    tx, err := core.DB.Begin()
+    if err != nil {
+        fmt.Println("Transaction begin error:", err)
+        return
+    }
+    // Defer a rollback. If the transaction commits successfully, the rollback is a no-op.
+    defer tx.Rollback()
 
-  
+    now := time.Now()
 
+    // 2. Handle the Old Department (Update if exists, Insert if missing)
+    if oldDepartment != nil && oldDepartment.ID != 0 {
+        employeeContract := GetContractByEmployeeId(strconv.Itoa(employee.ID))
+        
+        // Determine what the start date for this old record should be
+        var oldStartDate time.Time
+        if !employeeContract.StartDate.IsZero() {
+            oldStartDate = employeeContract.StartDate
+        } else {
+            // Fallback if contract doesn't have a start date either
+            oldStartDate = now 
+        }
 
+        // Try to update the active record if it already exists
+        queryUpdateOld := `
+            UPDATE ex_departments 
+            SET end_date = $1, start_date = $2
+            WHERE employee_id = $3 AND department_id = $4 AND end_date IS NULL`
+        
+        result, err := tx.Exec(queryUpdateOld, now, oldStartDate, employee.ID, oldDepartment.ID)
+        if err != nil {
+            fmt.Println("Update old department error:", err)
+            return
+        }
+
+        // Check if any row was actually updated
+        rowsAffected, err := result.RowsAffected()
+        if err != nil {
+            fmt.Println("Rows affected error:", err)
+            return
+        }
+
+        // If 0 rows were updated, it means the old department record doesn't exist in the table.
+        // We must insert it now with both start_date and end_date.
+        if rowsAffected == 0 {
+            queryInsertOld := `
+                INSERT INTO ex_departments (employee_id, department_id, start_date, end_date) 
+                VALUES ($1, $2, $3, $4)`
+            
+            _, err = tx.Exec(queryInsertOld, employee.ID, oldDepartment.ID, oldStartDate, now)
+            if err != nil {
+                fmt.Println("Insert historical old department error:", err)
+                return
+            }
+        }
+    }
+
+    // 3. Handle the New Department Insertion
+    if newDepartment == nil || newDepartment.ID == 0 {
+        fmt.Println("New department cannot be nil or have an ID of 0")
+        return
+    }
+
+    queryInsertNew := `
+        INSERT INTO ex_departments (employee_id, department_id, start_date, end_date) 
+        VALUES ($1, $2, $3, NULL)`
+
+    _, err = tx.Exec(queryInsertNew, employee.ID, newDepartment.ID, now)
+    if err != nil {
+        fmt.Println("Insert new department error:", err)
+        return
+    }
+
+    // 4. Commit the transaction if everything succeeded
+    err = tx.Commit()
+    if err != nil {
+        fmt.Println("Commit error:", err)
+    }
 }
-
-
 
 
 
