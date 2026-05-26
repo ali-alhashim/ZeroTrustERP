@@ -1084,9 +1084,18 @@ func GetEmployeeDetails(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    depHistory, err := GetExDepartmentHistoryByEmployeeId(id)
+
+    if err !=nil{
+        fmt.Printf("depHistory err: %s",err)
+    }
+
+    fmt.Print(depHistory)
+
     data := map[string]interface{}{
         "Title": "Employee Details",
         "Employee": employee,
+        "depHistory":depHistory,
     }
 
     core.RenderPage(w, r, "apps/employees/views/employees-details.html", data)
@@ -1398,6 +1407,76 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 }
 
 
+func GetExDepartmentHistoryByEmployeeId(employeeId string) ([]models.ExDepartment, error) {
+
+    fmt.Print("\n ..............GetExDepartmentHistoryByEmployeeId.......................\n")
+    // 1. Initialize a slice to hold the history records
+    var history []models.ExDepartment
+
+    // 2. Added an ORDER BY clause so the history is returned chronologically
+    query := `
+        SELECT department_id, employee_id, start_date, end_date 
+        FROM ex_departments 
+        WHERE employee_id = $1
+        ORDER BY start_date ASC`
+    
+    // 3. Execute the query
+    rows, err := core.DB.Query(query, employeeId)
+    if err != nil {
+        fmt.Println("Error querying department history:", err)
+        return nil, err
+    }
+    defer rows.Close()
+
+    // 4. Iterate through the result set
+    for rows.Next() {
+        var exDept models.ExDepartment
+        var DepartmentID string
+        var EmployeeID string
+        
+        // We use sql.NullTime to safely handle database NULL values for end_date
+        var endDateNull sql.NullTime
+
+        err := rows.Scan(
+            &DepartmentID, 
+            &EmployeeID,
+            &exDept.StartDate,
+            &endDateNull,
+        )
+
+         Department:= GetDepartmentById(DepartmentID)
+         Employee:= GetEmployeeById(employeeId)
+
+         exDept.Department = &Department
+         exDept.Employee = &Employee
+
+
+        if err != nil {
+            fmt.Println("Error scanning row:", err)
+            return nil, err
+        }
+
+        // If end_date is valid (not NULL), assign it; otherwise, it defaults to zero time
+        if endDateNull.Valid {
+            exDept.EndDate = endDateNull.Time
+        }
+
+        // Append the record to our slice
+        history = append(history, exDept)
+    }
+
+    // Check for any errors encountered during iteration
+    if err = rows.Err(); err != nil {
+        fmt.Println("Error during rows iteration:", err)
+        return nil, err
+    }
+
+    return history, nil
+}
+
+
+
+
 
 func SetExDepartment(employee models.Employee, newDepartment *models.Department, oldDepartment *models.Department) {
     // 1. Start a database transaction
@@ -1406,53 +1485,50 @@ func SetExDepartment(employee models.Employee, newDepartment *models.Department,
         fmt.Println("Transaction begin error:", err)
         return
     }
-    // Defer a rollback. If the transaction commits successfully, the rollback is a no-op.
     defer tx.Rollback()
 
     now := time.Now()
 
-    // 2. Handle the Old Department (Update if exists, Insert if missing)
+    // 2. Handle the Old Department
     if oldDepartment != nil && oldDepartment.ID != 0 {
-        employeeContract := GetContractByEmployeeId(strconv.Itoa(employee.ID))
         
-        // Determine what the start date for this old record should be
-        var oldStartDate time.Time
-        if !employeeContract.StartDate.IsZero() {
-            oldStartDate = employeeContract.StartDate
-        } else {
-            // Fallback if contract doesn't have a start date either
-            oldStartDate = now 
-        }
-
-        // Try to update the active record if it already exists
+        // FIX: Just update the end_date. Do NOT change the start_date if the record already exists!
         queryUpdateOld := `
             UPDATE ex_departments 
-            SET end_date = $1, start_date = $2
-            WHERE employee_id = $3 AND department_id = $4 AND end_date IS NULL`
+            SET end_date = $1
+            WHERE employee_id = $2 AND department_id = $3 AND end_date IS NULL`
         
-        result, err := tx.Exec(queryUpdateOld, now, oldStartDate, employee.ID, oldDepartment.ID)
+        result, err := tx.Exec(queryUpdateOld, now, employee.ID, oldDepartment.ID)
         if err != nil {
             fmt.Println("Update old department error:", err)
             return
         }
 
-        // Check if any row was actually updated
         rowsAffected, err := result.RowsAffected()
         if err != nil {
             fmt.Println("Rows affected error:", err)
             return
         }
 
-        // If 0 rows were updated, it means the old department record doesn't exist in the table.
-        // We must insert it now with both start_date and end_date.
+        // If 0 rows were updated, it means this is their FIRST department transfer 
+        // and no history row exists yet. We insert it using the contract start date.
         if rowsAffected == 0 {
+            employeeContract := GetContractByEmployeeId(strconv.Itoa(employee.ID))
+            
+            var firstStartDate time.Time
+            if !employeeContract.StartDate.IsZero() {
+                firstStartDate = employeeContract.StartDate
+            } else {
+                firstStartDate = now // Fallback safety
+            }
+
             queryInsertOld := `
                 INSERT INTO ex_departments (employee_id, department_id, start_date, end_date) 
                 VALUES ($1, $2, $3, $4)`
             
-            _, err = tx.Exec(queryInsertOld, employee.ID, oldDepartment.ID, oldStartDate, now)
+            _, err = tx.Exec(queryInsertOld, employee.ID, oldDepartment.ID, firstStartDate, now)
             if err != nil {
-                fmt.Println("Insert historical old department error:", err)
+                fmt.Println("Insert historical first department error:", err)
                 return
             }
         }
