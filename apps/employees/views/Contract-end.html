@@ -9,10 +9,158 @@
                Contract ID
             </td>
             <td>
-             {{.contract.ID}}
+             <input type="text" name="contract_id" value="{{.contract.ID}}" readonly>
             </td>
         </tr>
+
+        <tr>
+            <td>Contract Name</td>
+            <td>
+             <input type="text" name="contract_name" value="{{.contract.Name}}" readonly>
+            </td>
+        </tr>
+
+        <tr>    
+            <td>
+               Employee Badge ID
+            </td>
+            <td>
+             <input type="text" name="employee_id" value="{{.contract.Employee.BadgeID}}" readonly>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+               Employee Name
+            </td>
+            <td>
+             <input type="text" name="employee_name" value="{{.contract.Employee.Name}}" readonly>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Job Title
+            </td>
+            <td>
+             <input type="text" name="job_title" value="{{.contract.JobTitle.Name}}" readonly>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Department
+            </td>
+            <td>
+             <input type="text" name="department" value="{{.contract.Employee.Department.Name}}" readonly>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Start Date
+            </td>
+            <td>
+             <input type="text" name="start_date" value="{{.contract.StartDate.Format "2006-01-02"}}" readonly>
+            </td>
+        </tr>
+
+        <tr>
+            <th>
+                End Date
+            </th>
+            <th>
+             <input type="date" name="end_date" >
+            </th>
+        </tr>
+
+        <tr>
+            <td>
+                Notice Period (Days)
+            </td>
+            <td>
+             <input type="number" name="notice_period" min="0" value="0">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Notification Date
+            </td>
+            <td>
+             <input type="date" name="notification_date" >
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Reason for Contract End
+            </td>
+            <td>
+<select name="reason" required>
+    <option value="">Select Reason...</option>
+
+    <!-- 1. STANDARD & MUTUAL AGREEMENTS (ARTICLE 74) -->
+    <optgroup label="Standard &amp; Mutual Agreements">
+        <option value="A74_EXPIRY">Expiry of Fixed-Term Contract (Article 74-2)</option>
+        <option value="A74_MUTUAL">Mutual Written Termination Agreement (Article 74-1)</option>
+        <option value="A74_RESIGN">Voluntary Resignation with Statutory Notice (Article 74-6 / Article 75)</option>
+        <option value="A74_RETIREMENT">Reaching Statutory Retirement Age (Article 74-4)</option>
+        <option value="A74_PROJECT_DONE">Completion of Specific Project/Work (Article 74-3)</option>
+        <option value="A53_PROBATION">Termination During Probation Period (Article 53 / 54)</option>
+    </optgroup>
+
+    <!-- 2. ARTICLE 77 - COMPENSATION-BASED TERMINATIONS -->
+    <optgroup label="Article 77 - Unilateral / Compensation-Based">
+        <option value="A77_EMPLOYER_NON_SPECIFIC">Termination by Employer for Non-Specific / Economic Reasons (Article 77)</option>
+        <option value="A77_EMPLOYEE_PREMATURE">Premature Termination by Employee without Legal Cause (Article 77)</option>
+    </optgroup>
+
+    <!-- 3. EMPLOYER DISMISSAL WITH CAUSE - NO END-OF-SERVICE (ARTICLE 80) -->
+    <optgroup label="Article 80 - Dismissal for Serious Misconduct (No Notice/ESB)">
+        <option value="A80_ASSAULT">Article 80-1: Assault on Employer, Manager, or Coworker</option>
+        <option value="A80_NEGLECT">Article 80-2: Deliberate Failure to Perform Essential Obligations</option>
+        <option value="A80_MISCONDUCT">Article 80-3: Act Affecting Honesty, Integrity, or Public Morals</option>
+        <option value="A80_MATERIAL_LOSS">Article 80-4: Intentional Act or Omission Causing Material Loss</option>
+        <option value="A80_FORGERY">Article 80-5: Resorting to Forgery or Fraud to Obtain Job</option>
+        <option value="A80_ABSENCE">Article 80-7: Unlawful Absence Exceeding Statutory Limits</option>
+        <option value="A80_GAIN">Article 80-8: Unlawful Exploitation of Position for Personal Gain</option>
+        <option value="A80_SECRETS">Article 80-9: Disclosure of Industrial, Commercial, or Work Secrets</option>
+    </optgroup>
+
+    <!-- 4. EMPLOYEE RESIGNATION WITH CAUSE - FULL END-OF-SERVICE (ARTICLE 81) -->
+    <optgroup label="Article 81 - Employee Resignation for Employer Breach (Immediate)">
+        <option value="A81_DECEPTION">Article 81-1: Employer Deception/Fraud Regarding Work Conditions</option>
+        <option value="A81_NO_WAGES">Article 81-2: Failure to Pay Wages or Meet Crucial Obligations</option>
+        <option value="A81_DIFFERENT_WORK">Article 81-3: Assignment of Radically Different Work without Consent</option>
+        <option value="A81_ASSAULT">Article 81-4: Assault or Cruel Treatment by Employer or Manager</option>
+        <option value="A81_SAFETY">Article 81-5: Serious Workplace Danger or Unresolved Safety Hazards</option>
+        <option value="A81_CONSTRUCTIVE">Article 81-6: Employer Pushing Employee to Resign (Constructive Dismissal)</option>
+    </optgroup>
+
+    <!-- 5. STRUCTURAL, FORCE MAJEURE & EXTERNAL CAUSES -->
+    <optgroup label="Structural &amp; Force Majeure">
+        <option value="A74_FORCE_M">Force Majeure making contract fulfillment impossible (Article 74-5)</option>
+        <option value="A74_CLOSURE">Permanent Closure of the Entire Establishment (Article 74-7)</option>
+        <option value="A74_ACTIVITY_END">Permanent Termination of the Specific Business Activity (Article 74-8)</option>
+        <option value="A79_DEATH">Death of the Employee (Article 79)</option>
+        <option value="A79_DISABILITY">Total and Permanent Medical Disability of Employee (Article 79 / 137)</option>
+        <option value="A87_FEMALE_SPECIAL">Female Employee Resignation within 6m of Marriage / 3m of Childbirth (Article 87)</option>
+    </optgroup>
+</select>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>Absence Balance</td>
+            <td><input type="number" name="AbsenseBalance" min="0" value="{{.contract.AbsenseBalance}}"></td>
+        </tr>
+
+
     </table>
+
+<hr>
+<input type="submit" value="End Contract & Generate Clearance" class="btn btn-danger">
 
 </form>
 

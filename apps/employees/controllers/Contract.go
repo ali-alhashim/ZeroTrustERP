@@ -531,3 +531,29 @@ func GetContractByEmployeeId(employeeId string) models.Contract {
 
 	return contract
 }
+
+
+func TerminateContract(w http.ResponseWriter, r *http.Request){
+
+	id:= r.PathValue("id")
+
+	if r.Method == http.MethodGet{
+
+		contract:= GetContractById(id)
+		
+		data := map[string]interface{}{
+		"Title": "Terminate Contract",
+	
+		"contract": contract,
+		
+	}
+
+	core.RenderPage(w,r, "apps/employees/views/Contract-end.html", data)
+
+	}
+		
+
+	if r.Method == http.MethodPost{
+
+	}
+}
