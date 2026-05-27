@@ -51,12 +51,12 @@ type Employee struct {
 
 type ServicePeriod struct {
     ID         int        `f:"number, primary, auto"`
-    EmployeeID int        `f:"number"`
+    Employee     *Employee  `f:"many2one:employees"`
     HireDate   time.Time `f:"timestamp"`
     TerminationDate *time.Time `f:"timestamp"`
     Reason          *string   `f:"text"`
     EOSBPaid        *bool   `f:"bool, default:false"`
-    note        *string     `f:"text"`
+    Note        *string     `f:"text"`
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments

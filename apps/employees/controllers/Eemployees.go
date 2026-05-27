@@ -1086,6 +1086,7 @@ func GetEmployeeDetails(w http.ResponseWriter, r *http.Request) {
 
     depHistory, err := GetExDepartmentHistoryByEmployeeId(id)
     jobHistory, err2:= GetExJobTitleByEmployeeId(id)
+    serviceHistory, err3 := GetServiceHistoryByEmployeeId(id)
 
     if err !=nil{
         fmt.Printf("depHistory err: %s",err)
@@ -1095,6 +1096,10 @@ func GetEmployeeDetails(w http.ResponseWriter, r *http.Request) {
         fmt.Printf("depHistory err: %s",err2)
     }
 
+    if err3 !=nil{
+        fmt.Printf("serviceHistory err: %s",err3)
+    }
+
     //fmt.Print(depHistory)
 
     data := map[string]interface{}{
@@ -1102,6 +1107,7 @@ func GetEmployeeDetails(w http.ResponseWriter, r *http.Request) {
         "Employee": employee,
         "depHistory":depHistory,
         "jobHistory":jobHistory,
+        "serviceHistory":serviceHistory,
     }
 
     core.RenderPage(w, r, "apps/employees/views/employees-details.html", data)
@@ -1411,6 +1417,78 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
     }
 
     w.WriteHeader(http.StatusMethodNotAllowed)
+}
+
+func GetServiceHistoryByEmployeeId(employeeId string) ([]models.ServicePeriod, error) {
+    var history []models.ServicePeriod
+
+    query := `
+        SELECT employee_id, hire_date, termination_date, reason,  eosb_paid, note
+        FROM service_periods 
+        WHERE employee_id = $1
+        ORDER BY hire_date ASC`
+
+    rows, err := core.DB.Query(query, employeeId)
+    if err != nil {
+        fmt.Println("Error querying service history:", err)
+        return nil, err
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var service models.ServicePeriod
+        var EmployeeID string
+        var reason sql.NullString
+        var note sql.NullString
+
+        var eosbPaid bool
+
+        // We use sql.NullTime to safely handle database NULL values for termination_date
+        var terminationDateNull sql.NullTime
+
+        err := rows.Scan(
+            &EmployeeID,
+            &service.HireDate,
+            &terminationDateNull,
+            &reason,
+            &eosbPaid,
+            &note,
+        )
+
+         Employee:= GetEmployeeById(employeeId)
+
+         service.Employee = &Employee
+
+         if reason.Valid {
+            service.Reason = &reason.String
+         }
+
+         if note.Valid {
+            service.Note = &note.String
+         }
+
+         service.EOSBPaid = &eosbPaid
+
+        if err != nil {
+            fmt.Println("Error scanning row:", err)
+            return nil, err
+        }
+
+        // If termination_date is valid (not NULL), assign it; otherwise, it defaults to zero time
+        if terminationDateNull.Valid {
+            service.TerminationDate = &terminationDateNull.Time
+        }
+
+        history = append(history, service)
+    }
+
+    if err = rows.Err(); err != nil {
+        fmt.Println("Error during rows iteration:", err)
+        return nil, err
+    }
+
+    return history, nil
+
 }
 
 func GetExJobTitleByEmployeeId(employeeId string) ([]models.ExJobTitle, error) {

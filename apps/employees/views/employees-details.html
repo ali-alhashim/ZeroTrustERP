@@ -500,6 +500,27 @@
                     <td> Hire Date</td><td>Termination Date</td><td>Reason</td><td>EOSB Paid</td><td>Note</td>
                 </tr>
             </header>
+            <tbody>
+                {{range .serviceHistory}}
+                <tr>
+                    <td>
+                        {{if .HireDate}}
+                        {{.HireDate.Format "2006-01-02"}}
+                        {{end}}
+                    </td>
+
+                    <td>
+                        {{if .TerminationDate}}
+                         {{.TerminationDate.Format "2006-01-02"}}
+                        {{end}}
+                    </td>
+
+                    <td>{{.Reason}}</td>
+                    <td>{{.EOSBPaid}}</td>
+                    <td>{{.Note}}</td>
+                </tr>
+                {{end}}
+            </tbody>
         </table>
 
 
