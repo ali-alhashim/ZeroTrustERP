@@ -154,7 +154,7 @@ type Contract struct {
     Name        string     `f:"text"` // e.g., "Employment Agreement - Ali"
     StartDate   time.Time  `f:"timestamp, notnull"`
     EndDate     *time.Time `f:"timestamp"` // Nullable for open-ended contracts
-    
+    NotificationDate *time.Time `f:"timestamp"` // Nullable for open-Notification Date the date to send notification for contract renewal or termination
     // Virtual field to see all salary updates linked to this contract
     SalaryLines []ContractSalaryLine `v:"true"`
     JobTitle    *JobTitle   `f:"many2one:"`   
