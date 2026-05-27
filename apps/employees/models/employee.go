@@ -179,6 +179,10 @@ type Contract struct {
 // Cron Job
 // for the year some time 366 & 365 we will stick to a fixed 365
 
+//we have 2 documents end of service document this showing the total service years and the end of service benefits and the other one is the contract document showing the contract details and the signatures of both parties
+// Clearnce document is for the employee when he is leaving the company and it will show the clearance status of the employee and the pending tasks if there are any and the final settlement amount if applicable
+// also digital confirmation from department managers like IT, HR, Finance, etc. for the clearance process
+
 // SalaryComponentType defines what the money is for (Housing, Transport, etc.)
 type SalaryComponentType struct {
     ID          int    `f:"number, primary, auto"`
