@@ -26,7 +26,7 @@
 
         <a href="/employees" class="btn btn-secondary">Offboarding</a>
 
-         <a href="/employees/ServicePeriod/{{.Employee.ID}}" class="btn btn-secondary">Service Period</a>
+         <a href="#ServicePeriod" class="btn btn-secondary">Service Period</a>
 </div>
 <hr>
 
@@ -414,7 +414,16 @@
 
 
 
+       
+
+
         <hr>
+        <button type="submit" class="btn btn-primary">Save</button>
+   
+</form>
+
+
+ <hr>
         <h4 id="DepartmentsHistory">Departments History</h4>
         <table>
             <header>
@@ -484,13 +493,14 @@
         <hr>
 
 
-
-
-        <hr>
-        <button type="submit" class="btn btn-primary">Save</button>
-   
-</form>
-
+        <h4 id="ServicePeriod">Service Period</h4>
+        <table>
+            <header>
+                <tr>
+                    <td> Hire Date</td><td>Termination Date</td><td>Reason</td><td>EOSB Paid</td><td>Note</td>
+                </tr>
+            </header>
+        </table>
 
 
 
