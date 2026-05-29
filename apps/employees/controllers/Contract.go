@@ -555,5 +555,8 @@ func TerminateContract(w http.ResponseWriter, r *http.Request){
 
 	if r.Method == http.MethodPost{
 
+		//we will update the contract and we will generate clearance document and calculate EOSB if applicable
+		//and we will open with response 2 pages one for clearance document and one for EOSB details if applicable
+
 	}
 }

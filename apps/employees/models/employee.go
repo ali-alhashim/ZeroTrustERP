@@ -189,6 +189,7 @@ type ClearanceTemplate struct {
     Description string     `f:"text"`                 // Details about the template
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    Items       *[]ClearanceTemplateItem `v:"true"` // The specific clearance items that need to be completed for this template
 }
 
 type ClearanceTemplateItem struct {

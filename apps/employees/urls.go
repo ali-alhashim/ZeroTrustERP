@@ -80,6 +80,10 @@ func EmployeeListRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /employees/contract/details/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.ContractDetails), "Contract:R"))
 
 
+
+	mux.Handle("GET /employees/clearance", core.AuthMiddleware(http.HandlerFunc(controllers.ListClearance), "Clearance:R"))
+
+
 	
 
 	
