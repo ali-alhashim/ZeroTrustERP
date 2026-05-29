@@ -20,11 +20,22 @@
                 "path": "/employees/ShiftSchedule",
                 "icon": "clock"
               },
-                {
+
+              {
                 "name": "Contract",
                 "path": "/employees/contract",
                 "icon": "contract"
               },
+
+               
+              {
+                "name": "Clearance",
+                "path": "/employees/clearance",
+                "icon": "end"
+              },
+
+              
+
               {
                 "name": "Salary component types",
                 "path": "/salary/componentTypes",

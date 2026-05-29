@@ -27,6 +27,11 @@ func init() {
 	core.RegisterModel(models.SalaryComponentType{})
 	core.RegisterModel(models.SalaryComponentValue{})
 
+	core.RegisterModel(models.ClearanceTemplate{})
+	core.RegisterModel(models.ClearanceTemplateItem{})
+	core.RegisterModel(models.ClearanceDocument{})
+	core.RegisterModel(models.ClearanceDocumentItem{})
+
 	core.RegisterModel(models.InsuranceGrade{})
 	core.RegisterModel(models.InsurancePolicy{})
 
