@@ -1,0 +1,144 @@
+
+ {{define "content"}}
+
+ <h3>Clearance Templates</h3>
+
+
+
+ <div class="toolbar">
+<!-- 🔍 Search Bar -->
+<form method="GET" style="margin-bottom: 15px;">
+    <input type="text" name="q" value="{{.Query}}" placeholder="Search..." />
+    <button type="submit" class="btn btn-secondary">Search</button>
+</form>
+
+<form method="GET" style="margin-bottom: 15px;">
+    <label for="status">Status:</label>
+    <select name="Active" id="status" onchange="this.form.submit()">
+        <option value="">All</option>
+        <option value="true" {{if eq .Active "active"}}selected{{end}}>Active</option>
+        <option value="false" {{if eq .Active "inactive"}}selected{{end}}>Inactive</option>
+    </select>
+</form>
+
+
+<form method="GET" style="margin-bottom: 15px;" action="/employees/Clearance-Templates/create">
+   <button type="submit" class="btn btn-secondary">
+     <img src="/static/icons/plus.svg" alt="Add New User +"  class="icon" width="20"/>
+   </button>
+</form>
+
+
+<button type="button" class="btn btn-secondary" style="margin-bottom: 15px;" id="backBtn"> < Back</button>
+<select name="pageSize" style="margin-bottom: 15px;" id="selectPageSize">
+    <option>10</option>
+    <option>20</option>
+    <option>50</option>
+    <option>100</option>
+    <option>200</option>
+</select>
+<button type="button" class="btn btn-secondary" style="margin-bottom: 15px;" id="nextBtn">Next > </button>
+
+
+
+
+<form method="post" action="/Clearance-Templates/upload/csv" enctype="multipart/form-data" style="margin-bottom: 15px;" id="UploadCSVIdForm">
+    <button type="button" class="btn btn-secondary" onclick="ImportJobs()"><img src="/static/icons/upload.svg" width="20" /> Upload </button>
+    <input type="file" name="csvFile" style="display: none;" id="csvFileId">
+</form>
+
+
+<form method="GET" action="/Clearance-Templates/download/csv" enctype="multipart/form-data" style="margin-bottom: 15px;" id="downloadCSVIdForm">
+    <button type="submit" class="btn btn-secondary"><img src="/static/icons/download.svg" width="20" /> Download </button>
+</form>
+
+
+
+
+</div><!--toolbar-->
+     Total Records: {{.TotalRecords}} 
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .ClearanceTemplates}}
+                <tr>
+                    <td>
+                        <a class="btn btn-id" href="/clearance/templates/details/{{.ID}}">
+                        {{.ID}}
+                        </a>
+                    </td>
+                    <td>{{.Name}}</td>
+                    <td>{{.Description}}</td>
+                </tr>
+                {{end}}
+               
+            </tbody>
+        </table>
+
+        <script>
+            function ImportJobs(){
+                const UploadCSVIdForm = document.getElementById("UploadCSVIdForm");
+                const csvFileId       = document.getElementById("csvFileId");
+
+                csvFileId.click();
+
+                csvFileId.onchange = function(){
+                       if (csvFileId.value) {
+                          UploadCSVIdForm.submit();
+                       }
+                }
+            }
+        </script>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const backBtn = document.getElementById('backBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const selectPageSize = document.getElementById('selectPageSize');
+
+    // Get current URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Parse current page and pageSize (default to 1 and 10)
+    let currentPage = parseInt(urlParams.get('page')) || 1;
+    let currentPageSize = urlParams.get('pageSize') || "10";
+
+    // Set the dropdown to match the current URL state
+    selectPageSize.value = currentPageSize;
+
+    // Helper function to update URL and redirect
+    const updateLocation = (newPage, newSize) => {
+        urlParams.set('page', newPage);
+        urlParams.set('pageSize', newSize);
+        window.location.search = urlParams.toString();
+    };
+
+    // --- Event Listeners ---
+
+    backBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            updateLocation(currentPage - 1, selectPageSize.value);
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        updateLocation(currentPage + 1, selectPageSize.value);
+    });
+
+    selectPageSize.addEventListener('change', () => {
+        // When changing page size, usually best to reset to page 1
+        updateLocation(1, selectPageSize.value);
+    });
+});
+</script>
+
+
+{{end}}

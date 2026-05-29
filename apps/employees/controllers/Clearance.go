@@ -167,4 +167,125 @@ func GetClearanceTemplateById(id string) models.ClearanceTemplate {
 	t.Items = &tItems
 	return t
 }
+
+
+
+
+func ListClearanceTemplates(w http.ResponseWriter, r *http.Request) {
+
+	query := r.URL.Query()
+
+	search     := query.Get("q")
+	sortBy     := query.Get("sort")
+	order      := query.Get("order")
+	page       := query.Get("page")
+	pageSize   := query.Get("pageSize")
+
+	fmt.Printf("list logs: search=%s, sort=%s, order=%s, page=%s, pageSize=%s\n", search, sortBy, order, page, pageSize)
+
 	
+    
+    totalRecords := core.GetCountRecords("clearance_templates")
+
+	clearanceTemplates:= GetClearanceTemplatesFromDB(search, sortBy, order, page, pageSize)
+
+
+	data := map[string]interface{}{
+		"Title": "Clearance Templates",
+		"Query": search,
+		"Sort":  sortBy,
+		"Order": order,
+		"Page":  page,
+		"PageSize": pageSize,
+		"TotalRecords":totalRecords,
+		"ClearanceTemplates": clearanceTemplates,
+		
+	}
+
+	core.RenderPage(w,r, "apps/employees/views/Clearance-Templates-list.html", data)
+}
+
+
+
+
+func GetClearanceTemplatesFromDB(search, sort, order, page, pageSize string) []models.ClearanceTemplate {
+
+	query :="select id, name, description from clearance_templates where 1=1"
+
+	args := []interface{}{}
+	argIndex := 1
+
+	if search != "" {
+		query += " AND (name ILIKE $" + strconv.Itoa(argIndex) +
+			     " OR description ILIKE $" + strconv.Itoa(argIndex+1) + ")"
+
+		args = append(args, "%"+search+"%", "%"+search+"%")
+		argIndex += 2
+	}
+
+	allowedSort := map[string]string{
+		"ID":          "id",
+		"Name":        "name",
+		"Description": "description",
+	}
+
+	if col, ok := allowedSort[sort]; ok {
+		query += " ORDER BY " + col
+		if order == "desc" {
+			query += " DESC"
+		} else {
+			query += " ASC"
+		}
+
+	}
+
+			// 📄 Pagination (page + pageSize)
+	p, _ := strconv.Atoi(page)
+	ps, _ := strconv.Atoi(pageSize)
+
+	// defaults
+	if p <= 0 {
+		p = 1
+	}
+	if ps <= 0 || ps > 5000 {
+		ps = 10
+	}
+
+	offset := (p - 1) * ps
+
+	query += " LIMIT $" + strconv.Itoa(argIndex) +
+		" OFFSET $" + strconv.Itoa(argIndex+1)
+
+	args = append(args, ps, offset)
+
+		// ✅ Execute
+	rows, err := core.DB.Query(query, args...)
+	if err != nil {
+		fmt.Print(err)
+	}
+	defer rows.Close()
+
+
+	var clearanceTemplates []models.ClearanceTemplate
+
+	for rows.Next() {
+		var l models.ClearanceTemplate
+		
+		err := rows.Scan(&l.ID, &l.Name, &l.Description)
+		if err != nil {
+			fmt.Print(err)
+		}
+
+		
+
+		
+
+		
+
+		clearanceTemplates = append(clearanceTemplates, l)
+	}
+
+	return clearanceTemplates
+
+
+}
