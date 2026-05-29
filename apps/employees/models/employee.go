@@ -183,6 +183,52 @@ type Contract struct {
 // Clearnce document is for the employee when he is leaving the company and it will show the clearance status of the employee and the pending tasks if there are any and the final settlement amount if applicable
 // also digital confirmation from department managers like IT, HR, Finance, etc. for the clearance process
 
+type ClearanceTemplate struct {
+    ID          int        `f:"number, primary, auto"`
+    Name        string     `f:"text, unique, notnull"` // e.g., "Standard Clearance Template"
+    Description string     `f:"text"`                 // Details about the template
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+}
+
+type ClearanceTemplateItem struct {
+    ID          int        `f:"number, primary, auto"`
+    Template    *ClearanceTemplate `f:"many2one:clearance_templates, notnull"`
+    Name        string     `f:"text, notnull"` // e.g., "IT Clearance", "HR Clearance", "Finance Clearance"
+    Department  *Department `f:"many2one:departments"` // Optional link to department responsible for this clearance item
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    
+}
+
+type ClearanceDocument struct {
+    ID                int                `f:"number, primary, auto"`
+    Employee          *Employee          `f:"many2one:employees, notnull"`
+    Template          *ClearanceTemplate `f:"many2one:clearance_templates, notnull"`
+    Status            string             `f:"text, notnull, default:'Pending'"` // "Pending", "In Progress", "Completed", "Rejected"
+    RequestedDate     time.Time          `f:"timestamp, default:current_timestamp"`
+    CompletedDate     *time.Time         `f:"timestamp"` // Nullable until fully cleared
+    CreatedAt         time.Time          `f:"timestamp, default:current_timestamp"`
+    UpdatedAt         time.Time          `f:"timestamp, default:current_timestamp"`
+}
+
+type ClearanceDocumentItem struct {
+    ID                  int                `f:"number, primary, auto"`
+    Document            *ClearanceDocument `f:"many2one:clearance_documents, notnull"`
+    Name                string             `f:"text, notnull"` // Copied from ClearanceTemplateItem.Name (e.g., "Return IT Assets")
+    Department          *Department        `f:"many2one:departments"` 
+    Status              string             `f:"text, notnull, default:'Pending'"` // "Pending", "In Progress", "Completed"
+    ResponsibleEmployee *Employee          `f:"many2one:employees"` // Who needs to sign this specific off
+    Note                *string            `f:"text"` // Notes added during the sign-off process
+    FilePath            string             `f:"text"` // Path to uploaded proof/documents if required
+    HandledAt           *time.Time         `f:"timestamp"` // When this specific item was signed off
+    CreatedAt           time.Time          `f:"timestamp, default:current_timestamp"`
+    UpdatedAt           time.Time          `f:"timestamp, default:current_timestamp"`
+}
+
+
+
+
 // SalaryComponentType defines what the money is for (Housing, Transport, etc.)
 type SalaryComponentType struct {
     ID          int    `f:"number, primary, auto"`
