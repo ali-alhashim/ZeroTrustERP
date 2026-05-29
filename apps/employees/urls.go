@@ -83,6 +83,14 @@ func EmployeeListRoutes(mux *http.ServeMux) {
 
 	mux.Handle("GET /employees/clearance", core.AuthMiddleware(http.HandlerFunc(controllers.ListClearance), "Clearance:R"))
 	mux.Handle("GET /employees/Clearance-Templates", core.AuthMiddleware(http.HandlerFunc(controllers.ListClearanceTemplates), "Clearance:R"))
+	mux.Handle("POST /employees/Clearance-Templates/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateClearanceTemplate), "Clearance:W"))
+	mux.Handle("GET /employees/Clearance-Templates/create", core.AuthMiddleware(http.HandlerFunc(controllers.CreateClearanceTemplate), "Clearance:W"))
+
+	mux.Handle("GET /Clearance-Template/details/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.DetailsClearanceTemplate), "Clearance:R"))
+	mux.Handle("POST /Clearance-Template/details/{id}", core.AuthMiddleware(http.HandlerFunc(controllers.DetailsClearanceTemplate), "Clearance:R"))
+
+	mux.Handle("GET /api/ClearanceTemplates/list", core.AuthMiddleware(http.HandlerFunc(controllers.GetClearanceTemplateListApi), "Clearance:R"))
+
 
 
 	

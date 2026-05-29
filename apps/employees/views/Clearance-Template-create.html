@@ -1,0 +1,95 @@
+{{define "content"}}
+
+<h4>Create Clearance Template</h4>
+
+<form method="POST">
+    <table>
+        <tbody>
+            <tr>
+                <th>Name</th><th><input type="text" name="name"></th>
+            </tr>
+            <tr>
+                <th>Description</th><th><input type="text" name="description"></th>
+            </tr>
+            <td>
+                -
+            </td>
+        </tbody>
+    </table>
+    <br>
+<h3>Clearance Items</h3>
+<table> 
+    <thead> <tr>
+                <th>Item Name</th> <th>Department</th><th>-</th>
+         </tr>
+    </thead>
+    <tbody id="clearance-items-body">
+           </tbody>
+</table>
+<br>
+<button type="button" class="btn btn-secondary" onclick="addClearanceItem()">Add Clearance Item</button>
+<br>
+<hr>
+<br>
+<button class="btn btn-primary">Create</button>
+</form>
+
+<script>
+// Global variable to store the dropdown HTML options once fetched
+let cachedDepartmentOptions = '';
+
+// 1. Fetch departments immediately when the page loads
+document.addEventListener("DOMContentLoaded", () => {
+    fetch('/api/departments/list')
+        .then(response => response.json())
+        .then(data => {
+            // Build the string of options and cache it
+            cachedDepartmentOptions = data.map(dept => `<option value="${dept.ID}">${dept.Name}</option>`).join('');
+        })
+        .catch(error => console.error('Error fetching departments:', error));
+});
+
+// 2. Add a new item row without disturbing existing elements
+function addClearanceItem() {
+    const table = document.getElementById('clearance-items-body');
+    const newRow = document.createElement('tr');
+    
+    // Construct the inner HTML, dynamically inserting the cached options
+    newRow.innerHTML = `
+        <td><input type="text" name="item_name" ondblclick="handleNameDoubleClick(this)"></td>
+        <td>
+            <select name="item_department">
+                <option value="">Select Department</option>
+                ${cachedDepartmentOptions}
+            </select>
+        </td>
+        <td><button type="button" class="btn btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
+    `;
+    
+    table.appendChild(newRow);
+}
+
+
+
+
+function handleNameDoubleClick(inputElement) {
+    // 'inputElement' is the text input that was double-clicked.
+    // We go up to the <tr> row, and look inside it for the select element.
+    const row = inputElement.closest('tr');
+    const selectElement = row.querySelector('select[name="item_department"]');
+    
+    // Get the selected option element
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    
+    // Get the actual text label (e.g., "Human Resources", "IT")
+    const selectedLabel = selectedOption.text;
+    const selectedValue = selectedOption.value;
+
+    inputElement.value = selectedLabel; // Set the input value to the label of the selected option
+}
+
+
+
+</script>
+
+{{end}}

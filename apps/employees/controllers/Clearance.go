@@ -6,6 +6,7 @@ import (
 	"zerotrusterp/core"
 	"zerotrusterp/apps/employees/models"
 	"strconv"
+	"encoding/json"
 )
 
 func ListClearance(w http.ResponseWriter, r *http.Request) {
@@ -142,7 +143,7 @@ func GetClearanceTemplateById(id string) models.ClearanceTemplate {
 
 	rows, err := core.DB.Query(query, id)
     if err != nil {
-       fmt.Print(err)
+       fmt.Printf("Error in GetClearanceTemplateById: %v", err)
     }
     defer rows.Close()
 
@@ -152,7 +153,7 @@ func GetClearanceTemplateById(id string) models.ClearanceTemplate {
         var departmentId string
 		
 
-		err := rows.Scan(&t.ID, &t.Name, &t.Description, &item.ID, &t, &item.Name, &departmentId)
+		err := rows.Scan(&t.ID, &t.Name, &t.Description, &item.ID, &t.ID, &item.Name, &departmentId)
 		if err != nil {
 			fmt.Print(err)
 		}
@@ -276,6 +277,10 @@ func GetClearanceTemplatesFromDB(search, sort, order, page, pageSize string) []m
 			fmt.Print(err)
 		}
 
+		Items := GetClearanceTemplateItemsById(strconv.Itoa(l.ID))
+
+		l.Items = &Items
+
 		
 
 		
@@ -288,4 +293,116 @@ func GetClearanceTemplatesFromDB(search, sort, order, page, pageSize string) []m
 	return clearanceTemplates
 
 
+}
+
+
+func CreateClearanceTemplate(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		data := map[string]interface{}{
+			"Title": "Create Clearance Template",
+		}
+	
+		core.RenderPage(w,r, "apps/employees/views/Clearance-Template-create.html", data)
+	}
+
+	if r.Method == "POST" {
+
+		name:= r.PostFormValue("name")
+		description := r.PostFormValue("description")
+
+		item_names := r.PostForm["item_name"]
+		department_ids := r.PostForm["item_department"]
+
+		fmt.Printf("Received form data: name=%s, description=%s\n", name, description)
+		fmt.Printf("Received form data: item_names=%v, department_ids=%v\n", item_names, department_ids)
+
+		// Insert template into clearance_templates (name, description) returning id
+		// loop through item_names and department_ids and insert into clearance_template_items (template_id, name, department_id)
+		
+		var templateID string
+		err := core.DB.QueryRow(`INSERT INTO clearance_templates (name, description) VALUES ($1, $2) RETURNING id`, name, description).Scan(&templateID)
+		if err != nil {
+			fmt.Print(err)
+		}
+
+		for i := range item_names {
+			itemName := item_names[i]
+			departmentID := department_ids[i]
+
+			_, err := core.DB.Exec(`INSERT INTO clearance_template_items (template_id, name, department_id) VALUES ($1, $2, $3)`, templateID, itemName, departmentID)
+			if err != nil {
+				fmt.Print(err)
+			}
+		}
+
+		http.Redirect(w, r, "/employees/Clearance-Templates", http.StatusSeeOther)
+
+	}
+}
+
+func GetClearanceTemplateItemsById(templateId string) []models.ClearanceTemplateItem {
+	var items []models.ClearanceTemplateItem
+
+	rows, err := core.DB.Query(`SELECT id, name, department_id FROM clearance_template_items WHERE template_id = $1`, templateId)
+	if err != nil {
+		fmt.Print(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item models.ClearanceTemplateItem
+		var departmentId string
+		err := rows.Scan(&item.ID, &item.Name, &departmentId)
+		if err != nil {
+			fmt.Print(err)
+		}
+		Department := GetDepartmentById(departmentId)
+		item.Department = &Department
+		items = append(items, item)
+	}
+
+	return items
+}
+
+
+func DetailsClearanceTemplate(w http.ResponseWriter, r *http.Request) {
+
+	id := r.PathValue("id")
+
+	if r.Method == "GET" {
+
+		data := map[string]interface{}{
+			"Title": "Clearance Template Details",
+			"Template": GetClearanceTemplateById(id),
+		}
+	
+		core.RenderPage(w,r, "apps/employees/views/Clearance-Template-details.html", data)
+
+	}
+
+	if r.Method == "POST" {
+
+		name:= r.PostFormValue("name")
+		description := r.PostFormValue("description")
+
+		_, err := core.DB.Exec(`UPDATE clearance_templates SET name = $1, description = $2 WHERE id = $3`, name, description, id)
+		if err != nil {
+			fmt.Print(err)
+		}
+
+		http.Redirect(w, r, "/employees/Clearance-Templates", http.StatusSeeOther)
+	}
+
+
+}
+
+
+func GetClearanceTemplateListApi(w http.ResponseWriter, r *http.Request) {
+
+	totalRecords := core.GetCountRecords("clearance_templates")
+	 
+	clearanceTemplates := GetClearanceTemplatesFromDB("", "ID", "asc", "1", strconv.Itoa(totalRecords))
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(clearanceTemplates)
 }

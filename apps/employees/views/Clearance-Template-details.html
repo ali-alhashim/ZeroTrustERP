@@ -1,0 +1,46 @@
+ {{define "content"}}
+
+ <h3>Clearance Templates / Details : {{.Template.ID}}</h3>
+
+ <form method="POST">
+    <table>
+        <tr>
+            <td>Name</td>
+        <td>
+            <input type="text" name="name" value="{{.Template.Name}}" />
+        </td>
+        </tr>
+
+        <tr>
+            <td>Description</td>
+        <td>
+            <input type="text" name="description" value="{{.Template.Description}}" class="w-100"/>
+        </td>
+        </tr>
+    </table>
+
+    <br/>
+
+    <table>
+        <header>
+            <tr>
+                <th>Item Name</th>
+                <th>Department</th>
+            </tr>
+        </header>
+        <tbody>
+            {{range .Template.Items}}
+            <tr>
+                <td>{{.Name}}</td>
+                <td>{{.Department.Name}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+
+
+
+ <input type="submit" value="Update" class="btn btn-primary"/>
+ </form>
+
+ {{end}}

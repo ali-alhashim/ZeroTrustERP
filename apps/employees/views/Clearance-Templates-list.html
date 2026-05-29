@@ -63,18 +63,30 @@
                     <th>ID</th>
                     <th>Name</th>
                     <th>Description</th>
+                    <th>Departments</th>
                 </tr>
             </thead>
             <tbody>
                 {{range .ClearanceTemplates}}
                 <tr>
                     <td>
-                        <a class="btn btn-id" href="/clearance/templates/details/{{.ID}}">
+                        <a class="btn btn-id" href="/Clearance-Template/details/{{.ID}}">
                         {{.ID}}
                         </a>
                     </td>
                     <td>{{.Name}}</td>
                     <td>{{.Description}}</td>
+                    <td>
+                        {{if .Items}}
+                            <ul>
+                            {{range .Items}}
+                                <li>{{.Department.Name}}</li>
+                            {{end}}
+                            </ul>
+                        {{else}}
+                            No Departments
+                        {{end}}
+                    </td>
                 </tr>
                 {{end}}
                
