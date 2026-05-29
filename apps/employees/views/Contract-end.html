@@ -160,10 +160,8 @@
         <tr>
             <td>Clearance Template</td>
             <td>
-                <select name="ClearanceTemplate" >
-                    <option value="default">Default</option>
-                    <option value="standard">Standard</option>
-                    <option value="custom">Custom</option>
+                <select name="ClearanceTemplate" id="ClearanceTemplateId">
+                   
                 </select>
            </td>
         </tr>
@@ -171,9 +169,68 @@
 
     </table>
 
+    <h4>Last Salary Details</h4>
+
+    <table>
+        <tr>
+            <td>Base Salary</td>
+            <td> <input type="text" name="BaseSalary"/> </td>
+        </tr>
+    </table>
+
+    <table>
+        <header>
+            <tr>
+                <td>Type</td>
+                <td>Amount</td>
+            </tr>
+        </header>
+        <tbody>
+
+        </tbody>
+       <tfooter>
+        <tr>
+            <td>Net Salary</td>
+            <td><input type="text" name="NetSalary"/></td>
+        </tr>
+        <tr>
+            <td>Gross Salary</td>
+            <td><input type="text" name="GrossSalary"/></td>
+        </tr>
+       </tfooter>
+    </table>
+
+
 <hr>
 <input type="submit" value="End Contract & Generate Clearance & Calculate EOSB if applicable" class="btn btn-danger">
 
 </form>
+
+<script>
+    //   /api/ClearanceTemplates/list
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const clearanceSelect = document.getElementById('ClearanceTemplateId');
+
+        // Fetch clearance templates from the API
+        fetch('/api/ClearanceTemplates/list')
+            .then(response => response.json())
+            .then(data => {
+                
+
+                // Populate the select with templates from the API
+                data.forEach(template => {
+                    const option = document.createElement('option');
+                    option.value = template.ID; // Assuming each template has an 'id' field
+                    option.textContent = template.Name; // Assuming each template has a 'name' field
+                    clearanceSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching clearance templates:', error);
+            });
+    });
+
+</script>
 
 {{end}}

@@ -251,6 +251,13 @@ input[type="number"]::-webkit-inner-spin-button {
     margin: 0;
 }
 
+input[readonly] {
+        background-color: #e9ecef; /* Darker, greyish background */
+        cursor: not-allowed;       /* Changes cursor to a circle with a slash */
+        color: #495057;            /* Slightly dims the text color */
+        border-color: #ced4da;     /* Matches a muted border */
+    }
+
 input[type="number"] {
     -moz-appearance: textfield;
 }

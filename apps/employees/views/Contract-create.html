@@ -184,9 +184,13 @@
 
    <tfoot>
     <tr style="font-weight: bold; background-color: #f8f9fa;">
+        <td>Gross Salary</td>
+        <td><input type="text" name="GrossSalary" id="GrossSalary" readonly/></td>
+    </tr>
+    <tr style="font-weight: bold; background-color: #f8f9fa;">
         <td>Net Salary</td>
 
-        <td><input type="text" name="NetSalary" id="TotalNetSalary"/></td>
+        <td><input type="text" name="NetSalary" id="TotalNetSalary" readonly/></td>
 
         <td></td>
     </tr>
@@ -302,22 +306,51 @@
 function calculateTotalSalary() {
     // 1. Get Base Salary
     const baseSalaryInput = document.getElementById('BaseSalary');
+    const grossSalaryInput = document.getElementById('GrossSalary');
+    const totalNetSalaryInput = document.getElementById('TotalNetSalary');
 
-    let total = parseFloat(baseSalaryInput.value) || 0;
+    const baseSalary = parseFloat(baseSalaryInput.value) || 0;
 
-    // 2. Get all dynamic component amounts
+    // Both Gross and Net start with the Base Salary
+    let grossTotal = baseSalary;
+    let netTotal = baseSalary;
+
+    // 2. Get all dynamic component rows
+    // It's best to loop through the rows/containers so you can check both the amount AND the type
     const componentAmounts = document.querySelectorAll('input[name="Amount"]');
     
     componentAmounts.forEach(input => {
-        let val = parseFloat(input.value) || 0;
-        total += val;
+        const val = parseFloat(input.value) || 0;
+        
+        // Check if this component is a deduction (e.g., GOSI)
+        // Look for a data attribute on the input like: data-component-type="deduction"
+        const isDeduction = input.dataset.componentType === 'deduction' || val < 0;
+
+        if (isDeduction) {
+            // Deductions reduce the Net Salary, but are IGNORED for Gross Salary
+            // Math.abs ensures we treat it as a negative drop even if entered as positive
+            netTotal -= Math.abs(val); 
+        } else {
+            // Earnings increase both Gross and Net Salary
+            grossTotal += val;
+            netTotal += val;
+        }
     });
 
-    // 3. Update the display
-    document.getElementById('TotalNetSalary').value = total.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
+    // 3. Update the displays with proper formatting
+    if (grossSalaryInput) {
+        grossSalaryInput.value = grossTotal.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    if (totalNetSalaryInput) {
+        totalNetSalaryInput.value = netTotal.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
 }
 
 // Add event listeners to existing elements and the document for dynamic ones

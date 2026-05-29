@@ -167,7 +167,7 @@ func GetContractsFromDB(search, sort, order, page, pageSize string) []models.Con
 func GetSalaryLinesByContractId(id int) []models.ContractSalaryLine{
 	var salaryLines []models.ContractSalaryLine
 
-	query := "select id,  base_salary, effective_date, net_salary from contract_salary_lines where contract_id = $1"
+	query := "select id,  base_salary, effective_date, net_salary, gross_salary from contract_salary_lines where contract_id = $1"
 	rows, err := core.DB.Query(query, id)
 	if err != nil {
 		fmt.Print(err)
@@ -177,7 +177,7 @@ func GetSalaryLinesByContractId(id int) []models.ContractSalaryLine{
 
 	for rows.Next() {
 		var salaryLine models.ContractSalaryLine
-		err := rows.Scan(&salaryLine.ID, &salaryLine.BaseSalary, &salaryLine.EffectiveDate, &salaryLine.NetSalary)
+		err := rows.Scan(&salaryLine.ID, &salaryLine.BaseSalary, &salaryLine.EffectiveDate, &salaryLine.NetSalary, &salaryLine.GrossSalary)
 		if err != nil {
 			fmt.Print(err)
 			continue
@@ -277,6 +277,7 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 		//----Salary
 		BaseSalary :=r.PostFormValue("BaseSalary")
 		NetSalary  :=r.PostFormValue("NetSalary")
+		GrossSalary :=r.PostFormValue("GrossSalary")
 
 		EffectiveDate, errStr3 :=time.Parse("2006-01-02", r.PostFormValue("EffectiveDate"))
 		if errStr3 !=nil{
@@ -324,8 +325,8 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 				// Insert Salary lines row in contract_salary_lines(contract_id, base_salary, effective_date)
                 
 				var salaryLinesId int
-				query = "insert into contract_salary_lines (contract_id, base_salary, net_salary, effective_date) values($1,$2,$3,$4) RETURNING id"
-				err = core.DB.QueryRow(query, ContractId, BaseSalary,NetSalary, EffectiveDate).Scan(&salaryLinesId)
+				query = "insert into contract_salary_lines (contract_id, base_salary, net_salary, effective_date, gross_salary) values($1,$2,$3,$4,$5) RETURNING id"
+				err = core.DB.QueryRow(query, ContractId, BaseSalary,NetSalary, EffectiveDate, GrossSalary).Scan(&salaryLinesId)
 
 				if err != nil {
 					fmt.Print(err)
@@ -356,7 +357,7 @@ func CreateContract(w http.ResponseWriter, r *http.Request){
 		 }
 
 
-
+     http.Redirect(w, r, "/employees/contract", http.StatusSeeOther)
 
 	} //end post request
 
@@ -390,7 +391,7 @@ func GetContractById(id string) models.Contract {
     query := `
         SELECT 
             c.id, c.employee_id, c.name, c.start_date, c.end_date, c.active, c.created_at, c.shift_schedule_id, c.status, c.iban, c.bank_name, c.absense_balance, c.yearly_total_allocation_days, c.accrual_rate_per_day, c.total_service_years,c.work_location,c.job_title_id,
-            sl.base_salary, sl.net_salary, sl.effective_date,
+            sl.base_salary, sl.net_salary, sl.effective_date, sl.gross_salary,
             scv.type_id, scv.amount
         FROM contracts c
         LEFT JOIN contract_salary_lines sl ON c.id = sl.contract_id
@@ -421,7 +422,7 @@ func GetContractById(id string) models.Contract {
 
         err := rows.Scan(
             &contract.ID, &employeeId, &contract.Name, &contract.StartDate, &contract.EndDate, &contract.Active, &contract.CreatedAt, &shiftId, &contract.Status,&contract.IBAN,&contract.BankName,&contract.AbsenseBalance,&contract.YearlyTotalAllocationDays,&contract.AccrualRatePerDay,&contract.TotalServiceYears,&contract.WorkLocation,&jobTitleId,
-            &baseSalary, &netSalary, &effectiveDate,
+            &baseSalary, &netSalary, &effectiveDate, &salaryLine.GrossSalary,
             &typeID, &amount,
         )
         if err != nil {
