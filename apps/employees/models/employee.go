@@ -209,8 +209,10 @@ type Contract struct {
     ShiftSchedule  *ShiftSchedule `f:"many2one:"`
     WorkLocation *string   `f:"text"`
     Note         *string   `f:"text"`
+
     CompanyAuthoritySignature *string `f:"text"`   //this path of image Signature
-    EmployeeSignature         *string `f:"text"`
+    EmployeeSignature         *string `f:"text"`   //this path of image Signature
+
     TotalServiceYears *float64 `f:"number(12,2)"`
     IBANChangeHistory *[]ExContractIBAN `v:"true"` // To track historical IBAN changes for this contract
     IBANFilePath *string `f:"text"` // Path to the stored document showing the current IBAN details

@@ -566,6 +566,8 @@ func TerminateContract(w http.ResponseWriter, r *http.Request){
 		// 4- insert record in service_periods table with end_date = end date of the contract and note = "end date based on contract termination"
 		// 5- redirect to clearance document details page and eosb details page if applicable
 
+		
+
 	}
 }
 
