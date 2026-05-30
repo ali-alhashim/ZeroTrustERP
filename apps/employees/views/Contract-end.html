@@ -61,7 +61,7 @@
                 Start Date
             </td>
             <td>
-             <input type="text" name="start_date" value="{{.contract.StartDate.Format "2006-01-02"}}" readonly>
+             <input type="text" name="start_date" value="{{.contract.StartDate.Format "2006-01-02"}}" readonly id="startDate">
             </td>
         </tr>
 
@@ -70,8 +70,18 @@
                 End Date
             </th>
             <th>
-             <input type="date" name="end_date" >
+             <input type="date" name="end_date" onchange="calculateContractDuration()" required id="endDate">
             </th>
+        </tr>
+
+       
+        <tr>
+            <td>
+               <h4> Contract Duration (Years)</h4>
+            </td>
+            <td>
+             <input type="number" name="contract_duration_years" min="0" value="0" readonly id="contractDurationYears">
+            </td>
         </tr>
 
         <tr>
@@ -96,7 +106,7 @@
                 Reason for Contract End
             </td>
             <td>
-<select name="reason" required>
+<select name="reason" required id="reasonSelect" onchange="calculateEOSB()">
     <option value="">Select Reason...</option>
 
     <!-- 1. STANDARD & MUTUAL AGREEMENTS (ARTICLE 74) -->
@@ -152,8 +162,18 @@
 
 
         <tr>
+            <td>
+                EOSB Formula
+            </td>
+            <td>
+                <div id="eosbFormula"></div>
+            </td>
+        </tr>
+
+
+        <tr>
             <td>Absence Balance</td>
-            <td><input type="number" name="AbsenseBalance" min="0" value="{{.contract.AbsenseBalance}}"></td>
+            <td><input type="number" name="AbsenseBalance" min="0" value="{{.contract.AbsenseBalance}}" id="vacationBalance"></td>
         </tr>
 
 
@@ -208,7 +228,7 @@
         </tr>
         <tr>
             <td><h3>Gross Salary</h3></td>
-            <td><input type="text" name="GrossSalary" value="{{.lastSalaryLine.GrossSalary}}" readonly/></td>
+            <td><input type="text" name="GrossSalary" value="{{.lastSalaryLine.GrossSalary}}" readonly id="grossSalary"/></td>
         </tr>
        </tfooter>
     </table>
@@ -216,6 +236,10 @@
 
 <hr>
 <input type="submit" value="End Contract & Generate Clearance & Generate EOSB if applicable" class="btn btn-danger">
+
+
+<input type="hidden" name="LegalRuleApplied" id="legalRuleApplied">
+<input type="hidden" name="TotalServiceDuration" id="TotalServiceDurationId">
 
 </form>
 
@@ -244,6 +268,208 @@
             });
     });
 
+</script>
+
+
+
+<script>
+function calculateContractDuration() {
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.querySelector('input[name="end_date"]');
+    const durationInput = document.getElementById('contractDurationYears');
+
+    const startDate = new Date(startDateInput.value);
+    const endDate = new Date(endDateInput.value);
+
+    if (isNaN(startDate) || isNaN(endDate)) {
+        durationInput.value = 0;
+        return;
+    }
+
+    let years = endDate.getFullYear() - startDate.getFullYear();
+    const monthDiff = endDate.getMonth() - startDate.getMonth();
+    const dayDiff = endDate.getDate() - startDate.getDate();
+
+    // Adjust years if end date is before the anniversary of the start date
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        years--;
+    }
+
+    durationInput.value = years >= 0 ? years : 0;
+}
+</script>
+
+
+<script>
+function calculateEOSB() {
+    // 1. Get DOM Elements
+    const reasonSelect = document.getElementById('reasonSelect');
+    const eosbFormulaDiv = document.getElementById('eosbFormula');
+    const legalRuleAppliedInput = document.getElementById('legalRuleApplied');
+    const totalServiceDurationInput = document.getElementById('TotalServiceDurationId');
+    // --- Mocking your other inputs (Replace with your actual DOM selectors) ---
+    // Change this line in your calculation script:
+    const grossSalary = parseFloat(document.getElementById('grossSalary')?.value.replace(/,/g, '') || 0);
+    const startDate = new Date(document.getElementById('startDate')?.value);
+    const endDate = new Date(document.getElementById('endDate')?.value);
+    const vacationBalanceDays = parseFloat(document.getElementById('vacationBalance')?.value || 0);
+    
+    const reason = reasonSelect.value;
+    if (!reason || isNaN(startDate) || isNaN(endDate) || grossSalary <= 0) {
+        eosbFormulaDiv.textContent = "Please fill in dates, salary, and select a reason.";
+        return;
+    }
+
+    // 2. Calculate Precise Tenure in Years
+    const timeDiff = endDate.getTime() - startDate.getTime();
+    const totalDays = timeDiff / (1000 * 60 * 60 * 24);
+    const tenureYears = totalDays / 365.25; // Accounting for leap years
+
+    if (tenureYears < 0) {
+        eosbFormulaDiv.textContent = "Error: End date cannot be before start date.";
+        return;
+    }
+
+    // 3. Calculate Standard Baseline Accrual (Article 84 standard)
+    let standardAccruedEOSB = 0;
+    if (tenureYears <= 5) {
+        standardAccruedEOSB = tenureYears * (grossSalary * 0.5);
+    } else {
+        // First 5 years at half-rate, remaining years at full-rate
+        standardAccruedEOSB = (5 * (grossSalary * 0.5)) + ((tenureYears - 5) * grossSalary);
+    }
+
+    // 4. Evaluate Reason and Apply the Correct Modifier Pattern
+    let modifier = 1.0; 
+    let legalNote = "";
+    let isForfeited = false;
+
+    switch(reason) {
+        // =========================================================================
+        // CATEGORY A: FULL ENTITLEMENT (100% of Article 84)
+        // =========================================================================
+        case 'A74_EXPIRY':
+            legalNote = "Article 74-2: Expiry of fixed-term contract. Full 100% entitlement.";
+            break;
+        case 'A74_MUTUAL':
+            legalNote = "Article 74-1: Mutual written termination. Full 100% entitlement.";
+            break;
+        case 'A74_PROJECT_DONE':
+            legalNote = "Article 74-3: Specific project completed. Full 100% entitlement.";
+            break;
+        case 'A74_RETIREMENT':
+            legalNote = "Article 74-4 / Article 87: Employee reached statutory retirement age. Full 100% entitlement.";
+            break;
+        case 'A77_EMPLOYER_NON_SPECIFIC':
+            legalNote = "Article 77: Terminated by employer without specific cause. Full 100% EOSB entitlement (Note: Employee may also be entitled to additional Article 77 court compensation damages).";
+            break;
+        case 'A74_FORCE_M':
+            legalNote = "Article 74-5: Force Majeure. Full 100% entitlement.";
+            break;
+        case 'A74_CLOSURE':
+            legalNote = "Article 74-7: Permanent closure of establishment. Full 100% entitlement.";
+            break;
+        case 'A74_ACTIVITY_END':
+            legalNote = "Article 74-8: Termination of specific business activity. Full 100% entitlement.";
+            break;
+        case 'A79_DEATH':
+            legalNote = "Article 79: Contract terminated due to employee death. Full 100% entitlement paid to legal heirs.";
+            break;
+        case 'A79_DISABILITY':
+            legalNote = "Article 79 / 137: Total permanent medical disability. Full 100% entitlement.";
+            break;
+        case 'A87_FEMALE_SPECIAL':
+            legalNote = "Article 87 Exception: Resignation by female worker within 6 months of marriage or 3 months of childbirth. Full 100% entitlement.";
+            break;
+
+        // =========================================================================
+        // CATEGORY B: EMPLOYEE RESIGNATION FOR EMPLOYER BREACH (100% of Article 84)
+        // =========================================================================
+        case 'A81_DECEPTION':
+        case 'A81_NO_WAGES':
+        case 'A81_DIFFERENT_WORK':
+        case 'A81_ASSAULT':
+        case 'A81_SAFETY':
+        case 'A81_CONSTRUCTIVE':
+            modifier = 1.0;
+            legalNote = "Article 81: Employee resigned due to severe employer breach/fault. Employee maintains full 100% EOSB entitlement despite resigning.";
+            break;
+
+        // =========================================================================
+        // CATEGORY C: VOLUNTARY RESIGNATION / BREACH BY EMPLOYEE (Article 85 Sliding Scale)
+        // =========================================================================
+        case 'A74_RESIGN':
+        case 'A77_EMPLOYEE_PREMATURE': // Premature exit without cause maps to standard resignation tiers for EOSB
+            legalNote = "Article 85: Voluntary separation by employee. Payout is based on tenure brackets.";
+            if (tenureYears < 2) {
+                modifier = 0;
+                legalNote += " Service under 2 years = No entitlement (0%).";
+            } else if (tenureYears >= 2 && tenureYears <= 5) {
+                modifier = 1/3;
+                legalNote += " Service between 2 to 5 years = Entitled to 1/3rd of award.";
+            } else if (tenureYears > 5 && tenureYears < 10) {
+                modifier = 2/3;
+                legalNote += " Service between 5 to 10 years = Entitled to 2/3rds of award.";
+            } else {
+                modifier = 1.0;
+                legalNote += " Service exceeds 10 years = Entitled to full 100% award.";
+            }
+            break;
+
+        // =========================================================================
+        // CATEGORY D: FORFEITURE CASES (0% Payout)
+        // =========================================================================
+        case 'A53_PROBATION':
+            isForfeited = true;
+            modifier = 0;
+            legalNote = "Article 53/54: Termination during probation. No EOSB accrued.";
+            break;
+        case 'A80_ASSAULT':
+        case 'A80_NEGLECT':
+        case 'A80_MISCONDUCT':
+        case 'A80_MATERIAL_LOSS':
+        case 'A80_FORGERY':
+        case 'A80_ABSENCE':
+        case 'A80_GAIN':
+        case 'A80_SECRETS':
+            isForfeited = true;
+            modifier = 0;
+            legalNote = "Article 80 Dismissal: Termination for gross misconduct. The worker forfeits all rights to End-of-Service benefits.";
+            break;
+
+        default:
+            modifier = 1.0;
+            legalNote = "Standard processing.";
+    }
+
+    // 5. Run Calculations
+    const adjustedEOSB = isForfeited ? 0 : (standardAccruedEOSB * modifier);
+    
+    // Unused leave balance cashout calculation (Article 111)
+    const dailyRate = grossSalary / 30;
+    const leaveCashout = vacationBalanceDays > 0 ? (vacationBalanceDays * dailyRate) : 0;
+    
+    const totalFinalSettlement = adjustedEOSB + leaveCashout;
+
+    legalRuleAppliedInput.value = legalNote; // Store the legal note in the hidden input for backend processing if needed
+    totalServiceDurationInput.value = tenureYears.toFixed(3) +" Years "+ Math.floor(totalDays) +" Days"; // Store precise tenure in years for backend processing if needed
+
+    // 6. Build the Visual Breakdown Text
+    let breakdownHTML = `
+        <strong>Legal Rule Applied:</strong> ${legalNote}<br>
+        <strong>Total Service Duration:</strong> ${tenureYears.toFixed(3)} Years (${Math.floor(totalDays)} total calendar days)<br>
+        <hr style="border:0; border-top:1px solid #ccc; margin:10px 0;">
+        <strong>1. Base Award (Before Modifier):</strong> ${standardAccruedEOSB.toFixed(2)} SAR<br>
+        <strong>2. Reason Modifier Multiplier:</strong> ${(modifier * 100).toFixed(1)}%<br>
+        <strong>3. Adjusted Final EOSB Reward:</strong> ${adjustedEOSB.toFixed(2)} SAR<br>
+        <strong>4. Unused Leave Cashout (${vacationBalanceDays} days):</strong> ${leaveCashout.toFixed(2)} SAR<br>
+        <hr style="border:0; border-top:1px dashed #ccc; margin:10px 0;">
+        <strong>Total Net Settlement Amount:</strong> <span style="font-size:1.2em; color:#2e7d32;">${totalFinalSettlement.toFixed(2)} SAR</span>
+    `;
+
+    eosbFormulaDiv.style.whiteSpace = 'normal';
+    eosbFormulaDiv.innerHTML = breakdownHTML;
+}
 </script>
 
 {{end}}
