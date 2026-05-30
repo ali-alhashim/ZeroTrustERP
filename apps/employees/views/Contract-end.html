@@ -174,35 +174,48 @@
     <table>
         <tr>
             <td>Base Salary</td>
-            <td> <input type="text" name="BaseSalary"/> </td>
+            <td> <input type="text" name="BaseSalary" value="{{.lastSalaryLine.BaseSalary}}" readonly/> </td>
         </tr>
     </table>
 
     <table>
         <header>
             <tr>
-                <td>Type</td>
-                <td>Amount</td>
+                <th>Type</th>
+                <th>Amount</th>
             </tr>
         </header>
         <tbody>
+            {{range .lastSalaryLine.Components}}
+            <tr>
+               <td>
+                {{.Type.Name}}
+               </td>
+               <td>
+                {{.Amount}}
+               </td>
+               
+            </tr>
+            {{end}}
+
+            
 
         </tbody>
        <tfooter>
         <tr>
             <td>Net Salary</td>
-            <td><input type="text" name="NetSalary"/></td>
+            <td><input type="text" name="NetSalary" value="{{.lastSalaryLine.NetSalary}}" readonly/></td>
         </tr>
         <tr>
-            <td>Gross Salary</td>
-            <td><input type="text" name="GrossSalary"/></td>
+            <td><h3>Gross Salary</h3></td>
+            <td><input type="text" name="GrossSalary" value="{{.lastSalaryLine.GrossSalary}}" readonly/></td>
         </tr>
        </tfooter>
     </table>
 
 
 <hr>
-<input type="submit" value="End Contract & Generate Clearance & Calculate EOSB if applicable" class="btn btn-danger">
+<input type="submit" value="End Contract & Generate Clearance & Generate EOSB if applicable" class="btn btn-danger">
 
 </form>
 

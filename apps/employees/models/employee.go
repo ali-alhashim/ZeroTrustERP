@@ -173,6 +173,21 @@ type Contract struct {
     CompanyAuthoritySignature *string `f:"text"`   //this path of image Signature
     EmployeeSignature         *string `f:"text"`
     TotalServiceYears *float64 `f:"number(12,2)"`
+    IBANChangeHistory *[]ExContractIBAN `v:"true"` // To track historical IBAN changes for this contract
+    IBANFilePath *string `f:"text"` // Path to the stored document showing the current IBAN details
+}
+
+type ExContractIBAN struct {
+    ID          int        `f:"number, primary, auto"`
+    Contract    *Contract  `f:"many2one:contracts"`
+    OldIBAN     string     `f:"text, notnull"`
+    NewIBAN     string     `f:"text, notnull"`
+    ChangedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    OldIBANFilePath *string    `f:"text"` // Path to the stored document showing the old IBAN details
+    NewIBANFilePath *string    `f:"text"` // Path to the stored document showing the new IBAN details
+    UpdatedBy   *Employee  `f:"many2one:employees"` // Who made the change
+    VerificationStatus string `f:"text"` // "Pending", "Verified", "Rejected"
+    ConfirmationBy *Employee `f:"many2one:employees"` // Who confirmed the change after verification
 }
 
 // Accrual Rate Per Day = Yearly Total Allocation Days / Days in year

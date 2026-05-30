@@ -26,6 +26,7 @@ func init() {
 	core.RegisterModel(models.ContractSalaryLine{})
 	core.RegisterModel(models.SalaryComponentType{})
 	core.RegisterModel(models.SalaryComponentValue{})
+	core.RegisterModel(models.ExContractIBAN{})
 
 	core.RegisterModel(models.ClearanceTemplate{})
 	core.RegisterModel(models.ClearanceTemplateItem{})

@@ -541,10 +541,12 @@ func TerminateContract(w http.ResponseWriter, r *http.Request){
 	if r.Method == http.MethodGet{
 
 		contract:= GetContractById(id)
+
+		lastSalaryLine := GetLastActiveSalaryDetailsByContractId(id)
 		
 		data := map[string]interface{}{
 		"Title": "Terminate Contract",
-	
+	    "lastSalaryLine": lastSalaryLine,
 		"contract": contract,
 		
 	}
@@ -560,4 +562,52 @@ func TerminateContract(w http.ResponseWriter, r *http.Request){
 		//and we will open with response 2 pages one for clearance document and one for EOSB details if applicable
 
 	}
+}
+
+
+func GetLastActiveSalaryDetailsByContractId(contractId string) models.ContractSalaryLine {
+	var salaryLine models.ContractSalaryLine
+    query :=`select id, contract_id, base_salary, effective_date, end_date, net_salary, gross_salary 
+	         from contract_salary_lines where contract_id = $1 and end_date is null order by effective_date desc limit 1`
+	row := core.DB.QueryRow(query, contractId)
+
+	var contId *string
+
+	err := row.Scan(&salaryLine.ID, &contId, &salaryLine.BaseSalary, &salaryLine.EffectiveDate, &salaryLine.EndDate, &salaryLine.NetSalary, &salaryLine.GrossSalary)
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	//Get the components for this salary line
+	var salaryComponents []models.SalaryComponentValue
+
+	query = "select id, salary_line_id, type_id, amount from salary_component_values where salary_line_id = $1"
+	rows, err := core.DB.Query(query, salaryLine.ID)
+	if err != nil {
+		fmt.Print(err)
+		return salaryLine
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var comp models.SalaryComponentValue
+		var typeId, salaryLineId *string
+
+		err := rows.Scan(&comp.ID, &salaryLineId, &typeId, &comp.Amount)
+		if err != nil {
+			fmt.Print(err)
+			continue
+		}
+
+		if typeId != nil {
+			compType := GetComponentTypeById(*typeId)
+			comp.Type = &compType
+		}
+
+		salaryComponents = append(salaryComponents, comp)
+	}
+
+	salaryLine.Components = salaryComponents
+
+	return salaryLine
 }
