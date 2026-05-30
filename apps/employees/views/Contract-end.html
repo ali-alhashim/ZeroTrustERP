@@ -240,6 +240,11 @@
 
 <input type="hidden" name="LegalRuleApplied" id="legalRuleApplied">
 <input type="hidden" name="TotalServiceDuration" id="TotalServiceDurationId">
+<input type="hidden" name="BaseAward" id="BaseAwardId">
+<input type="hidden" name="ReasonModifierMultiplier" id="ReasonModifierMultiplierId">
+<input type="hidden" name="AdjustedFinalEOSBReward" id="AdjustedFinalEOSBRewardId">
+<input type="hidden" name="UnusedLeaveCashout" id="UnusedLeaveCashoutId">
+<input type="hidden" name="TotalNetSettlementAmount" id="TotalNetSettlementAmountId">
 
 </form>
 
@@ -307,6 +312,11 @@ function calculateEOSB() {
     const eosbFormulaDiv = document.getElementById('eosbFormula');
     const legalRuleAppliedInput = document.getElementById('legalRuleApplied');
     const totalServiceDurationInput = document.getElementById('TotalServiceDurationId');
+    const baseAwardInput = document.getElementById('BaseAwardId');
+    const reasonModifierMultiplierInput = document.getElementById('ReasonModifierMultiplierId');
+    const adjustedFinalEOSBRewardInput = document.getElementById('AdjustedFinalEOSBRewardId');
+    const unusedLeaveCashoutInput = document.getElementById('UnusedLeaveCashoutId');
+    const totalNetSettlementAmountInput = document.getElementById('TotalNetSettlementAmountId');
     // --- Mocking your other inputs (Replace with your actual DOM selectors) ---
     // Change this line in your calculation script:
     const grossSalary = parseFloat(document.getElementById('grossSalary')?.value.replace(/,/g, '') || 0);
@@ -453,7 +463,11 @@ function calculateEOSB() {
 
     legalRuleAppliedInput.value = legalNote; // Store the legal note in the hidden input for backend processing if needed
     totalServiceDurationInput.value = tenureYears.toFixed(3) +" Years "+ Math.floor(totalDays) +" Days"; // Store precise tenure in years for backend processing if needed
-
+    baseAwardInput.value = standardAccruedEOSB.toFixed(2); // Store the base award before modifier for backend processing if needed
+    reasonModifierMultiplierInput.value = (modifier * 100).toFixed(1) + "%"; // Store the reason modifier multiplier for backend processing if needed
+    adjustedFinalEOSBRewardInput.value = adjustedEOSB.toFixed(2); // Store the adjusted final EOSB reward for backend processing if needed
+    unusedLeaveCashoutInput.value = leaveCashout.toFixed(2); // Store the unused leave cashout for backend processing if needed
+    totalNetSettlementAmountInput.value = totalFinalSettlement.toFixed(2); // Store the total net settlement amount for backend processing if needed
     // 6. Build the Visual Breakdown Text
     let breakdownHTML = `
         <strong>Legal Rule Applied:</strong> ${legalNote}<br>

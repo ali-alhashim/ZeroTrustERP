@@ -560,6 +560,11 @@ func TerminateContract(w http.ResponseWriter, r *http.Request){
 
 		//we will update the contract and we will generate clearance document and calculate EOSB if applicable
 		//and we will open with response 2 pages one for clearance document and one for EOSB details if applicable
+		// 1- update contract (contracts table)
+		// 2- insert record in clerance_documents table with type end of service clearance and status draft
+		// 3- insert record in eosb_records table if applicable (if the employee is eligible for EOSB based on his service period and the company policy) with status draft
+		// 4- insert record in service_periods table with end_date = end date of the contract and note = "end date based on contract termination"
+		// 5- redirect to clearance document details page and eosb details page if applicable
 
 	}
 }

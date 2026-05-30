@@ -43,4 +43,7 @@ func init() {
 	core.RegisterModel(models.EmergencyContact{})
 	core.RegisterModel(models.EmployeeDocument{})
 
+	core.RegisterModel(models.EOSBRecord{})
+	core.RegisterModel(models.EOSBRecordLine{})
+
 }

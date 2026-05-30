@@ -46,17 +46,56 @@ type Employee struct {
     PersonalEmail *string     `f:"text"`
     PersonalMobile *string     `f:"text"`
     ServicePeriods []ServicePeriod `v:"true"`
-    
+    EOSBRecords   *[]EOSBRecord `v:"true"`
 }
 
 type ServicePeriod struct {
-    ID         int        `f:"number, primary, auto"`
-    Employee     *Employee  `f:"many2one:employees"`
-    HireDate   time.Time `f:"timestamp"`
+    ID               int        `f:"number, primary, auto"`
+    Employee        *Employee  `f:"many2one:employees"`
+    HireDate        time.Time `f:"timestamp"`
     TerminationDate *time.Time `f:"timestamp"`
     Reason          *string   `f:"text"`
     EOSBPaid        *bool   `f:"bool, default:false"`
-    Note        *string     `f:"text"`
+    Note            *string     `f:"text"`
+    EOSBRecord      *EOSBRecord `f:"one2one:eosb_records"`
+}
+
+type EOSBRecord struct {
+    ID          int        `f:"number, primary, auto"`
+    Employee    *Employee  `f:"many2one:employees"`
+    ServicePeriod *ServicePeriod `f:"many2one:service_periods"`
+
+    BaseEOSB      string            `f:"money"` // The initial calculated EOSB before adjustments
+    TotalLines    string            `f:"money"` // Net sum of all additions and deductions
+    FinalPayable  string            `f:"money"` // Final amount to pay: BaseEOSB + TotalLines
+    PaidEOSB      string            `f:"money"` // The actual EOSB amount paid out
+
+    Status        string            `f:"text"`      // e.g., "draft", "approved", "paid"
+    Lines         []*EOSBRecordLine `f:"one2many:eosb_record_lines"` // Detailed breakdown of additions and deductions
+
+    PaymentDate *time.Time `f:"timestamp"` // When the EOSB was paid out
+
+    FilePath    *string     `f:"text"`  // Path to the stored EOSB document (e.g., PDF of the EOSB calculation and payment details)
+    CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+}
+
+type EOSBRecordLine struct {
+	ID           int         `f:"number, primary, auto"`
+	EOSBRecord   *EOSBRecord `f:"many2one:eosb_records"` // Links back to parent
+	
+	// Line Details
+	Type         string      `f:"text"`  // "addition" or "deduction"
+	Reason       string      `f:"text"`  // e.g., "Laptop non-return", "Company car damage", "Unpaid loan"
+	Amount       string      `f:"money"` // The value of this specific adjustment
+	
+	// Optional: Asset tracking reference if applicable
+	AssetSerialNumber      *string        `f:"text, nullable"` //laptop, phone, etc. serial number if this line is related to an asset or Car VID
+	
+	CreatedAt    time.Time   `f:"timestamp, default:current_timestamp"`
+	UpdatedAt    time.Time   `f:"timestamp, default:current_timestamp"`
+    FilePath     *string      `f:"text"`  // Path to the stored document related to this line (e.g., damage report, asset return receipt)
+    Note         *string      `f:"text"`  // Additional notes about this specific line item
 }
 
 // OrgUnit represents a top-level organizational unit that can contain multiple departments
