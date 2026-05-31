@@ -267,6 +267,8 @@ type ClearanceDocument struct {
     CompletedDate     *time.Time         `f:"timestamp"` // Nullable until fully cleared
     CreatedAt         time.Time          `f:"timestamp, default:current_timestamp"`
     UpdatedAt         time.Time          `f:"timestamp, default:current_timestamp"`
+    Contract          *Contract          `f:"many2one:contracts"` // Link to the employee's contract for reference
+    ClearanceItems    *[]ClearanceDocumentItem `v:"true"` // The specific clearance items that need to be completed for this employee
 }
 
 type ClearanceDocumentItem struct {

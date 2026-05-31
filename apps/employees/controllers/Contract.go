@@ -537,10 +537,11 @@ func GetContractByEmployeeId(employeeId string) models.Contract {
 func TerminateContract(w http.ResponseWriter, r *http.Request){
 
 	id:= r.PathValue("id")
+	contract:= GetContractById(id)
 
 	if r.Method == http.MethodGet{
 
-		contract:= GetContractById(id)
+		
 
 		lastSalaryLine := GetLastActiveSalaryDetailsByContractId(id)
 		
@@ -565,11 +566,48 @@ func TerminateContract(w http.ResponseWriter, r *http.Request){
 		// 3- insert record in eosb_records table if applicable (if the employee is eligible for EOSB based on his service period and the company policy) with status draft
 		// 4- insert record in service_periods table with end_date = end date of the contract and note = "end date based on contract termination"
 		// 5- redirect to clearance document details page and eosb details page if applicable
+        end_date := r.PostFormValue("end_date")
+        contract_duration_years := r.PostFormValue("contract_duration_years")
+		notice_period := r.PostFormValue("notice_period")
+		notification_date := r.PostFormValue("notification_date")
+        reason := r.PostFormValue("reason")
+		AbsenseBalance := r.PostFormValue("AbsenseBalance")
+		ClearanceTemplate := r.PostFormValue("ClearanceTemplate") // ClearanceTemplate Id
+		LegalRuleApplied := r.PostFormValue("LegalRuleApplied")
+		TotalServiceDuration := r.PostFormValue("TotalServiceDuration")
+		BaseAward := r.PostFormValue("BaseAward")
+		ReasonModifierMultiplier := r.PostFormValue("ReasonModifierMultiplier")
+		AdjustedFinalEOSBReward := r.PostFormValue("AdjustedFinalEOSBReward")
+		UnusedLeaveCashout := r.PostFormValue("UnusedLeaveCashout")
+		TotalNetSettlementAmount := r.PostFormValue("TotalNetSettlementAmount")
 
+		fmt.Printf("\n End Date: %s, Contract Duration (Years): %s, Notice Period: %s, Notification Date: %s, Reason: %s, Absence Balance: %s, Clearance Template: %s, Legal Rule Applied: %s, Total Service Duration: %s, Base Award: %s, Reason Modifier Multiplier: %s, Adjusted Final EOSB Reward: %s, Unused Leave Cashout: %s, Total Net Settlement Amount: %s\n",
+			end_date, contract_duration_years, notice_period, notification_date, reason, AbsenseBalance, ClearanceTemplate, LegalRuleApplied, TotalServiceDuration, BaseAward, ReasonModifierMultiplier, AdjustedFinalEOSBReward, UnusedLeaveCashout, TotalNetSettlementAmount)
 		
+			// 1- update contract (contracts table)
+			query := "update contracts set end_date = $1, active = false, status = 'terminated', total_service_years = $2, notification_date = $3 where id = $4"
+			_, err := core.DB.Exec(query, end_date, contract_duration_years, notification_date, id)
+			if err != nil {
+				fmt.Print(err)
+			}
 
-	}
-}
+			 // 2- insert record in clerance_documents table with type end of service clearance and status draft
+			 var clearanceDocId string
+			 query = "insert into clearance_documents (employee_id, contract_id,  status, template_id, requested_date) values ($1, $2, 'draft', $3, $4) RETURNING id"
+			 err = core.DB.QueryRow(query, contract.Employee.ID, id, ClearanceTemplate, notification_date).Scan(&clearanceDocId)
+			 if err != nil {
+				 fmt.Print(err)
+			 }
+
+			 //ok base on the tamplate we will generate clearance items for this clearance document
+			 tempalateItems := GetClearanceTemplateItemsById(ClearanceTemplate)
+			 for _, item := range tempalateItems {
+				query:= "insert into clearance_document_items (document_id, name, department_id, status) values ($1, $2, $3, 'pending')"
+				_, err = core.DB.Exec(query, clearanceDocId, item.Name, item.Department.ID)
+			 }
+
+	} //end post request
+} //end function
 
 
 func GetLastActiveSalaryDetailsByContractId(contractId string) models.ContractSalaryLine {
