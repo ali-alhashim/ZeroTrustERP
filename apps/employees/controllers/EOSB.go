@@ -117,11 +117,11 @@ func GetEOSBFromDB(search, sort, order, page, pageSize string) []models.EOSBReco
 		//Get employee & Service Period and contract
 		Contract      := GetContractById(contractID)
 		Employee      := GetEmployeeById(employeeID)
-		//ServicePeriod := GetServicePeriodByID(servicePeriodID)
+		ServicePeriod := GetServicePeriodById(servicePeriodID)
 
 		l.Contract = &Contract
 		l.Employee = &Employee
-		//l.ServicePeriod = &ServicePeriod
+		l.ServicePeriod = &ServicePeriod
 
 
 		eosb = append(eosb, l)

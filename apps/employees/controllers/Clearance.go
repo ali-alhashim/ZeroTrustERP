@@ -406,3 +406,21 @@ func GetClearanceTemplateListApi(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(clearanceTemplates)
 }
+
+func GetServicePeriodById(id string) models.ServicePeriod {
+
+	var sp models.ServicePeriod
+	var employeeID  string
+
+	err := core.DB.QueryRow(`SELECT id, employee_id, hire_date, termination_date, reason, eosb_paid, note FROM service_periods WHERE id = $1`, id).Scan(&sp.ID, &employeeID, &sp.HireDate, &sp.TerminationDate, &sp.Reason, &sp.EOSBPaid, &sp.Note)
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	Employee := GetEmployeeById(employeeID)
+	sp.Employee = &Employee
+
+	
+
+	return sp
+}
