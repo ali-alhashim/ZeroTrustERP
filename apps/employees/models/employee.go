@@ -66,10 +66,13 @@ type EOSBRecord struct {
     ServicePeriod *ServicePeriod `f:"many2one:service_periods"`
 
     BaseEOSB      string            `f:"money"` // The initial calculated EOSB before adjustments
+    ReasonModifierMultiplier string `f:"text"` // e.g., "100%", "50%", "0%" based on the reason for termination
+    AdjustedFinalEOSBReward string  `f:"money"` // BaseEOSB adjusted by the ReasonModifierMultiplier
+    UnusedLeaveCashout string       `f:"money"` // Cash value of any unused leave days that are added to the EOSB
     TotalLines    string            `f:"money"` // Net sum of all additions and deductions
     FinalPayable  string            `f:"money"` // Final amount to pay: BaseEOSB + TotalLines
     PaidEOSB      string            `f:"money"` // The actual EOSB amount paid out
-
+    LegalRuleApplied string            `f:"text"`  // Reference to the specific labor law article or company policy applied in this calculation
     Status        string            `f:"text"`      // e.g., "draft", "approved", "paid"
     Lines         []*EOSBRecordLine `f:"one2many:eosb_record_lines"` // Detailed breakdown of additions and deductions
 
@@ -78,6 +81,7 @@ type EOSBRecord struct {
     FilePath    *string     `f:"text"`  // Path to the stored EOSB document (e.g., PDF of the EOSB calculation and payment details)
     CreatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
     UpdatedAt   time.Time  `f:"timestamp, default:current_timestamp"`
+    Contract    *Contract          `f:"many2one:contracts"` // Link to the employee's contract for reference
 }
 
 type EOSBRecordLine struct {

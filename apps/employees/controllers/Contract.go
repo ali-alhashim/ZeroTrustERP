@@ -559,6 +559,22 @@ func TerminateContract(w http.ResponseWriter, r *http.Request){
 
 	if r.Method == http.MethodPost{
 
+		//first make sure the contract is active and not terminated before because we can not terminate contract more than one time if the contract already terminated we will show error message to user that this contract already terminated and you can not terminate it again
+		if contract.Status != nil && *contract.Status == "terminated" {
+			// 1. Set the correct HTTP Status code (400 Bad Request)
+			w.WriteHeader(http.StatusBadRequest)
+
+			// 2. Prepare your user-friendly data payload
+			data := map[string]interface{}{
+				"Title":   "Contract Already Terminated",
+				"Message": "This contract has already been terminated. You cannot terminate a contract more than once.",
+			}
+
+			// 3. Render your error page view
+			core.RenderPage(w, r, "apps/employees/views/error.html", data)
+			return
+		}
+
 		//we will update the contract and we will generate clearance document and calculate EOSB if applicable
 		//and we will open with response 2 pages one for clearance document and one for EOSB details if applicable
 		// 1- update contract (contracts table)
@@ -605,6 +621,47 @@ func TerminateContract(w http.ResponseWriter, r *http.Request){
 				query:= "insert into clearance_document_items (document_id, name, department_id, status) values ($1, $2, $3, 'pending')"
 				_, err = core.DB.Exec(query, clearanceDocId, item.Name, item.Department.ID)
 			 }
+
+			 // clearance document created with items with id clearanceDocId will show this for user to fill the missing details and submit for approval
+
+			 // 3- insert record for eosb_records if applicable
+			 // check TotalNetSettlementAmount if it is greater than 0 then we will create EOSB record otherwise we will not create EOSB record because the employee is not eligible for EOSB based on the company policy or his service period
+			 totalNetSettlementAmountFloat, err := strconv.ParseFloat(TotalNetSettlementAmount, 64)
+			 if err != nil {
+				 fmt.Print(err)
+			 }
+
+			 var ServicePeriodId string
+			 var EOSBRecordId string
+			 query = "insert into service_periods (employee_id, hire_date, termination_date, note, reason) values ($1, $2, $3, $4, $5) RETURNING id"
+			 err = core.DB.QueryRow(query, contract.Employee.ID, contract.StartDate, end_date, "Service period record for EOSB calculation based on contract termination", reason).Scan(&ServicePeriodId)
+			 if err != nil {
+				 fmt.Print(err)
+			 }
+
+             
+			 if totalNetSettlementAmountFloat > 0 {
+				// insert record in eosb_records table with status draft
+				 query = "insert into eosb_records (employee_id, contract_id, service_period_id, base_eosb,reason_modifier_multiplier,adjusted_final_eosb_reward, unused_leave_cashout, final_payable,legal_rule_applied ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id"
+				 err = core.DB.QueryRow(query, contract.Employee.ID, id, ServicePeriodId, BaseAward, ReasonModifierMultiplier, AdjustedFinalEOSBReward, UnusedLeaveCashout, TotalNetSettlementAmount, LegalRuleApplied).Scan(&EOSBRecordId)
+				 if err != nil {
+					 fmt.Print(err)
+				 }
+			 }
+
+			 //update service_periods set eosb_record_id
+			 query = "update service_periods set eosb_record_id = $1 where id = $2"
+			 _, err = core.DB.Exec(query, EOSBRecordId, ServicePeriodId)
+			 if err != nil {
+				 fmt.Print(err)
+			 }
+
+			 // redirect to clearance document details page 
+			 http.Redirect(w, r, "/clearance/details/"+clearanceDocId, http.StatusSeeOther)
+			 
+
+
+
 
 	} //end post request
 } //end function
