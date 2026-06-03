@@ -1,0 +1,85 @@
+ {{define "content"}}
+  <h3>Clearance  / Details : {{.Clearance.ID}}</h3>
+
+  <form method="POST">
+
+ <table>
+        <tr>
+            <td>Employee Name</td>
+        <td>
+            <input type="text" name="EmployeeName" value="{{.Clearance.Employee.Name}}" readonly/>
+        </td>
+        </tr>
+
+        <tr>
+            <td>Badge ID</td>
+        <td>
+            <input type="text" name="BadgeID" value="{{.Clearance.Employee.BadgeID}}" readonly/>
+        </td>
+        </tr>
+
+        <tr>
+            <td>Clearance Template</td>
+        <td>
+            <input type="text" name="ClearanceTemplate" value="{{.Clearance.Template.Name}}" readonly/>
+        </td>
+        </tr>
+</table>
+
+<hr>
+
+<table>
+        <header>
+            <tr>
+                <th>Name</th>
+                <th>Department</th>
+               
+                <th>Responsible Employee</th>
+
+                 <th>Status</th>
+            </tr>
+        </header>
+        <tbody>
+            {{range .Clearance.ClearanceItems}}
+            <tr>
+                <td>{{.Name}}</td>
+                <td>{{.Department.Name}}</td>
+               
+
+                <td>
+                <select name="ResponsibleEmployee" onload="GetEmployeeListForDepartment({{.Department.ID}}, this)">
+                    <option value="">-- Select Employee --</option>
+                </select>
+               </td>
+
+                <td>{{.Status}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+</table>
+
+
+  </form>
+
+
+  <script>
+    function GetEmployeeListForDepartment(departmentId, selectElement) {
+        fetch(`/api/departments/${departmentId}/employees`)
+            .then(response => response.json())
+            .then(data => {
+                // Clear existing options
+                selectElement.innerHTML = '<option value="">-- Select Employee --</option>';
+                
+                // Populate new options
+                data.forEach(employee => {
+                    const option = document.createElement('option');
+                    option.value = employee.ID;
+                    option.textContent = employee.Name;
+                    selectElement.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching employees:', error));
+    }
+  </script>
+
+  {{end}}

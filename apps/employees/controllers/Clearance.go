@@ -424,3 +424,77 @@ func GetServicePeriodById(id string) models.ServicePeriod {
 
 	return sp
 }
+
+
+func GetClearanceDetails(w http.ResponseWriter, r *http.Request) {
+
+	id := r.PathValue("id")
+
+	if r.Method == "GET" {
+
+		data := map[string]interface{}{
+			"Title": "Clearance Details",
+			"Clearance": GetClearanceDocumentById(id),
+		}
+	
+		core.RenderPage(w,r, "apps/employees/views/Clearance-details.html", data)
+
+	}
+
+	if r.Method == "POST" {
+
+	}	
+}
+
+func GetClearanceDocumentById(id string) models.ClearanceDocument {
+	var cd models.ClearanceDocument
+	var employeeID, templateID, contractID string
+
+	err := core.DB.QueryRow(`SELECT id, employee_id, template_id, status, requested_date, completed_date, created_at, updated_at, contract_id FROM clearance_documents WHERE id = $1`, id).Scan(&cd.ID, &employeeID, &templateID, &cd.Status, &cd.RequestedDate, &cd.CompletedDate, &cd.CreatedAt, &cd.UpdatedAt, &contractID)
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	//get Clearance Items 
+	 Items:= GetClearanceItemsByDocumentId(id)
+
+
+	
+	Employee := GetEmployeeById(employeeID)
+	Template := GetClearanceTemplateById(templateID)
+	Contract := GetContractById(contractID)
+    cd.Contract = &Contract
+	cd.Employee = &Employee
+	cd.Template = &Template
+	cd.ClearanceItems = &Items
+
+	return cd
+}
+
+func GetClearanceItemsByDocumentId(id string) []models.ClearanceDocumentItem {
+	var items []models.ClearanceDocumentItem
+
+	
+
+	rows, err := core.DB.Query(`SELECT id, document_id, name, status, department_id FROM clearance_document_items WHERE document_id = $1`, id)
+	if err != nil {
+		fmt.Print(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item models.ClearanceDocumentItem
+		var documentId , departmentId string
+		err := rows.Scan(&item.ID, &documentId, &item.Name, &item.Status, &departmentId)
+		if err != nil {
+			fmt.Print(err)
+		}
+
+		Department := GetDepartmentById(departmentId)
+		item.Department = &Department
+
+		items = append(items, item)
+	}
+
+	return items
+}
