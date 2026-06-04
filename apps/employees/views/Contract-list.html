@@ -9,10 +9,10 @@
 
 <form method="GET" style="margin-bottom: 15px;">
     <label for="status">Status:</label>
-    <select name="Active" id="status" onchange="this.form.submit()">
+    <select name="status" id="status" onchange="this.form.submit()">
         <option value="">All</option>
-        <option value="true" {{if eq .Active "active"}}selected{{end}}>Active</option>
-        <option value="false" {{if eq .Active "inactive"}}selected{{end}}>Inactive</option>
+        <option value="Active" {{if eq .Status "Active"}}selected{{end}}>Active</option>
+        <option value="terminated" {{if eq .Status "terminated"}}selected{{end}}>Terminated</option>
     </select>
 </form>
 
@@ -59,11 +59,23 @@ Total Records: {{.TotalRecords}}
                     <th>ID</th>
                     <th>Employee</th>
                     <th>Name</th>
-                    <th>StartDate</th>
-                    <th>EndDate</th>
+                    <th>
+                        <a href="?sort=start_date&order={{if eq .Order "asc"}}desc{{else}}asc{{end}}">
+                        Start Date
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=end_date&order={{if eq .Order "asc"}}desc{{else}}asc{{end}}">
+                        End Date
+                        </a>
+                    </th>
                     <th>CreatedAt</th>
                     <th>ShiftSchedule</th>
-                    <th>Status</th>
+                    <th>
+                        <a href="?sort=status&order={{if eq .Order "asc"}}desc{{else}}asc{{end}}">
+                        Status
+                        </a>
+                    </th>
                     <th>Net Salary</th>
                   
                 </tr>

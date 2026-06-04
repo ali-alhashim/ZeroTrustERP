@@ -68,6 +68,9 @@ func GetContractsFromDB(search, sort, order, page, pageSize string) []models.Con
 		"LocalName":  "local_name",
 		"Manager":  "manager_id",
 		"Active":    "active",
+		"status":    "status",
+		"start_date": "start_date",
+		"end_date":   "end_date",
 		
 	}
 

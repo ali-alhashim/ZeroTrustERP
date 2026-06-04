@@ -47,9 +47,9 @@
                
 
                 <td>
-                <select name="ResponsibleEmployee" onload="GetEmployeeListForDepartment({{.Department.ID}}, this)">
-                    <option value="">-- Select Employee --</option>
-                </select>
+                    <select class="dept-employee-select" data-dept-id="{{.Department.ID}}" name="ResponsibleEmployee[{{.ID}}]">
+                        <option value="">-- Select Employee --</option>
+                    </select>
                </td>
 
                 <td>{{.Status}}</td>
@@ -61,25 +61,39 @@
 
   </form>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Find all the dropdowns that need population
+    const dropdowns = document.querySelectorAll('.dept-employee-select');
 
-  <script>
-    function GetEmployeeListForDepartment(departmentId, selectElement) {
-        fetch(`/api/departments/${departmentId}/employees`)
-            .then(response => response.json())
-            .then(data => {
-                // Clear existing options
-                selectElement.innerHTML = '<option value="">-- Select Employee --</option>';
-                
-                // Populate new options
-                data.forEach(employee => {
-                    const option = document.createElement('option');
-                    option.value = employee.ID;
-                    option.textContent = employee.Name;
-                    selectElement.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error fetching employees:', error));
-    }
-  </script>
+    dropdowns.forEach(selectElement => {
+        const departmentId = selectElement.getAttribute('data-dept-id');
+        if (departmentId) {
+            fetchEmployeeList(departmentId, selectElement);
+        }
+    });
+});
+
+function fetchEmployeeList(departmentId, selectElement) {
+    fetch(`/api/departments/${departmentId}/employees`)
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            // Keep the default option
+            selectElement.innerHTML = '<option value="">-- Select Employee --</option>';
+            
+            // Populate new options
+            data.forEach(employee => {
+                const option = document.createElement('option');
+                option.value = employee.id;
+                option.textContent = employee.name + ' (' + employee.badge_id + ')' + employee.local_name;
+                selectElement.appendChild(option);
+            });
+        })
+        .catch(error => console.error(`Error fetching employees for dept ${departmentId}:`, error));
+}
+</script>
 
   {{end}}

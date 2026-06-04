@@ -1071,6 +1071,42 @@ func GetEmployeesListApi(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(employees)
 }
 
+func GetDepartmentEmployeesApiByDepartmentId(w http.ResponseWriter, r *http.Request) {
+    //->  GET  /api/departments/${departmentId}/employees
+    departmentId := r.PathValue("departmentId")
+    fmt.Printf("Fetching employees for department ID: %s\n", departmentId)
+
+    query := "SELECT id, badge_id, name, local_name FROM employees WHERE department_id = $1"
+    rows, err := core.DB.Query(query, departmentId)
+    if err != nil {
+        fmt.Printf("Database error: %v\n", err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+    defer rows.Close()
+
+    type EmployeeSummary struct {
+        ID        int     `json:"id"`
+        BadgeID   string  `json:"badge_id"`
+        Name      string  `json:"name"`
+        LocalName string  `json:"local_name"`
+    }
+
+    var employees []EmployeeSummary
+    for rows.Next() {
+        var e EmployeeSummary
+        if err := rows.Scan(&e.ID, &e.BadgeID, &e.Name, &e.LocalName); err != nil {
+            fmt.Printf("Row scan error: %v\n", err)
+            continue
+        }
+        employees = append(employees, e)
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(employees)
+}
+    
+
 
 
 
@@ -2033,8 +2069,11 @@ func DownloadEmployeesCSV(w http.ResponseWriter, r *http.Request){
                        "address", 
                        "education", 
                        "major", 
-                       "religion", 
-                       "personal_email"}
+                       "religion",
+                       "personal_email",
+                       "job_title_id",
+                       "department_id", 
+                       }
 	if err := writer.Write(header); err != nil {
         http.Error(w, "Failed to write header", http.StatusInternalServerError)
         return
@@ -2059,6 +2098,8 @@ func DownloadEmployeesCSV(w http.ResponseWriter, r *http.Request){
             *emp.Major,
             *emp.Religion,
             *emp.PersonalEmail,
+            strconv.Itoa(emp.JobTitle.ID),
+            strconv.Itoa(emp.Department.ID),
         }
         if err := writer.Write(row); err != nil {
             http.Error(w, "Failed to write row", http.StatusInternalServerError)

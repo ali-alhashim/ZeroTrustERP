@@ -97,6 +97,10 @@ func EmployeeListRoutes(mux *http.ServeMux) {
      mux.Handle("GET /employees/eosb", core.AuthMiddleware(http.HandlerFunc(controllers.ListEOSB), "EOSB:R"))
 
 
+	 
+	 mux.Handle("GET /api/departments/{departmentId}/employees", core.AuthMiddleware(http.HandlerFunc(controllers.GetDepartmentEmployeesApiByDepartmentId), "employees:R"))
+
+
 	
 
 	

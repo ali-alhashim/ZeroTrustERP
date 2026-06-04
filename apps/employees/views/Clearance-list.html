@@ -84,9 +84,16 @@
                     <td>{{.Employee.Name}}</td>
                     <td>{{.Template.Name}}</td>
                     <td>{{.Status}}</td>
-                    <td>{{.RequestedDate}}</td>
-                    <td>{{.CompletedDate}}</td>
-                    
+                    <td>{{.RequestedDate.Format "01/02/2006"}}</td>
+
+                    <td>
+                        {{if .CompletedDate}}
+                        {{.CompletedDate.Format "01/02/2006"}}
+                        {{else}}
+                         -
+                        {{end}}
+                    </td>
+
                 </tr>
                 {{end}}
                
