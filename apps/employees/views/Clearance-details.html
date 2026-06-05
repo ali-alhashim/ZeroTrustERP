@@ -24,6 +24,32 @@
             <input type="text" name="ClearanceTemplate" value="{{.Clearance.Template.Name}}" readonly/>
         </td>
         </tr>
+
+        <tr>
+            <td>Status</td>
+            <td>
+                <input type="text" name="Status" value="{{.Clearance.Status}}" readonly/>
+            </td>
+        </tr>
+        <tr>
+            <td>Requested Date</td>
+            <td>
+                <input type="text" name="RequestedDate" value='{{.Clearance.RequestedDate.Format "2006-01-02"}}' readonly/>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Completed Date</td>
+            <td>
+                <input type="text" name="CompletedDate" value='{{if .Clearance.CompletedDate}}{{.Clearance.CompletedDate.Format "2006-01-02"}}{{end}}' readonly/>
+            </td>
+        </tr>
+        <tr>
+            <td>Contract Id</td>
+            <td>
+                <input type="text" name="ContractId" value="{{.Clearance.Contract.ID}}" readonly/>
+            </td>
+        </tr>
 </table>
 
 <hr>

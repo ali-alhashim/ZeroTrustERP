@@ -1,22 +1,22 @@
- package controllers
+package controllers
 
 import (
+	"database/sql"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
-    "database/sql"
 	"image"
 	"image/jpeg"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
 	"zerotrusterp/apps/employees/models"
+	"zerotrusterp/apps/users/controllers"
 	"zerotrusterp/core"
-    "io"
-    "mime/multipart"
-    "encoding/csv"
-    
 )
 
 func ListEmployees(w http.ResponseWriter, r *http.Request) {
@@ -1154,12 +1154,15 @@ func GetEmployeeDetails(w http.ResponseWriter, r *http.Request) {
 
     //fmt.Print(depHistory)
 
+    RelatedUser := controllers.GetUserByEmployeeID(employee.ID)
+
     data := map[string]interface{}{
         "Title": "Employee Details",
         "Employee": employee,
         "depHistory":depHistory,
         "jobHistory":jobHistory,
         "serviceHistory":serviceHistory,
+        "RelatedUser": RelatedUser,
     }
 
     core.RenderPage(w, r, "apps/employees/views/employees-details.html", data)

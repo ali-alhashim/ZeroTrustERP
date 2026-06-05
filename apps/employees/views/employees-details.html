@@ -124,6 +124,19 @@
                     <td>Email</td>
                     <td><input type="email" name="email" value="{{.Employee.Email}}"></td>
                 </tr>
+
+                <tr>
+                    <td>Related User</td>
+                    <td>
+                        {{if .RelatedUser}}
+                            {{.RelatedUser.Email}}
+                        {{else}}
+                            No related user found
+                        {{end}}
+                    </td>
+                </tr>
+
+
                     <tr>
                         <td>Phone</td>
                         <td><input type="text" name="phone" value="{{.Employee.PhoneNumber}}"></td> 

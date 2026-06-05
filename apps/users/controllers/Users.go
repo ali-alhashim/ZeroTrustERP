@@ -355,3 +355,17 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusSeeOther)
 
 }
+
+
+func GetUserByEmployeeID(employeeID int) models.User {
+
+	fmt.Printf("Fetching user by employee ID: %d\n", employeeID)
+
+	var user models.User
+	query := "SELECT id, username, email, active, online, last_login FROM users WHERE related_employee_id = $1"
+	err := core.DB.QueryRow(query, employeeID).Scan(&user.ID, &user.Username, &user.Email, &user.Active, &user.Online, &user.LastLogin)
+	if err != nil {
+		fmt.Printf("Error fetching user by employee ID %d: %v\n", employeeID, err)
+	}
+	return user
+}	
