@@ -104,7 +104,7 @@ func GetEmployeeById(id string) models.Employee {
 
     query := `
         SELECT 
-            e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at, e.image,e.education, e.major, e.religion,e.goverment_id, e.email, e.nationality, e.gender, e.marital_status, e.phone_number, e.address,e.birth_date,
+            e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at, e.image,e.education, e.major, e.religion,e.goverment_id, e.email,e.personal_email, e.nationality, e.gender, e.marital_status, e.phone_number, e.address,e.birth_date,
             d.id, d.name, d.local_name, d.code, d.manager_id, d.created_at, d.updated_at, d.active,
             j.id, j.name, j.local_name, j.code, j.description, j.created_at, j.updated_at  
         FROM employees e
@@ -115,7 +115,7 @@ func GetEmployeeById(id string) models.Employee {
     err := core.DB.QueryRow(query, id).Scan(
         // 3. Scan e.department_id into empDeptID (NOT dID)
         &employee.ID, &employee.BadgeID, &employee.Name, &empDeptID, &employee.LocalName, 
-        &empJobID, &employee.CreatedAt, &employee.UpdatedAt, &employee.Image, &employee.Education, &employee.Major, &employee.Religion,&employee.GovermentID, &employee.Email, &employee.Nationality, &employee.Gender, &employee.MaritalStatus, &employee.PhoneNumber, &employee.Address, &employee.BirthDate,
+        &empJobID, &employee.CreatedAt, &employee.UpdatedAt, &employee.Image, &employee.Education, &employee.Major, &employee.Religion,&employee.GovermentID, &employee.Email, &employee.PersonalEmail, &employee.Nationality, &employee.Gender, &employee.MaritalStatus, &employee.PhoneNumber, &employee.Address, &employee.BirthDate,
         
         // 4. Scan d.id into dID (This overwrites nothing now)
         &dID, &dName, &dLocal, &dCode, &dManager, &dCreated, &dUpdated, &dActive,
