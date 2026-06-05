@@ -2053,85 +2053,91 @@ func UploadEmployeeImage(w http.ResponseWriter, r *http.Request) {
 
 
 
-func DownloadEmployeesCSV(w http.ResponseWriter, r *http.Request){
+func DownloadEmployeesCSV(w http.ResponseWriter, r *http.Request) {
 
-	totalRecords := core.GetCountRecords("employees")
-	 
-	employees := GetEmployeesFromDB("", "ID", "asc", "1", strconv.Itoa(totalRecords))
+    totalRecords := core.GetCountRecords("employees")
+     
+    employees := GetEmployeesFromDB("", "ID", "asc", "1", strconv.Itoa(totalRecords))
 
-	// 2. Set Headers for CSV Download
+    // 2. Set Headers for CSV Download
     w.Header().Set("Content-Type", "text/csv")
     w.Header().Set("Content-Disposition", "attachment;filename=employees_export.csv")
 
-	// THE QUICK FIX: Write the UTF-8 BOM
-	w.Write([]byte{0xEF, 0xBB, 0xBF})
+    // THE QUICK FIX: Write the UTF-8 BOM
+    w.Write([]byte{0xEF, 0xBB, 0xBF})
 
-	// 3. Initialize CSV Writer
+    // 3. Initialize CSV Writer
     writer := csv.NewWriter(w)
     defer writer.Flush()
 
-	header := []string{"id",
-                       "badge_id",
-                       "name", 
-                       "local_name", 
-                       "grade", 
-                       "birth_date", 
-                       "goverment_id", 
-                       "email", 
-                       "nationality", 
-                       "gender", 
-                       "marital_status", 
-                       "phone_number", 
-                       "address", 
-                       "education", 
-                       "major", 
-                       "religion",
-                       "personal_email",
-                       "job_title_id",
-                       "department_id", 
-                       }
-	if err := writer.Write(header); err != nil {
+    header := []string{
+        "id", "badge_id", "name", "local_name", "grade", "birth_date", 
+        "goverment_id", "email", "nationality", "gender", "marital_status", 
+        "phone_number", "address", "education", "major", "religion", 
+        "personal_email", "job_title_id", "department_id",
+    }
+    if err := writer.Write(header); err != nil {
         http.Error(w, "Failed to write header", http.StatusInternalServerError)
         return
     }
 
-	for _, emp := range employees {
-
-        var gender string
-        if emp.Gender != nil {
-            gender = *emp.Gender
-        } else {
-            emptyString := ""
-            gender = emptyString
+    // Helper function to safely get string values from pointers
+    safeStr := func(ptr *string) string {
+        if ptr == nil {
+            return ""
         }
-        
+        return *ptr
+    }
+
+   
+
+    for _, emp := range employees {
+        // Handle dates safely just in case they are nil or zero-valued
+        birthDateStr := ""
+        if !emp.BirthDate.IsZero() {
+            birthDateStr = emp.BirthDate.Format("2006-01-02") // Clean date format instead of .String()
+        }
+
+
+        // 1. Safely handle Job Title relation
+            jobTitleIDStr := ""
+            if emp.JobTitle != nil {
+                jobTitleIDStr = strconv.Itoa(emp.JobTitle.ID)
+            }
+
+            // 2. Safely handle Department relation
+            departmentIDStr := ""
+            if emp.Department != nil {
+                departmentIDStr = strconv.Itoa(emp.Department.ID)
+            }
+
         row := []string{
             strconv.Itoa(emp.ID),
             emp.BadgeID,
             emp.Name,
             emp.LocalName,
             emp.Grade,
-            emp.BirthDate.String(),
+            birthDateStr,
             emp.GovermentID,
-            *emp.Email,
-            *emp.Nationality,
-            gender,
-            *emp.MaritalStatus,
-            *emp.PhoneNumber,
-            *emp.Address,
-            *emp.Education,
-            *emp.Major,
-            *emp.Religion,
-            *emp.PersonalEmail,
-            strconv.Itoa(emp.JobTitle.ID),
-            strconv.Itoa(emp.Department.ID),
+            safeStr(emp.Email),
+            safeStr(emp.Nationality),
+            safeStr(emp.Gender), // Replaced your verbose if/else block with the helper
+            safeStr(emp.MaritalStatus),
+            safeStr(emp.PhoneNumber),
+            safeStr(emp.Address),
+            safeStr(emp.Education),
+            safeStr(emp.Major),
+            safeStr(emp.Religion),
+            safeStr(emp.PersonalEmail),
+            jobTitleIDStr,
+            departmentIDStr,
         }
+        
         if err := writer.Write(row); err != nil {
             http.Error(w, "Failed to write row", http.StatusInternalServerError)
             return
         }
     }
-
 }
 
 
@@ -2139,101 +2145,121 @@ func DownloadEmployeesCSV(w http.ResponseWriter, r *http.Request){
 
 
 func ImportCSVEmployees(w http.ResponseWriter, r *http.Request) {
-    // 1. Limit the size of the upload (e.g., 5MB) to prevent server abuse
-    r.ParseMultipartForm(5 << 20)
+	// 1. Limit the size of the upload (e.g., 5MB) to prevent server abuse
+	r.ParseMultipartForm(5 << 20)
 
-    // 2. Retrieve the file from form data
-    file, _, err := r.FormFile("csvFile")
-    if err != nil {
-        http.Error(w, "Error retrieving the file", http.StatusBadRequest)
-        return
-    }
-    defer file.Close()
+	// 2. Retrieve the file from form data
+	file, _, err := r.FormFile("csvFile")
+	if err != nil {
+		http.Error(w, "Error retrieving the file", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
 
-    // 3. Initialize the CSV Reader
-    reader := csv.NewReader(file)
-    
-    // Read the first line (the header) to skip it
-    _, err = reader.Read()
-    if err != nil {
-        http.Error(w, "The CSV file is empty or invalid", http.StatusBadRequest)
-        return
-    }
+	// 3. Initialize the CSV Reader
+	reader := csv.NewReader(file)
 
-    // 4. Iterate through the records
-    records, err := reader.ReadAll()
-    if err != nil {
-        http.Error(w, "Error reading CSV content", http.StatusInternalServerError)
-        return
-    }
+	// Read the first line (the header) to skip it
+	_, err = reader.Read()
+	if err != nil {
+		http.Error(w, "The CSV file is empty or invalid", http.StatusBadRequest)
+		return
+	}
 
-    for _, column := range records {
-        // Based on your download structure: 0:id, 1:name, 2:local_name, 3:code
-        // Note: If ID is provided, you might want to UPDATE. If empty, INSERT.
-        
-        id, _ := strconv.Atoi(column[0])
-        badge_id := column[1]
-        name := column[2]
-        local_name := column[3]
-        grade :=column[4]
-        birth_date:=column[5]
-        goverment_id:=column[6]
-        email :=column[7]
-        nationality:=column[8]
-        gender:=column[9]
-        marital_status:=column[10]
-        phone_number:=column[11]
-        address:=column[12]
-        education:=column[13]
-        major:=column[14]
-        religion:=column[15]
-        personal_email:=column[16]
+	// 4. Iterate through the records
+	records, err := reader.ReadAll()
+	if err != nil {
+		http.Error(w, "Error reading CSV content", http.StatusInternalServerError)
+		return
+	}
 
+	for _, column := range records {
+		// Based on your download structure: 0:id, 1:name, 2:local_name, 3:code
+		id, _ := strconv.Atoi(column[0])
+		badge_id := column[1]
+		name := column[2]
+		local_name := column[3]
+		grade := column[4]
+		birth_date := column[5]
+		goverment_id := column[6]
+		email := column[7]
+		nationality := column[8]
+		gender := column[9]
+		marital_status := column[10]
+		phone_number := column[11]
+		address := column[12]
+		education := column[13]
+		major := column[14]
+		religion := column[15]
+		personal_email := column[16]
+		job_title_id := column[17]
+		department_id := column[18]
 
-
-
-
-
-        // 5. Database Logic
-        if id > 0 {
-            // Logic to Update existing department
-            // core.UpdateDepartment(id, name, localName, code)
-
-		query := "UPDATE employees SET badge_id=$1, name=$2, local_name=$3, grade=$4, birth_date=$5, goverment_id=$6,email=$7, nationality=$8,gender=$9,marital_status=$10,phone_number=$11,address=$12,education=$13,major=$14,religion=$15,personal_email=$16  WHERE id=$17"
-
-		_, err := core.DB.Exec(query,badge_id,name,local_name,grade,birth_date,goverment_id,email,nationality,gender,marital_status,phone_number,address,education,major,religion,personal_email, id)
-		if err != nil {
-			fmt.Printf("Error updating employees: %v\n", err)
-			http.Error(w, "Error updating employees", http.StatusInternalServerError)
-			return
+		// Handle optional integer fields safely using any/interface{}
+		// Passing Go nil translates directly to database NULL
+		var jobTitleVal any
+		if job_title_id == "" {
+			jobTitleVal = nil
+		} else {
+			jobTitleVal = job_title_id
 		}
 
-		CurrentUser := core.GetCurrentUser(r)
-
-		core.InsertLog(CurrentUser, "Employees", fmt.Sprintf("Updated employee ID %s with badge_id: %s and name: %s",id, badge_id, name))
-
-
-
-
-        } else {
-            // Logic to Insert new employees
-          
-			query:= `insert into employees (badge_id,name,local_name,grade,birth_date,goverment_id,email,nationality,gender,marital_status,phone_number,address,education,major,religion,personal_email) values ($1, $2, $3, $4, $5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`
-        
-		 _,err := core.DB.Exec(query, badge_id,name,local_name,grade,birth_date,goverment_id,email,nationality,gender,marital_status,phone_number,address,education,major,religion,personal_email)
-
-		 if err != nil {
-			fmt.Println("Error inserting employee:", err)
-			//http.Error(w, "Error creating department", http.StatusInternalServerError)
-			//return
+		var deptVal any
+		if department_id == "" {
+			deptVal = nil
+		} else {
+			deptVal = department_id
 		}
 
-		CurrentUser := core.GetCurrentUser(r)
+		// 5. Database Logic
+		if id > 0 {
+			fmt.Printf("Updating employee with ID: %d\n", id)
 
-		core.InsertLog(CurrentUser, "Employees", fmt.Sprintf("Created employees badge_id %s with name: %s",badge_id, name))
-        }
-    }
+			query := `UPDATE employees SET 
+                        badge_id=$1, name=$2, local_name=$3, grade=$4, birth_date=$5, 
+                        goverment_id=$6, email=$7, nationality=$8, gender=$9, 
+                        marital_status=$10, phone_number=$11, address=$12, education=$13, 
+                        major=$14, religion=$15, personal_email=$16, job_title_id=$17, 
+                        department_id=$18 
+                      WHERE id=$19`
 
-    
-    http.Redirect(w, r, "/employees/list", http.StatusSeeOther)
+			_, err := core.DB.Exec(query, badge_id, name, local_name, grade, birth_date,
+				goverment_id, email, nationality, gender, marital_status, phone_number,
+				address, education, major, religion, personal_email, jobTitleVal, deptVal, id)
+
+			if err != nil {
+				fmt.Printf("Error updating employees: %v\n", err)
+				http.Error(w, "Error updating employees", http.StatusInternalServerError)
+				return
+			}
+
+			CurrentUser := core.GetCurrentUser(r)
+			
+			// Fixed: changed %s to %d for the integer id variable
+			core.InsertLog(CurrentUser, "Employees", fmt.Sprintf("Updated employee ID %d with badge_id: %s and name: %s", id, badge_id, name))
+
+		} else {
+			// Logic to Insert new employees
+			query := `INSERT INTO employees (
+                        badge_id, name, local_name, grade, birth_date, goverment_id, 
+                        email, nationality, gender, marital_status, phone_number, 
+                        address, education, major, religion, personal_email, 
+                        job_title_id, department_id
+                      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`
+
+			_, err := core.DB.Exec(query, badge_id, name, local_name, grade, birth_date,
+				goverment_id, email, nationality, gender, marital_status, phone_number,
+				address, education, major, religion, personal_email, jobTitleVal, deptVal)
+
+			if err != nil {
+				fmt.Println("Error inserting employee:", err)
+			}
+
+			CurrentUser := core.GetCurrentUser(r)
+
+			core.InsertLog(CurrentUser, "Employees", fmt.Sprintf("Created employees badge_id %s with name: %s", badge_id, name))
+		}
+	}
+
+	http.Redirect(w, r, "/employees/list", http.StatusSeeOther)
 }
