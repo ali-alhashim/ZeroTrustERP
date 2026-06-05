@@ -298,6 +298,7 @@ func GetEmployeeFamilyMembers(employeeId string) []models.FamilyMember {
     defer rows.Close()
 
     var EmployeeID int
+    var gender sql.NullString
 
     for rows.Next() {
         var fm models.FamilyMember
@@ -310,10 +311,17 @@ func GetEmployeeFamilyMembers(employeeId string) []models.FamilyMember {
             &fm.GovernmentId,
             &fm.BirthDate,
             &fm.FilePath,
-            &fm.Gender,
+            &gender,
         )
+
+        if gender.Valid {
+            fm.Gender = gender.String
+        } else {
+            fm.Gender = ""
+        }
+
         if err != nil {
-            fmt.Printf("Scan error: %v\n", err)
+            fmt.Printf("Scan error in family members for emp id %s: %v\n", employeeId, err)
             continue
         }
         familyMembers = append(familyMembers, fm)
@@ -339,10 +347,11 @@ func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Empl
 	if search != "" {
 		query += " AND (name ILIKE $" + strconv.Itoa(argIndex) +
                  " OR badge_id ILIKE $"+strconv.Itoa(argIndex) +
-			     " OR local_name ILIKE $" + strconv.Itoa(argIndex+1) + ")"
+                 " OR id::text ILIKE $" + strconv.Itoa(argIndex) +
+			     " OR local_name ILIKE $" + strconv.Itoa(argIndex) + ")"
 
-		args = append(args, "%"+search+"%", "%"+search+"%")
-		argIndex += 2
+		args = append(args, "%"+search+"%")
+		argIndex += 1
 	}
 
 	allowedSort := map[string]string{
@@ -394,7 +403,7 @@ func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Empl
 	for rows.Next() {
     var e models.Employee
     // 1. Use sql.NullString instead of plain string
-    var deptID, jobID sql.NullString 
+    var deptID, jobID, gender sql.NullString 
 
     // 2. Scan into these NullString variables
    err := rows.Scan(
@@ -414,15 +423,15 @@ func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Empl
     &e.Education,     // 14
     &e.Major,         // 15
     &e.Religion,      // 16
-    &e.Email,         // 17 (Fixed duplicate scan here)
+    &e.Email,         // 17 
     &e.Nationality,   // 18
-    &e.Gender,        // 19
+    &gender,        // 19
     &e.MaritalStatus, // 20
     &e.PhoneNumber,   // 21
     &e.Address,       // 22
 )
     if err != nil {
-        fmt.Printf("Scan Error: %v\n", err)
+        fmt.Printf("Scan Error: %v\n   in emp id %s", err, e.ID)
         continue
     }
 
@@ -439,6 +448,13 @@ func GetEmployeesFromDB(search, sort, order, page, pageSize string)[]models.Empl
         e.JobTitle = &job
     } else {
         e.JobTitle = nil // Explicitly null if DB was null
+    }
+
+    if gender.Valid && gender.String != "" {
+        e.Gender = &gender.String
+    } else {
+        genderString := "" // or you could use a pointer to a default value
+        e.Gender = &genderString // Explicitly null if DB was null
     }
 
     employees = append(employees, e)
@@ -2055,7 +2071,7 @@ func DownloadEmployeesCSV(w http.ResponseWriter, r *http.Request){
     defer writer.Flush()
 
 	header := []string{"id",
-                      "badge_id",
+                       "badge_id",
                        "name", 
                        "local_name", 
                        "grade", 
@@ -2080,6 +2096,15 @@ func DownloadEmployeesCSV(w http.ResponseWriter, r *http.Request){
     }
 
 	for _, emp := range employees {
+
+        var gender string
+        if emp.Gender != nil {
+            gender = *emp.Gender
+        } else {
+            emptyString := ""
+            gender = emptyString
+        }
+        
         row := []string{
             strconv.Itoa(emp.ID),
             emp.BadgeID,
@@ -2090,7 +2115,7 @@ func DownloadEmployeesCSV(w http.ResponseWriter, r *http.Request){
             emp.GovermentID,
             *emp.Email,
             *emp.Nationality,
-            *emp.Gender,
+            gender,
             *emp.MaritalStatus,
             *emp.PhoneNumber,
             *emp.Address,
