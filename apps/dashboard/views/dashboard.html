@@ -3,4 +3,61 @@
 <h1>Dashboard</h1>
 
 
+<div class="row">
+
+    <div class="card"> <!-- Start of card -->
+        <h3>User Information</h3>
+        <table>
+            <tr>
+                <td><strong>Name:</strong></td>
+                <td>{{.User.Username}}</td>
+            </tr>
+            <tr>
+                <td><strong>Email:</strong></td>
+                <td>{{.User.Email}}</td>
+            </tr>
+            <tr>
+                <td><strong>Roles:</strong></td>
+                <td>
+                    <ul>
+                        {{range .User.Roles}}
+                            <li>{{.Name}}</li>
+                        {{end}}
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Related Employee Id:</strong></td>
+                <td>
+                    {{if .User.RelatedEmployee}}
+                        {{.User.RelatedEmployee.ID}}
+                    {{else}}
+                        No related employee
+                    {{end}}
+                     
+                </td>
+            </tr>
+        </table>
+    </div> <!-- End of card -->
+
+
+      <div class="card m-x-2"> <!-- Start of card -->
+        <h3>Employee Information</h3>
+        <table>
+            <tr>
+                <td><strong>Name:</strong></td>
+                <td>{{.Employee.Name}}</td>
+            </tr>
+            
+        </table>
+    </div> <!-- End of card -->
+
+
+    
+
+    
+
+</div> <!-- End of row -->
+
+
 {{end}}

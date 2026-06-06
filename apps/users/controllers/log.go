@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"net/http"
-	"zerotrusterp/apps/users/models"
+	"zerotrusterp/apps/users/usersModels"
 	"zerotrusterp/core"
 	"strconv"
 	"fmt"
@@ -11,7 +11,7 @@ import (
 
 
 
-func InsertLog(user *models.User, resource string, action string) {
+func InsertLog(user *usersModels.User, resource string, action string) {
 
 	// TODO: implement log insertion to database, create a new log record with user id, resource, action and timestamp
 	query := "INSERT INTO logs (user_id, username, email, resource, action) VALUES ($1, $2, $3, $4, $5)"
@@ -60,7 +60,7 @@ func ListLogs(w http.ResponseWriter, r *http.Request) {
 
 
 
-func GetLogsFromDB(search, sort, order, page, pageSize string) []models.Log {
+func GetLogsFromDB(search, sort, order, page, pageSize string) []usersModels.Log {
 
 	query := "SELECT id, user_id, username, email,  resource, action, timestamp FROM logs WHERE 1=1"
 	args := []interface{}{}
@@ -131,11 +131,11 @@ func GetLogsFromDB(search, sort, order, page, pageSize string) []models.Log {
 
 
 
-	var logs []models.Log
+	var logs []usersModels.Log
 
 
 	for rows.Next() {
-		var l models.Log
+		var l usersModels.Log
 		err := rows.Scan(&l.ID, &l.UserID, &l.Username, &l.Email, &l.Resource, &l.Action, &l.Timestamp)
 		if err != nil {
 			panic(err)

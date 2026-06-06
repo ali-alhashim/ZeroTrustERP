@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"zerotrusterp/apps/users/models"
+	"zerotrusterp/apps/users/usersModels"
 	"zerotrusterp/apps/employees/empapi"
 	"zerotrusterp/core"
 )
@@ -38,7 +38,7 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 	core.RenderPage(w,r, "apps/users/views/users-list.html", data)
 }
 
-func GetUsersFromDB(search, sort, order, page, pageSize string) []models.User {
+func GetUsersFromDB(search, sort, order, page, pageSize string) []usersModels.User {
 
 	query := "SELECT id, username, email, active, online, last_login, related_employee_id FROM users WHERE 1=1"
 	args := []interface{}{}
@@ -97,13 +97,13 @@ func GetUsersFromDB(search, sort, order, page, pageSize string) []models.User {
 	}
 	defer rows.Close()
 
-	var users []models.User
+	var users []usersModels.User
 	
 
 
 
 	for rows.Next() {
-		var u models.User
+		var u usersModels.User
 		var relatedEmployeeID *int
 		err := rows.Scan(&u.ID, &u.Username, &u.Email, &u.Active, &u.Online, &u.LastLogin, &relatedEmployeeID)
 		if err != nil {
@@ -300,7 +300,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	query := "select id, email, username, active, related_employee_id from users where id = $1"
 
-	var user1 models.User
+	var user1 usersModels.User
 
 	err := core.DB.QueryRow(query, userID).Scan(&user1.ID, &user1.Email, &user1.Username, &user1.Active, &user1.RelatedEmployee)
 	if err != nil {
@@ -357,11 +357,11 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func GetUserByEmployeeID(employeeID int) models.User {
+func GetUserByEmployeeID(employeeID int) usersModels.User {
 
 	fmt.Printf("Fetching user by employee ID: %d\n", employeeID)
 
-	var user models.User
+	var user usersModels.User
 	query := "SELECT id, username, email, active, online, last_login FROM users WHERE related_employee_id = $1"
 	err := core.DB.QueryRow(query, employeeID).Scan(&user.ID, &user.Username, &user.Email, &user.Active, &user.Online, &user.LastLogin)
 	if err != nil {

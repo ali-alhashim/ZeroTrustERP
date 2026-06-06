@@ -2,11 +2,13 @@ package core
 
 import (
 	"fmt"
-    "zerotrusterp/apps/users/models"
-    "strings"
-    "log"
-    "net"
-    "net/http"
+	"log"
+	"net"
+	"net/http"
+	"strings"
+	"zerotrusterp/apps/employees/models"
+	"zerotrusterp/apps/users/usersModels"
+    "database/sql"
 )
 
 
@@ -29,7 +31,7 @@ func GetCountRecords(tableName string) int{
 
 
 
-func GetUserByID(id string) models.User {
+func GetUserByID(id string) usersModels.User {
     // 1. Join all 5 tables to get the full hierarchy
     query := `
         SELECT 
@@ -46,13 +48,13 @@ func GetUserByID(id string) models.User {
     rows, err := DB.Query(query, id)
     if err != nil {
         fmt.Printf("Database error: %v\n", err)
-        return models.User{}
+        return usersModels.User{}
     }
     defer rows.Close()
 
-    var user models.User
+    var user usersModels.User
     // Use maps to track unique Roles and Permissions as we iterate rows
-    roleMap := make(map[int]*models.Role)
+    roleMap := make(map[int]*usersModels.Role)
     // Map to keep track of which permissions belong to which role
     permMap := make(map[int]map[int]bool) 
 
@@ -74,18 +76,18 @@ func GetUserByID(id string) models.User {
         )
         if err != nil {
             fmt.Printf("Scan error: %v\n", err)
-            return models.User{}
+            return usersModels.User{}
         }
 
         // Handle Roles
         if rID != nil {
             role, exists := roleMap[*rID]
             if !exists {
-                role = &models.Role{
+                role = &usersModels.Role{
                     ID:          *rID,
                     Name:        *rName,
                     Description: *rDesc,
-                    Permissions: &[]models.Permission{}, // Initialize the pointer to a slice
+                    Permissions: &[]usersModels.Permission{}, // Initialize the pointer to a slice
                 }
                 roleMap[*rID] = role
                 permMap[*rID] = make(map[int]bool)
@@ -93,7 +95,7 @@ func GetUserByID(id string) models.User {
 
             // Handle Permissions inside the Role
             if pID != nil && !permMap[*rID][*pID] {
-                *role.Permissions = append(*role.Permissions, models.Permission{
+                *role.Permissions = append(*role.Permissions, usersModels.Permission{
                     ID:       *pID,
                     Resource: *pResource,
                     Action:   *pAction,
@@ -104,7 +106,7 @@ func GetUserByID(id string) models.User {
     }
 
     // Convert the map of roles into the user's *[]Role slice
-    rolesSlice := []models.Role{}
+    rolesSlice := []usersModels.Role{}
     for _, role := range roleMap {
         rolesSlice = append(rolesSlice, *role)
     }
@@ -142,7 +144,7 @@ func deleteUserByEmail(email string) {
 }
 
 
-func InsertLog(user *models.User, resource string, action string) {
+func InsertLog(user *usersModels.User, resource string, action string) {
 
 	fmt.Printf("\n Insert Log %d  by %s  for %s with action: %s\n", user.ID, user.Username, resource, action)
 
@@ -156,7 +158,7 @@ func InsertLog(user *models.User, resource string, action string) {
 }
 
 
-func GetUserByEmail(email string) *models.User {
+func GetUserByEmail(email string) *usersModels.User {
     
 	fmt.Printf("Getting user by email: %s\n", email)
 
@@ -166,7 +168,7 @@ func GetUserByEmail(email string) *models.User {
 
 	 query := `
         SELECT 
-            u.id, u.username, u.email, u.active, u.online, u.last_login, u.created_at, u.updated_at,
+            u.id, u.username, u.email, u.active, u.online, u.last_login, u.created_at, u.updated_at, u.related_employee_id,
             r.id, r.name, r.description,
             p.id, p.resource, p.action
         FROM users u
@@ -179,15 +181,17 @@ func GetUserByEmail(email string) *models.User {
 	 rows, err := DB.Query(query, email)
     if err != nil {
         fmt.Printf("Database error: %v\n", err)
-        return &models.User{}
+        return &usersModels.User{}
     }
     defer rows.Close()
 
-    var user models.User
+    var user usersModels.User
     // Use maps to track unique Roles and Permissions as we iterate rows
-    roleMap := make(map[int]*models.Role)
+    roleMap := make(map[int]*usersModels.Role)
     // Map to keep track of which permissions belong to which role
     permMap := make(map[int]map[int]bool) 
+
+    var employeeId sql.NullInt64
 
     for rows.Next() {
         var (
@@ -198,27 +202,28 @@ func GetUserByEmail(email string) *models.User {
             pID *int
             pResource *string
             pAction *string
+           
         )
 
         err := rows.Scan(
-            &user.ID, &user.Username, &user.Email, &user.Active, &user.Online, &user.LastLogin, &user.CreatedAt, &user.UpdatedAt,
+            &user.ID, &user.Username, &user.Email, &user.Active, &user.Online, &user.LastLogin, &user.CreatedAt, &user.UpdatedAt, &employeeId,
             &rID, &rName, &rDesc,
             &pID, &pResource, &pAction,
         )
         if err != nil {
             fmt.Printf("Scan error: %v\n", err)
-            return &models.User{}
+            return &usersModels.User{}
         }
 
         // Handle Roles
         if rID != nil {
             role, exists := roleMap[*rID]
             if !exists {
-                role = &models.Role{
+                role = &usersModels.Role{
                     ID:          *rID,
                     Name:        *rName,
                     Description: *rDesc,
-                    Permissions: &[]models.Permission{}, // Initialize the pointer to a slice
+                    Permissions: &[]usersModels.Permission{}, // Initialize the pointer to a slice
                 }
                 roleMap[*rID] = role
                 permMap[*rID] = make(map[int]bool)
@@ -226,7 +231,7 @@ func GetUserByEmail(email string) *models.User {
 
             // Handle Permissions inside the Role
             if pID != nil && !permMap[*rID][*pID] {
-                *role.Permissions = append(*role.Permissions, models.Permission{
+                *role.Permissions = append(*role.Permissions, usersModels.Permission{
                     ID:       *pID,
                     Resource: *pResource,
                     Action:   *pAction,
@@ -237,12 +242,21 @@ func GetUserByEmail(email string) *models.User {
     }
 
     // Convert the map of roles into the user's *[]Role slice
-    rolesSlice := []models.Role{}
+    rolesSlice := []usersModels.Role{}
     for _, role := range roleMap {
         rolesSlice = append(rolesSlice, *role)
     }
     user.Roles = &rolesSlice
 
+    var Employee models.Employee
+
+    if employeeId.Valid {
+        fmt.Printf("Getting employee by ID: %d\n", employeeId.Int64)
+        Employee.ID = int(employeeId.Int64)
+    }
+
+    user.RelatedEmployee = &Employee
+   
     return &user
 }
 

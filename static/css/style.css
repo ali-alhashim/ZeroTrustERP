@@ -276,6 +276,17 @@ select:focus {
     margin-bottom: 16px;
 }
 
+.m-x-2{
+    margin: 0 5px;
+}
+
+.card{
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 20px;
+}
+
 .form-group label {
     font-size: 12px;
     margin-bottom: 4px;

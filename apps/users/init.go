@@ -2,7 +2,7 @@ package users
 
 import (
     "zerotrusterp/core"
-	"zerotrusterp/apps/users/models"
+	"zerotrusterp/apps/users/usersModels"
 )
 	
 
@@ -12,8 +12,8 @@ func init() {
     core.Register(UserRoutes)
 
     // Register models for migrations
-    core.RegisterModel(models.User{})
-    core.RegisterModel(models.Role{})
-    core.RegisterModel(models.Permission{})
-    core.RegisterModel(models.Log{})
+    core.RegisterModel(usersModels.User{})
+    core.RegisterModel(usersModels.Role{})
+    core.RegisterModel(usersModels.Permission{})
+    core.RegisterModel(usersModels.Log{})
 }

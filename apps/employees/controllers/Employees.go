@@ -16,6 +16,7 @@ import (
 	"time"
 	"zerotrusterp/apps/employees/models"
 	"zerotrusterp/apps/users/controllers"
+    "zerotrusterp/apps/users/usersModels"
 	"zerotrusterp/core"
 )
 
@@ -2265,4 +2266,116 @@ func ImportCSVEmployees(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/employees/list", http.StatusSeeOther)
+}
+
+
+
+func GetEmployeeByRelatedUser(user *usersModels.User) models.Employee {
+
+    fmt.Printf("............GetEmployeeByRelatedUser called with User ID: %d\n", user.ID)
+
+    fmt.Printf("employee Id is ......... %s", user.RelatedEmployee.ID)
+      
+    id := strconv.Itoa(user.RelatedEmployee.ID)
+
+    
+    fmt.Printf("............Fetching employee with ID: %s\n", id)
+
+    var employee models.Employee
+
+    // 1. Create separate variables for the Employee's FK columns
+    var empDeptID sql.NullInt64
+    var empJobID sql.NullInt64
+
+    // 2. Keep existing variables for the JOINed table data
+    var dID, dManager sql.NullInt64
+    var dName, dLocal, dCode sql.NullString
+    var dActive sql.NullBool
+    var dCreated, dUpdated sql.NullTime
+
+    var jID sql.NullInt64
+    var jName, jLocal, jCode, jDesc sql.NullString
+    var jCreated, jUpdated sql.NullTime
+
+    query := `
+        SELECT 
+            e.id, e.badge_id, e.name, e.department_id, e.local_name, e.job_title_id, e.created_at, e.updated_at, e.image,e.education, e.major, e.religion,e.goverment_id, e.email,e.personal_email, e.nationality, e.gender, e.marital_status, e.phone_number, e.address,e.birth_date,
+            d.id, d.name, d.local_name, d.code, d.manager_id, d.created_at, d.updated_at, d.active,
+            j.id, j.name, j.local_name, j.code, j.description, j.created_at, j.updated_at  
+        FROM employees e
+        LEFT JOIN departments d ON e.department_id = d.id
+        LEFT JOIN job_titles j  ON e.job_title_id = j.id
+        WHERE e.id = $1`
+
+    err := core.DB.QueryRow(query, id).Scan(
+        // 3. Scan e.department_id into empDeptID (NOT dID)
+        &employee.ID, &employee.BadgeID, &employee.Name, &empDeptID, &employee.LocalName, 
+        &empJobID, &employee.CreatedAt, &employee.UpdatedAt, &employee.Image, &employee.Education, &employee.Major, &employee.Religion,&employee.GovermentID, &employee.Email, &employee.PersonalEmail, &employee.Nationality, &employee.Gender, &employee.MaritalStatus, &employee.PhoneNumber, &employee.Address, &employee.BirthDate,
+        
+        // 4. Scan d.id into dID (This overwrites nothing now)
+        &dID, &dName, &dLocal, &dCode, &dManager, &dCreated, &dUpdated, &dActive,
+        
+        // 5. Scan j.id into jID
+        &jID, &jName, &jLocal, &jCode, &jDesc, &jCreated, &jUpdated,
+    )
+
+    if err != nil {
+        if err == sql.ErrNoRows {
+            fmt.Printf("❌ No employee found in database with ID: %s\n", id)
+        } else {
+            fmt.Printf("❌ Database error during Scan: %v\n", err)
+        }
+        return models.Employee{}
+    }
+
+    // Map Department if JOIN found a record (dID comes from d.id)
+    if dID.Valid {
+        dept := models.Department{
+            ID:        int(dID.Int64),
+            Name:      dName.String,
+            LocalName: dLocal.String,
+            Code:      dCode.String,
+            Active:    dActive.Bool,
+            CreatedAt: dCreated.Time,
+            UpdatedAt: dUpdated.Time,
+        }
+        if dManager.Valid {
+            dept.Manager = &models.Employee{
+                ID: int(dManager.Int64), 
+            }
+        }
+        employee.Department = &dept
+    } else {
+        // Optional: Handle case where employee has a Dept ID (empDeptID) 
+        // but the Dept doesn't exist in the DB (dID is invalid).
+        // Currently this leaves employee.Department as nil.
+        if empDeptID.Valid {
+            fmt.Printf("⚠️ Employee has Dept ID %d but it wasn't found in JOIN.\n", empDeptID.Int64)
+            // You could assign a placeholder here if needed to preserve the ID
+        }
+    }
+
+    // Map JobTitle if JOIN found a record
+    if jID.Valid {
+        employee.JobTitle = &models.JobTitle{
+            ID:   int(jID.Int64),
+            Name: &jName.String,
+        }
+    }
+
+    var familyMembers []models.FamilyMember
+    var certifications []models.Certification
+    var emergencyContacts []models.EmergencyContact
+    var employeeDocuments []models.EmployeeDocument
+    
+    familyMembers = GetEmployeeFamilyMembers(id)
+    certifications = GetEmployeeCertifications(id)
+    emergencyContacts = GetEmployeeEmergencyContacts(id)
+    employeeDocuments = GetEmployeeDocuments(id)
+
+    employee.FamilyMembers = familyMembers
+    employee.Certifications = certifications
+    employee.EmergencyContacts = emergencyContacts
+    employee.EmployeeDocuments = employeeDocuments
+    return employee
 }

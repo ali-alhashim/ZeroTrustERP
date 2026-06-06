@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"zerotrusterp/core"
-	"zerotrusterp/apps/users/models"
+	"zerotrusterp/apps/users/usersModels"
 	"strconv"
 	"encoding/json"
 )
@@ -40,7 +40,7 @@ func ListRoles(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetRolesFromDB(search, sort, order, page, pageSize string) []models.Role {
+func GetRolesFromDB(search, sort, order, page, pageSize string) []usersModels.Role {
     // 1. Build the base query parts
     selectBase := `
         SELECT 
@@ -103,12 +103,12 @@ func GetRolesFromDB(search, sort, order, page, pageSize string) []models.Role {
     }
     defer rows.Close()
 
-    var roles []models.Role
+    var roles []usersModels.Role
     for rows.Next() {
-        var r models.Role
+        var r usersModels.Role
         var permissionsJSON []byte // Scan JSON into bytes first
 
-        // Ensure models.Role.Permissions is a slice of Permission structs
+        // Ensure usersModels.Role.Permissions is a slice of Permission structs
         err := rows.Scan(&r.ID, &r.Name, &r.Description, &r.CreatedAt, &r.UpdatedAt, &permissionsJSON)
         if err != nil {
             fmt.Println("Scan Error:", err)
@@ -242,10 +242,10 @@ func RoleDeatils(w http.ResponseWriter, r *http.Request){
 }
 
 
-func GetRoleByID(roleID string) models.Role{
+func GetRoleByID(roleID string) usersModels.Role{
     
-    var role models.Role
-    var permissions []models.Permission
+    var role usersModels.Role
+    var permissions []usersModels.Permission
      
     fmt.Print("\n Get Role By ID ", roleID)
 
@@ -271,7 +271,7 @@ func GetRoleByID(roleID string) models.Role{
     defer rows.Close()
 
     for rows.Next() {
-        var p models.Permission
+        var p usersModels.Permission
         // We use pointers/null types if permissions might be empty (LEFT JOIN)
         var pID *int 
         var pResource, pAction, pDesc *string

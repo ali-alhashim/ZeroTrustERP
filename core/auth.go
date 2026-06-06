@@ -20,7 +20,7 @@ import (
 	"net/http"
 	
 
-	"zerotrusterp/apps/users/models"
+	"zerotrusterp/apps/users/usersModels"
 )
 
 // generateSecureToken by using the Email + sessionSecret key from .env and hashing it with sha256, this will be used for session management and should be stored in a secure cookie
@@ -391,8 +391,8 @@ func AuthMiddleware(next http.Handler, resource...string) http.Handler {
 }
 
 
-func GetCurrentUser(r *http.Request) *models.User {
-    user, _ := r.Context().Value(UserKey).(*models.User)
+func GetCurrentUser(r *http.Request) *usersModels.User {
+    user, _ := r.Context().Value(UserKey).(*usersModels.User)
     return user
 }
 
@@ -440,7 +440,7 @@ func GetAllResources() []string{
 }
 
 
-func isAuthorized(theUser *models.User, resource string, action string) bool {
+func isAuthorized(theUser *usersModels.User, resource string, action string) bool {
     // This query checks two things:
     // 1. Is the user an 'admin'?
     // 2. Does the user have a role linked to the specific resource and action?
