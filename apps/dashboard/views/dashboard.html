@@ -48,9 +48,58 @@
                 <td><strong>Name:</strong></td>
                 <td>{{.Employee.Name}}</td>
             </tr>
+            <tr>
+                <td><strong>Local Name:</strong></td>
+                <td>{{.Employee.LocalName}}</td>
+            </tr>
+            <tr>
+                <td><strong>Gove. Id:</strong></td>
+                <td>{{.Employee.GovermentID}}</td>
+            </tr>
+            <tr>
+                <td><strong>Email:</strong></td>
+                <td>{{.Employee.Email}}</td>
+            </tr>
+            <tr>
+                <td><strong>Badge Id:</strong></td>
+                <td>{{.Employee.BadgeID}}</td>
+            </tr>
+            <tr>
+                <td><strong>Department:</strong></td>
+                <td>
+                    {{if .Employee.Department}}
+                        {{.Employee.Department.Name}}
+                    {{else}}
+                        No department available
+                    {{end}}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Job Title:</strong></td>
+                <td>
+                    {{if .Employee.JobTitle}}
+                        {{.Employee.JobTitle.Name}}
+                    {{else}}
+                        No job title available
+                    {{end}}
+                </td>
+            </tr>
             
         </table>
     </div> <!-- End of card -->
+
+
+     <div class="card">
+        <h3>Employee Image</h3>
+        <img src="/employees/{{.Employee.Image}}" alt="Employee Image" style="width:150px;height:auto;"> 
+        <br><br>
+        <form method="POST" action="/employees/self-services/upload-image" enctype="multipart/form-data">
+            <input type="file" name="image" accept="image/*" required>
+            <br>
+            <button type="submit">Upload New Image</button>
+        </form>
+
+     </div>
 
 
     
