@@ -43,6 +43,7 @@ body {
     border-right: 1px solid #e5e7eb;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 
 .sidebar h2 {
@@ -403,6 +404,7 @@ tr:hover {
     gap: 8px;
     padding: 16px;
     font-weight: 600;
+   
 }
 
 
