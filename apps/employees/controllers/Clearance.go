@@ -479,6 +479,10 @@ func SendClearanceForApproval(clearanceId string, ResponsibleEmployee []string) 
 	for i, item := range Items {
 		responsibleEmployeeId := ResponsibleEmployee[i]
 		_, err := core.DB.Exec(`UPDATE clearance_document_items SET responsible_employee_id = $1 WHERE document_id = $2 AND id = $3`, responsibleEmployeeId, clearanceId, item.ID)
+
+		//Get the Employee by responsibleEmployeeId and get the related user and send email to the user
+
+
 		if err != nil {
 			fmt.Print(err)
 		}
@@ -489,6 +493,8 @@ func SendClearanceForApproval(clearanceId string, ResponsibleEmployee []string) 
 	if err != nil {
 		fmt.Print(err)
 	}
+
+	
 
 }
 
