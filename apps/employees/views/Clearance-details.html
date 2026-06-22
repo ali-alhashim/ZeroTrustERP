@@ -53,7 +53,7 @@
 </table>
 
 <hr>
-
+<!-- if the status is draft -->
 <table>
         <header>
             <tr>
@@ -73,7 +73,7 @@
                
 
                 <td>
-                    <select class="dept-employee-select" data-dept-id="{{.Department.ID}}" name="ResponsibleEmployee[{{.ID}}]">
+                    <select class="dept-employee-select" data-dept-id="{{.Department.ID}}" name="ResponsibleEmployee">
                         <option value="">-- Select Employee --</option>
                     </select>
                </td>
@@ -85,7 +85,15 @@
 </table>
 
 <hr>
+<input type="hidden" name="theAction" value="send_for_approvals"/>
+
 <button type="submit" class="btn btn-primary">Send For Approvals</button>
+
+<!-- end if status is draft -->
+
+
+<!-- if the status is Waiting Approvals  waiting_for_approvals  -->
+
 
   </form>
 

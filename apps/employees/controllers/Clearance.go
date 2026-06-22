@@ -443,8 +443,56 @@ func GetClearanceDetails(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 
+		//user sent post request we need to check what action they want 
+		// if theAction = send_for_approvals
+		theAction := r.PostFormValue("action")
+
+		if theAction == "send_for_approvals" {
+
+			ResponsibleEmployee:= r.PostForm["ResponsibleEmployee"]
+
+			SendClearanceForApproval(id, ResponsibleEmployee)
+		}
+
 	}	
 }
+
+
+
+func SendClearanceForApproval(clearanceId string, ResponsibleEmployee []string) {
+	//we get the clearance document by contract id
+	// we will update the status of the clearance document to "Pending Approval"
+	// we update the responsible employee for each clearance item in the clearance document
+	// we will send an email to the responsible employee for each clearance item in the clearance document
+	// we create task for each responsible employee for each clearance item in the clearance document
+    
+	clearanceDocument := GetClearanceDocumentById(clearanceId)
+
+	Items:= GetClearanceItemsByDocumentId(clearanceId)
+
+	fmt.Printf("Sending clearance document %s for approval\n", clearanceId)
+	fmt.Printf("Responsible Employees: %v\n", ResponsibleEmployee)	
+	fmt.Printf("Clearance Items document_id: %v\n", Items)
+	fmt.Printf("Clearance Document Id: %v\n", clearanceDocument.ID)
+
+	//update clearance_document_items set responsible_employee_id = $1 where document_id = $2 and id = $3
+	for i, item := range Items {
+		responsibleEmployeeId := ResponsibleEmployee[i]
+		_, err := core.DB.Exec(`UPDATE clearance_document_items SET responsible_employee_id = $1 WHERE document_id = $2 AND id = $3`, responsibleEmployeeId, clearanceId, item.ID)
+		if err != nil {
+			fmt.Print(err)
+		}
+	}
+
+	//update clearance_documents set status = 'Pending Approval' where id = $1
+	_, err := core.DB.Exec(`UPDATE clearance_documents SET status = 'Pending Approval' WHERE id = $1`, clearanceId)
+	if err != nil {
+		fmt.Print(err)
+	}
+
+}
+
+
 
 func GetClearanceDocumentById(id string) models.ClearanceDocument {
 	var cd models.ClearanceDocument

@@ -52,11 +52,12 @@ func GetContractsFromDB(search, sort, order, page, pageSize string) []models.Con
 	argIndex := 1
 
 	if search != "" {
-		query += " AND (employee_id ILIKE $" + strconv.Itoa(argIndex) +
-			     " OR name ILIKE $" + strconv.Itoa(argIndex+1) + ")"
+		query += " AND (employee_id::text ILIKE $" + strconv.Itoa(argIndex) +
+		         " OR id::text ILIKE $" + strconv.Itoa(argIndex) +
+                 " OR name ILIKE $" + strconv.Itoa(argIndex) + ")"
 
-		args = append(args, "%"+search+"%", "%"+search+"%")
-		argIndex += 2
+		args = append(args, "%"+search+"%")
+		argIndex += 1
 	}
 
 
@@ -64,9 +65,7 @@ func GetContractsFromDB(search, sort, order, page, pageSize string) []models.Con
 	allowedSort := map[string]string{
 		"ID":        "id",
 		"employee_id":     "employee_id",
-		"Name":    "name",
-		"LocalName":  "local_name",
-		"Manager":  "manager_id",
+		"Name":    "name",		
 		"Active":    "active",
 		"status":    "status",
 		"start_date": "start_date",
