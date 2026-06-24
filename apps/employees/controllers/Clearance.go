@@ -445,16 +445,20 @@ func GetClearanceDetails(w http.ResponseWriter, r *http.Request) {
 
 		//user sent post request we need to check what action they want 
 		// if theAction = send_for_approvals
-		theAction := r.PostFormValue("action")
+		theAction := r.PostFormValue("theAction")
+
+		fmt.Printf("Received action: %s for clearance document %s\n", theAction, id)
 
 		if theAction == "send_for_approvals" {
+
+			fmt.Printf("Sending clearance document %s for approval\n", id)
 
 			ResponsibleEmployee:= r.PostForm["ResponsibleEmployee"]
 
 			SendClearanceForApproval(id, ResponsibleEmployee)
 		}
 
-	}	
+	} //end of post request	
 }
 
 

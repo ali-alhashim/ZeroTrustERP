@@ -106,6 +106,37 @@
   // 2. Main initialization on page load
   document.addEventListener('DOMContentLoaded', function() {
     fetchRoles();
+
+
+
+    let emailInput = document.getElementById('Email');
+    let usernameInput = document.getElementById('Username');
+    let RelatedEmployeeSelect = document.getElementById('RelatedEmployee');
+
+
+  
+    const urlParams = new URLSearchParams(window.location.search);
+    const employeeId = urlParams.get('employeeId');
+    const employeeName = urlParams.get('employeeName');
+    const employeeEmail = urlParams.get('employeeEmail');
+
+    if (employeeId && employeeName && employeeEmail) {
+        // Set the email and username fields
+        emailInput.value = employeeEmail;
+        usernameInput.value = employeeName;
+
+        // Create a new option for the RelatedEmployee select
+        const option = document.createElement('option');
+        option.value = employeeId;
+        option.textContent = `(${employeeId}) ${employeeName} - ${employeeEmail}`;
+        RelatedEmployeeSelect.appendChild(option);
+
+        // Set the selected value to the provided employeeId
+        RelatedEmployeeSelect.value = employeeId;
+    }
+
+
+
   });
 
   function fetchRoles() {

@@ -133,10 +133,13 @@
                 <tr>
                     <td>Related User</td>
                     <td>
-                        {{if .RelatedUser}}
+                        {{if and .RelatedUser .RelatedUser.Email}}
                             {{.RelatedUser.Email}}
                         {{else}}
                             No related user found
+                           
+                                <button type="button" onclick="CreateRelatedUser()">Create Related User</button>
+                           
                         {{end}}
                     </td>
                 </tr>
@@ -541,6 +544,20 @@
             </tbody>
         </table>
 
+
+
+         <form method="GET" action="/users/create" id="createRelatedUserForm">
+                                <input type="hidden" name="employeeId" value="{{.Employee.ID}}">
+                                <input type="hidden" name="employeeName" value="{{.Employee.Name}}">
+                                <input type="hidden" name="employeeEmail" value="{{.Employee.Email}}">
+         </form>
+
+
+         <script>
+            function CreateRelatedUser() {
+                document.getElementById('createRelatedUserForm').submit();
+            }
+        </script>
 
 
 
